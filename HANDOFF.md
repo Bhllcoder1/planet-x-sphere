@@ -1,84 +1,44 @@
-# Planet XSphere — oturum devri
+﻿# Planet XSphere — oturum devri
 
-Son güncelleme: 2026-11-15, aktif geliştirme oturumu. Bu dosya Claude Code/Codex için kısa devir notudur; çalışma sonunda yenilenir. Ana hafıza: [Second Brain](docs/second-brain/README.md).
+Son güncelleme: 2026-11-15. Ana proje hafızası: [Second Brain](docs/second-brain/README.md). Bu devir notundaki yerel uygulama/test durumunu ClickUp kabulü veya görev kapanışıyla karıştırma.
 
-## Kullanıcının istediği çalışma biçimi
+## Çalışma biçimi
 
-- Yalnız **Behlül Anik'e atanan 46 görev** üzerinde çalış. Tüm ekip işlerini üstlenme.
-- Paralel ajanlarla bağımsız dosyalarda ilerle; sonuçları gözden geçir.
-- Gerçek kullanıcı kararı/hesap erişimi/elle işlem gereken adımda dur, kullanıcıya sor, yanıt gelmeden bağımlı işi yapma. Bağımsız işler devam edebilir.
-- İnsan işlerini [HUMAN_ACTIONS.md](docs/second-brain/HUMAN_ACTIONS.md) içine somut talimat ve beklenen çıktıyla yaz. CVAT/etiketlemeyi ihtiyaç ortaya çıkmadan kurma.
-- Bu HANDOFF.md'yi her önemli iş grubundan sonra ve oturum sonunda güncelle.
+- Yalnız Behlül Anik'e atanan görevler; `main` dalına doğrudan yazma.
+- İnsan kararı/erişimi/elle inceleme gerekiyorsa bağlı adımı durdur, [HUMAN_ACTIONS.md](docs/second-brain/HUMAN_ACTIONS.md)'ye beklenen yanıtı yaz; bağımsız işleri sürdürebilirsin.
+- FITS, büyük veri, API tokenı ve sırları depoya/sohbete koyma. Python'ı `-I` ile çalıştır.
+- Yerel prototip, görev önkoşulları ve ClickUp kapanışını ayrı raporla.
 
-## Depo ve veri
+## Depo ve uzak dal
 
-- Ürün: `C:/Users/behlu/planet-x-sphere`
-- Dal: `b/01-03-gaia-fetch`; değişiklikler henüz commit edilmedi, push/PR yok.
-- Kaynak deneyler: `C:/Users/behlu/spherex-kb/stage0`
-- Python: `C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe`; `-I` kullan.
-- Yeni çalışma kanıtları/veri: `C:/Users/behlu/reports/`; FITS/önbellek depoya eklenmez.
-- Önce `AGENTS.md`, `CONTRIBUTING.md`, `docs/second-brain/NOW.md` oku. Dizin sahipliğine uy.
+- Depo: `C:/Users/behlu/planet-x-sphere`
+- Etkin dal: `b/01-03-gaia-fetch`; başlangıç uzak ucu 2026-11-15'te `f0b34ac922a6235b9f959488cb93472b8c80afa8` olarak doğrulandı.
+- Ana dal o kontrolde `449567a556001f758a74dc1c8d5f622569c57b51` idi.
+- Kanıt ve FITS: depo dışı `C:/Users/behlu/reports/`; mevcut Stage 0 Python: `C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe`.
 
-## Tamamlanan yerel çıktılar
+## Yerel çıktılar ve sınırlar
 
-| İş | Dosya / doğrulama | Sınır |
+| İş | Yerel çıktı / kanıt | Açık sınır |
 |---|---|---|
-| Kalıcı hafıza | `docs/second-brain/` ve README bağlantısı | Görevler, kararlar, kaynaklar, insan adımları ayrı. |
-| 00-05 çalışma protokolü | `docs/WORK_PROTOCOL.md`; 7 kural, 3 seçim provası | ClickUp'ta kapatılmadı. |
-| 08-01 sonuç şablonu | `b_astrometri/reports/hedefler_sablon.md`; 6 bölüm ve tarihsel örnekler | Yeni bilimsel ölçüm yapılmadı; ClickUp'ta kapatılmadı. |
-| 01-03 Gaia istemcisi | `b_astrometri/gaia/fetch.py`, `test_fetch.py`; 11 test geçti | Küçük karo alternatifi 16/16 başarılı; 49.176 tekil kaynak/67,364 sn. Önkoşul ve ClickUp kapanışı ayrı. |
-| 03-15 WiseView epoch testi | `b_astrometri/gaia/test_epoch_wiseview.py`; 6 test geçti | Barnard 2010 WISE MJD'ye taşındı; katalog↔epoch >10" sapma [V]. RV=−110 km/s [ASSUMPTION]. |
-| epsf.py NaN fix | `b_astrometri/centroid/epsf.py:131` + `test_epsf.py`; 7 test geçti | NaN-güvenli eşik; regresyon testi eklendi. |
-| **Commit** | `aa15f4f` — dal `b/01-03-gaia-fetch` | 23 dosya, 1853 ekleme; push/PR henüz yok. |
+| 01-03 Gaia | `b_astrometri/gaia/fetch.py`; 11 erişim testi; küçük ESA konileri 16/16, 49.176 tekil kaynak | 4 büyük karonun 2'si kaldı; küçük koni kapsamı aynı kare penceresi için denetlendi. Önkoşul ve ClickUp kabulü ayrı. |
+| 03-01 ePSF | `b_astrometri/centroid/epsf.py`; daha önce 6 test ve gerçek D2 smoke | Fiziksel akı normalizasyonu/yönelimi doğrulanmadı; 02-03/02-12 entegrasyonu bekliyor. |
+| 03-07 epoch | `b_astrometri/gaia/epoch.py`; 11 epoch testi; kutup geometrisi vektörel yöntemle düzeltildi | 02-03 entegrasyonu, HEALPix/sorgu seçimi ve kovaryans belirsizliği açık. Barnard örneği RV=0 varsayımlı tahmindir. |
+| 03-04 elips | `b_astrometri/centroid/ellipse.py`, `test_ellipse.py`; centroid test paketinde yer alıyor | ClickUp önkoşulu 03-03 doğrulanmadı; yerel modül ClickUp kapanışı demek değil. |
+| 03-14 koordinat denetimi | `coord_audit.py`, `test_coord_audit.py`; statik denetim alt-piksel float/origin=1 kalıplarını arıyor | Kod/test prototipi var; 02-03 ve 03-03 önkoşulları doğrulanmadı. Görev kabulü açık. |
+| Proje hafızası | `docs/second-brain/`, `HANDOFF.md`, `docs/AGENT_LOOP.md` | Güncel ClickUp bağlantısı yok; son snapshot 2026-11-15 ve yalnız o anın kaydıdır. |
 
-## Aktif işler — aynı dosyaya tekrar ajan verme
+## İnsan girdisi bekleyen adım
 
-1. **Gaia erişim ajanı tamamladı:** küçük koniler 16/16 başarılı. Sonuç `reports/gaia-B-small-live-result.json`, birleşik katalog `reports/gaia-B-small-validated.fits`. Yeniden ağ sorgusu gerekmiyor.
-2. **03-01 ePSF prototipi tamamlandı:** `b_astrometri/centroid/epsf.py` ve `test_epsf.py`; 6 test ana ajan tarafından doğrulandı, gerçek D2 smoke/görüntü kanıtı alındı. `PSF_NORM=1`; fiziksel akı normalizasyonu açıkça doğrulanmamış. 02-03/02-12 üretim entegrasyonu ve 03-02 bağımsız normalizasyon/yönelim denetimi bekliyor.
-3. **03-07 epoch prototipi tamamlandı:** `b_astrometri/gaia/epoch.py` ve `test_epoch.py`; kutup hatası vektörel yöntemle düzeltildi. Son 11 epoch ve 11 erişim testi ana ajan doğruladı (ePSF ile toplam 28). Barnard tahmin tablosu yenilendi: `reports/gaia-epoch-barnard.json`, docs/second-brain/IMPLEMENTATION.md. RV açık, belirsizlik uydurulmuyor; tam görev entegrasyonu açık.
-4. **Graphify:** ayrı ajan `graphify-out/` çıktıları ve grafik yapılandırmasının sahibi. Bilim venv'inden ayrı uv ortamına kuruldu. Hedef yeni kod/proje hafızası; eski büyük plan/araştırma arşivleri kapsam dışı. Kalıcı graph.json, GRAPH_REPORT.md ve graph.html hazırlanıyor.
+H-01: Akif'in 02-03 koordinat/piksel kuralları ile 02-12 L1 cache çıktılarının dal/klasör yolunu veya hazır olmadıkları bilgisini kullanıcıdan bekle. Yanıt gelene kadar üretim entegrasyonunu yapma. Bağımsız test/prototipler sürebilir.
 
-Araçtaki ajan oturumları başka uygulamaya taşınmaz. Devir sırasında çalışan süreç varsa önce durumunu kontrol et; dosyaları silme veya aynı işe ikinci süreç başlatma.
-
-## Gaia bulguları ve tuzaklar
-
-- ESA küçük koni HTTP200/OK; MAST aynı sorguda OK ardından OVERFLOW verdi. Varsayılan sıra ESA→MAST.
-- VOTable'da `ID=SOURCE_ID`, `name=source_id`: Astropy `use_names_over_ids=True` gerekiyor; regresyon eklendi.
-- Sondaki OVERFLOW/ERROR da reddedilir. Dış STREAM href reddedilir. RA/Dec sonlu ve geçerli aralıkta olmalı.
-- Yeni B büyük karo önbelleği: 15.828 ve 16.604 satır. Üçüncü karo 30/45/60 sn sınırlarında zaman aşımı; dördüncü denenmedi. Eksik birleşik çıktı yayımlanmadı.
-- Kanıt `reports/gaia-B-live-result.json`; doğrulanmış XML `reports/gaia-fetch-cache/`.
-- Eski MAST B önbelleğinde 4 dosya var ama tarihsel OVERFLOW nedeniyle eksiksizlik kanıtı değildir.
-- `--timeout` istek okuma bekleme sınırıdır; tüm komut için kesin toplam süre sınırı değildir.
-
-## Kullanıcıdan beklenen tek bilgi
-
-**H-01:** Akif'in 02-03 koordinat/piksel kuralları ve 02-12 önbellek çıktıları başka dal/klasörde var mı? Kullanıcıya soruldu, henüz yanıt yok. Üretim entegrasyonu beklesin; sentetik/yerel veri prototipleri devam edebilir. Hesap/etiketleme isteği yok.
-
-## Sonraki somut adımlar
-
-1. **TypeSafe cookbook analizi tamamlandı (bu oturum):** 27 cookbook okundu; kodda LLM/prompt yok, hiçbiri uymuyor. fetch.py ve epsf.py kırılganlıkları listelendi. epsf.py NaN fix yapıldı ve commit edildi.
-2. **03-15 WiseView testi yapıldı ve commit edildi:** 6 test geçti. Önkoşulsuz tamamlandı.
-3. **Açık fetch.py kırılganlıkları:** Toplam süre sınırı yok (stream=True gerekeceği not edildi), 4xx/5xx kalıcı hata ayrımı yok, bağlantı ölçeği varsayımı (6.2"/px). Bunlar ayrı iş olarak ele alınabilir.
-4. Graphify `finalize()` için `.graphify_labels.json` gerekiyor; henüz oluşturulmadı. GRAPH_REPORT.md eksik.
-5. Kullanıcı H-01 yanıtı gelirse entegrasyon sözleşmesini netleştir; ardından 03-02/04-03 sırasına geç.
-6. ClickUp kapanışları: 00-05, 08-01, 01-03, 03-07, 03-01 ve 03-15 yerel olarak tamamlandı; ClickUp'ta hâlâ `to do`.
-
-## Test komutları
-
-Depo kökünden PowerShell:
+## Son test (2026-11-15)
 
 ```powershell
-& 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/gaia -p 'test_*.py' -v
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/centroid -p 'test_*.py' -v
-git diff --check
-git status --short
+# 16 test OK
+& 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/gaia -p 'test_*.py' -v
+# 30 test OK
+ git diff --check
 ```
 
-## ClickUp
-
-API hesabı Behlül Anik doğrulandı; çalışma alanı ID `1100330000031287`. Anlık görüntü `reports/planet-xsphere-clickup-snapshot.json` (depo dışında; kişisel bilgiler içerebilir). Görev bağlantıları [TASKS.md](docs/second-brain/TASKS.md) içinde. Bu oturumda sadece API okundu: görev durumu/ataması/yorum değiştirilmedi, kimseye mesaj gönderilmedi. Anahtar kişisel yerel dosyada; içeriğini çıktı veya kaynak koduna yazma.
-
-## Oturum notu 2026-11-15
-- ClickUp okundu: 199 gorev, hepsi 'to do' (kapanis yapilmadi). Siradaki bagimsiz gorev 03-04 yerelde tamamlandi: `b_astrometri/centroid/ellipse.py` + `test_ellipse.py` (6 test; centroid dizininde toplam 13 test gecti). 2B Gauss 1-sigma kapsama %39,3 Monte Carlo ile dogrulandi. cat.json entegrasyonu 03-03 fit_result'a bagli [NV].
-- Otonom ajan dongusu `docs/AGENT_LOOP.md` olarak tasarlandi ve ilk turda **03-14 koordinat kurallari denetimi** tamamlandi: `b_astrometri/centroid/coord_audit.py` + `test_coord_audit.py` (3 test). Denetim `ellipse.py` icindeki `rho` alaninin `numpy.float64` dondurdugunu yakaladi ve native `float` olarak duzeltildi; `b_astrometri/centroid` (16 test) + `b_astrometri/gaia` (30 test) = 46 test gecti.
-- Sonraki: 03-12 (enjeksiyon/kurtarma duzenegi), 03-02 (ePSF normalizasyon denetimi), 04-01 (gecis gruplama).
+ClickUp API aracı bu çalışma oturumunda mevcut değil. Görev durumu değiştirilmedi, yorum/mesaj gönderilmedi. Önceki anlık görüntüde bütün ilgili işler `to do` idi; güncel durumu ayrıca doğrulamadan aynı sonucu varsayma.
