@@ -1,6 +1,21 @@
+# ortamlar ve sırlar
+venv/
+.venv/
+__pycache__/
+*.pyc
 .env
 .env.*
-*.key
-*.pem
-__pycache__/
+*token*
+*secret*
+clickup_token*
+# büyük ve güvenilmez veri
+data/
+*.fits
+*.fits.gz
+*.npy
+*.npz
+*.pdf
+*.log
+# derleme çıktıları
 node_modules/
+dist/
