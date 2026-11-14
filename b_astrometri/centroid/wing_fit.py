@@ -76,6 +76,11 @@ def fit_epsf_wing(
     res = least_squares(
         residuals,
         [float(x_init), float(y_init), flux0, bg0],
+        bounds=(
+            [float(xv.min()), float(yv.min()), 0.0, -np.inf],
+            [float(xv.max()), float(yv.max()), np.inf, np.inf],
+        ),
+        x_scale="jac",
         xtol=1e-10, ftol=1e-10, gtol=1e-10,
     )
     dof = max(n_valid - 4, 1)
