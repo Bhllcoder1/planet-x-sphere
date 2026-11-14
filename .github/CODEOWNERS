@@ -1,0 +1,11 @@
+# Her satırın başındaki # işaretini kaldır ve KULLANICI_X yerine GitHub kullanıcı adını yaz.
+# Hangi harfin kime ait olduğu docs/TEAM.md dosyasında.
+#
+# /a_veri_isleme/      @KULLANICI_A
+# /b_astrometri/       @KULLANICI_B
+# /c_sunucu/           @KULLANICI_C
+# /ops/                @KULLANICI_C
+# /d_site/             @KULLANICI_D
+#
+# Ortak sözleşmeler üç alanın onayını ister:
+# /contracts/          @KULLANICI_A @KULLANICI_C @KULLANICI_D

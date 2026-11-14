@@ -1,0 +1,221 @@
+[
+ {
+  "id": "07-01",
+  "name": "[07-01] Test verisi yönetimini kurmak: sentetik/gerçek veri dizinleri, sabit tohum, ek kayıt (manifest)",
+  "priority": 1,
+  "tags": [
+   "test",
+   "demo-5-gün",
+   "model-haiku",
+   "kişi-c"
+  ],
+  "est_hours": 2,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** tests/ düzenini kuruyoruz: sentetik (üretilen) ve gerçek (indirilen) veri dizinleri, sabit tohumlar ve results/ altında sonuç kaydı.\n- **Neden:** Sayılar tekrarlanabilir olmalı; indirilen veri güvenilmez, betiklerden ayrı tutulur.\n- **Sana ne düşüyor:** 1) testdata/ ve results/ dizinlerini aç. 2) Sentetik damalı FITS üreticisini yaz. 3) Gerçek veri için sha256'lı real_manifest.json ve sonuç şemasını yaz.\n- **Bitti sayılır:** Üretici iki koşuda aynı sha256'yı veriyor; results/ JSON şeması doğrulanıyor; gerçek veri eksikse test SKIP, 'geçti' sayılmıyor.\n- **Kapsam dışı:** Testlerin kendisi bu görevde değil; yalnız düzen ve şema.\n- **Alan ve süre:** C, yaklaşık 2 saat, demo.\n---\n\n**NE:** `tests/` düzeni ve `tests/DATA.md`: sentetik veri (üretilir, repoda küçük), gerçek veri (indirilir, repoya girmez, ayrı dizinde, sha256 listesiyle), sabit rastgele tohumlar, her test çıktısı için `results/<test>/<koşu-id>.json`.\n\n**NEDEN:** Tüm sayılar tekrarlanabilir olmalı; indirilen veri güvenilmez olduğu için betiklerden ayrı dizinde tutulur ve Python `-I` ile çalışır (BRIEF veri politikası).\n\n**NASIL:**\n1. Dizinler: `testdata/synthetic/` (checkerboard 64x64 FITS: 1 px dama + (10,10) parlak piksel; kare 2 tam 1 px kaymış), `testdata/real/` (gerçek pencereler, `stage0/data/A`, `B` referansıyla; kopya değil bağlantı/liste), `results/`.\n2. Her gerçek-veri dosyası için `real_manifest.json`: s3 anahtarı, sha256, çekilme tarihi, release.\n3. Tohum kuralı: her sentetik test `seed` parametresi alır ve sonucu JSON'a yazar.\n4. Sonuç JSON şeması: {test_id, eşik, ölçülen, geçti, tohum, veri_sha, tarih}; geçmeyen test `geçti=false` olarak KAYDEDİLİR, silinmez.\n5. Gerçek veri yoksa test 'ATLANDI' (SKIP + gerekçe) döner, asla sessizce geçti sayılmaz.\n\n**GİRDİ / ÇIKTI:** Girdi: Stage 0 veri dizinleri. Çıktı: `tests/DATA.md`, `tests/conftest.py` yardımcıları, `testdata/synthetic/make_synthetic.py`.\n\n**KABUL:** Sentetik üretici iki koşuda aynı sha256'yı verir; `results/` JSON şeması doğrulanır; gerçek veri eksikse test SKIP (geçti değil).\n\n**KANIT:** Üretici çıktısı + şema doğrulama çıktısı.\n\n**ÖNCE:** yok\n\n**MODEL:** Haiku: dizin ve şema kurulumu, mekanik.\n\n**KAYNAK:** BRIEF veri politikası; PLAN_spherex_v2.md F (test tablosu)"
+ },
+ {
+  "id": "07-02",
+  "name": "[07-02] T-V1/D1: checkerboard Playwright testi, DPR 1/1.25/2, Chrome + Firefox, z = 1, 3, 7, 16.5",
+  "priority": 1,
+  "tags": [
+   "test",
+   "demo-5-gün",
+   "arayüz",
+   "kullanıcı-bakışı",
+   "model-sonnet",
+   "kişi-d"
+  ],
+  "est_hours": 6,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** Damalı sentetik FITS'in Playwright (tarayıcıyı kodla yöneten araç) ekran görüntülerinde blok genişliklerini ve blink kaymasını cihaz pikselinde ölçüyoruz; her aday görüntüleyici ayrı koşar.\n- **Neden:** Tam sayı zoomda 1 yerel piksel z x z ekran pikseli olmalı; aksi görüntüleyiciyi eler.\n- **Sana ne düşüyor:** 1) DPR 1/1.25/2, Chrome, Firefox, z = 1, 3, 7, 16.5 için ekran görüntüsü al. 2) Blok genişliğini ve kaymayı ölç. 3) Kaydırma kaydını kullanıcıya göster.\n- **Bitti sayılır:** Her aday için tablo var; tam sayı zoomda sapma 0 px, en çok 3 farklı değer; kullanıcı Q-H1 yanıtı kayıtlı.\n- **Kapsam dışı:** Float konum testi 07-03'tedir; dönmüş kareler 07-07'dedir.\n- **Alan ve süre:** D, yaklaşık 6 saat, demo.\n---\n\n**NE:** Playwright ile sentetik damalı FITS'in ekran görüntüleri; blok genişlikleri ve blink kaymasını cihaz pikselinde ölçen betik. Aday görüntüleyicilerin (Canvas2D, WebGL2 texelFetch, varsa WebGPU) her biri için ayrı koşu.\n\n**NEDEN:** Hassasiyet bu projenin amacıdır: tam sayı zoomda 1 yerel piksel = z x z ekran pikseli olmalı; gri ara ton veya eşit olmayan genişlik görüntüleyiciyi eler. Seçim bu testle yapılır.\n\n**NASIL:**\n1. Context ayarları: `deviceScaleFactor` = 1, 1.25, 2; tarayıcılar chromium ve firefox; zoom z = 1, 3, 7, 16.5 (v2 D1 listesi).\n2. Ekran görüntüsü `page.screenshot()` ile ham cihaz pikselinde; betik her satırda ardışık eşit renk bloklarının genişliğini ölçer.\n3. Ölçüt 1: tam sayı cihaz zoomunda her blok TAM z cihaz pikseli (DPR 1.25 ve z = 4 → 5 cihaz px). Ölçüt 2: görüntüde YALNIZ 3 farklı piksel değeri (gri yok). Ölçüt 3: blink'te kare 1→2 kayması = z cihaz px.\n4. Tam sayı olmayan cihaz zoomunda (ör. DPR 1.25 ile z = 3 → 3.75) görüntüleyici ya tam sayıya KİLİTLENİR ya da bunu rozetle söyler; ikisi de yoksa FAIL.\n5. Kaydırma (pan) sırasında titreme: kısa ekran kaydı kullanıcıya gösterilir (Q-H1 sorusu).\n\n**GİRDİ / ÇIKTI:** Girdi: 07-01 sentetik FITS, görüntüleyici adayları (liste 05). Çıktı: `tests/e2e/test_checkerboard.py`, `results/T-V1/*.json`, ekran görüntüleri.\n\n**KABUL:** Her aday için tablo: DPR x z x tarayıcı = blok genişliği, farklı değer sayısı (≤ 3), kayma; tam sayı zoomda sapma 0 px; geçmeyen hücreler açıkça listelenir. Kullanıcı Q-H1'e yanıt verir: 'z = 3, 7, 16.5 görüntülerinde gri, bulanık, eşit olmayan kare var mı? (görüntü başına evet/hayır)'.\n\n**KANIT:** Ölçüm tablosu + Q-H1 yanıtı.\n\n**ÖNCE:** 07-01; liste 05 görüntüleyici adayı\n\n**MODEL:** Sonnet: harness yazımı; çalıştırma Haiku olabilir.\n\n**KAYNAK:** PLAN_spherex_v2.md F (D1/T-V1), G Stage 0 (Q-H1); PLAN_spherex_v3.md §4.1 gün 2, §7"
+ },
+ {
+  "id": "07-03",
+  "name": "[07-03] Kayan nokta konum testi: 4.47 zoom 100'de 447.0 ± 0.5 ekran pikseli; 0.2 px kayma z = 16 ve 64",
+  "priority": 1,
+  "tags": [
+   "test",
+   "demo-5-gün",
+   "arayüz",
+   "model-sonnet",
+   "kişi-d"
+  ],
+  "est_hours": 3,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** Yerel konum 4.47'nin zoom 100'de 447.0 ± 0.5 ekran pikselinde (500 değil) çizildiğini ve 0.2 px kaymanın z = 16 ve 64'te 0.2 ± 0.01 px göründüğünü sınıyoruz.\n- **Neden:** Konumlar yuvarlanırsa işaretçi ile piksel ayrışır ve hassasiyet bozulur.\n- **Sana ne düşüyor:** 1) Dönüşüm işlevini birim testle sına. 2) Playwright ile haç işaretçiyi ölç. 3) Yuvarlayan sahte uygulamayla negatif kontrol yap.\n- **Bitti sayılır:** 4.47@100 → 447.0 ± 0.5 ekran px; yuvarlayan sahte uygulama testi kırmızı yapıyor; 0.2 px kayma 0.2 ± 0.01 px.\n- **Kapsam dışı:** Tam sayı kayma testi 07-04'tedir; koordinat kuralı liste 05'tedir.\n- **Alan ve süre:** D, yaklaşık 3 saat, demo.\n---\n\n**NE:** Konumların yuvarlanmadığını kanıtlayan test: yerel float konum 4.47 zoom 100'de ekranda 447.0 ± 0.5 ekran pikselinde çizilmelidir (500 DEĞİL). Ek olarak sentetik 0.2 px kayma işaretçide 0.2 ± 0.01 px görünmelidir (z = 16 ve 64).\n\n**NEDEN:** Kullanıcı kararı: konumlar float kalır, hiçbir yerde yuvarlanmaz; 'yumuşak kayma' görünümü yalnızca etiketli görünüm modudur. Marker ile piksel aynı dönüşümden geçer; ayrışma hassasiyeti bozar.\n\n**NASIL:**\n1. Dönüşüm fonksiyonunu (p0 = p_FITS - 1, doku yarım piksel kayması tek fonksiyonda) birim testle çağır: x_yerel = 4.47, z = 100 → ekran = 447.0 (koordinat başlangıcı piksel-merkezi kuralıyla belgelenmiş; kural liste 05'in spesifikasyonundan alınır, burada uydurulmaz).\n2. Playwright: işaretçi (haç) çiz, ekran görüntüsünde haç ağırlık merkezini ölç; beklenen ekran konumuyla fark ≤ 0.5 px.\n3. Sınır durumlar: 4.50, 4.49, 4.51 (yuvarlama sınırı) ve negatif/ince kesir; 500 ekran px'e düşerse FAIL.\n4. Overlay testi: aynı kareyi 0.2 px kaydır; okuma 'Δ = 0.2 ± 0.01 px' z = 16 (3.2 ekran px) ve z = 64 (12.8 ekran px).\n5. Aynı test DPR 1 ve 2'de de koşulur; ekran px DPR'a göre ölçeklenir.\n\n**GİRDİ / ÇIKTI:** Girdi: dönüşüm fonksiyonu, işaretçi çizimi (liste 05). Çıktı: `tests/test_float_position.py`, `tests/e2e/test_float_marker.py`.\n\n**KABUL:** 4.47@100 → 447.0 ± 0.5 ekran px (tam eşik); yuvarlanmış bir uygulama (500) testi KIRMIZI yapar (negatif kontrol: yuvarlayan sahte uygulama FAIL verir); 0.2 px kayma 0.2 ± 0.01 px.\n\n**KANIT:** Ölçüm JSON'u + negatif kontrol çıktısı.\n\n**ÖNCE:** 07-01; liste 05 dönüşüm fonksiyonu\n\n**MODEL:** Sonnet: test kodu.\n\n**KAYNAK:** DECISIONS_AND_TASK.md ('Added later'); PLAN_spherex_v2.md G Stage 4 (0.2 px kabulü)"
+ },
+ {
+  "id": "07-04",
+  "name": "[07-04] T1 tam sayı kayma testi (sayısal + ekran z = 1, 4, 16, 64) ve T4 WCS gidiş-dönüş, D3 afin kalıntısı",
+  "priority": 2,
+  "tags": [
+   "test",
+   "demo-5-gün",
+   "astrometri",
+   "model-sonnet",
+   "kişi-b"
+  ],
+  "est_hours": 5,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** T1 (tam 1 px kayma sayısal ve ekranda), T4 (WCS: pikselin gökyüzündeki yerini söyleyen harita, gidiş-dönüş) ve D3 (afin yaklaşımın en büyük artığı) doğrulamalarını yapıyoruz.\n- **Neden:** Dönüşüm hataları erken yakalanmalı; D3 Mod R yeterli mi, R-k gerekli mi gösterir.\n- **Sana ne düşüyor:** 1) T1'i sayısal ve z = 1, 4, 16, 64 için koş. 2) T4 gidiş-dönüşünü sına. 3) 100 gerçek pencerede D3'ü ölç.\n- **Bitti sayılır:** T1 Δ = 1.000 ± 0.005 px ve ekranda 0 px sapma; T4 < 1e-4 px; D3'te ≤ 0.01 px pencerelerin ≥ %99'unda; geçmezse 'R-k zorunlu'.\n- **Kapsam dışı:** Alt-piksel merkezleme 07-05'tedir.\n- **Alan ve süre:** B, yaklaşık 5 saat, demo.\n---\n\n**NE:** Üç hızlı doğrulama: T1 (gerçek yerel kesit + enjekte ePSF yıldızı (x,y) ve (x+1,y); ayrıca `np.roll` ile 1 px), T4 (pix→world→pix), D3 (afin yaklaşımın r_max değeri).\n\n**NEDEN:** T1/T4 hat kurulur kurulmaz yakalanması gereken dönüşüm hatalarını bulur; D3 Mod R'ın yeterli olup olmadığını (R-k yedeği) belirler. T1-T6 PLAN_spherex.md (v1) §2.6 tablosunda tanımlıdır; v2/v3 onlara atıf yapar.\n\n**NASIL:**\n1. T1 sayısal: ölçülen Δ = 1.000 ± 0.005 px (parlak yıldız). T1 ekran: Playwright, z = 1, 4, 16, 64, kayma = tam z ekran px, tolerans 0 px.\n2. T4: tüm kesit boyunca `all_pix2world(...,0)` sonra `all_world2pix(...,0, tolerance=1e-8, maxiter=50)`, eşik < 1e-4 px; AP/BP ters terimi tek başına KULLANILMAZ [V].\n3. D3: 50, 100 ve 200 px'lik 100 gerçek pencerede afin yaklaşımın en büyük artığı r_max; eşik ≤ 0.01 px pencerelerin ≥ %99'unda (varsayılan fov).\n4. Sonuçlar `results/T1`, `results/T4`, `results/D3` altında; D3 histogramı rapora.\n\n**GİRDİ / ÇIKTI:** Girdi: gerçek pencereler (07-01), WCS başlıkları (SIP düzeni 3 [V]). Çıktı: `tests/test_T1.py`, `test_T4.py`, `test_D3.py`.\n\n**KABUL:** T1 Δ = 1.000 ± 0.005 px ve ekran 0 px sapma; T4 < 1e-4 px; D3 ≤ 0.01 px ≥ %99 pencerede; D3 geçmezse 'R-k zorunlu' notu açıkça yazılır.\n\n**KANIT:** pytest çıktısı + D3 histogramı.\n\n**ÖNCE:** 07-01, 07-03\n\n**MODEL:** Sonnet: sayısal test kodu.\n\n**KAYNAK:** PLAN_spherex.md §2.6 (T1, T4); PLAN_spherex_v2.md F (D3); stage0/s0_B.md"
+ },
+ {
+  "id": "07-05",
+  "name": "[07-05] T2 alt-piksel merdiveni ve T3 enjeksiyon/kurtarma (D4 merkezleme yöntemi seçimi)",
+  "priority": 1,
+  "tags": [
+   "test",
+   "demo-5-gün",
+   "astrometri",
+   "model-sonnet",
+   "kişi-b"
+  ],
+  "est_hours": 6,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** T2 (alt-piksel merdiveni) ve T3 (2000 sahte ePSF yıldızı: yıldızın beklenen biçimi) ile merkezleme yöntemlerini yarıştırıp en basit geçeni seçiyoruz (D4).\n- **Neden:** Merkezleme tüm konum iddialarının temelidir; piksel-faz yanlılığı yalnızca ölçümle kapanır.\n- **Sana ne düşüyor:** 1) T2 merdivenini ve T3 enjeksiyonunu kur. 2) Aday yöntemleri aynı tohumla koş. 3) Doygun çekirdek için ayrı vaka koş.\n- **Bitti sayılır:** |yanlılık(faz)| < 0.02 px (SNR > 50); RMS/σ ∈ [0.8, 1.25]; seçilen yöntem geçenlerin en basiti; geçen yoksa 'merkezleme kabul edilmedi'.\n- **Kapsam dışı:** ePSF yönelimi ve maske profili 07-06'dadır.\n- **Alan ve süre:** B, yaklaşık 6 saat, demo.\n---\n\n**NE:** T2: 0.1..0.9 px kaymalar; T3: 2000 ePSF yıldızı, rastgele faz ve akı, GERÇEK VARIANCE gürültüsü. Aday merkezleyiciler (GriddedPSFModel ePSF, tek bölgeli ePSF, SEP winpos, Gauss, ortak uyum) aynı koşuda karşılaştırılır; EN BASİT geçen seçilir (D4).\n\n**NEDEN:** Merkezleme tüm konum iddialarının temelidir; piksel-faz yanlılığı (R11) ve ePSF bölge/λ belirsizliği (R8) yalnızca ölçümle kapanır. T1-T6 PLAN_spherex.md (v1) §2.6 tablosunda tanımlıdır; v2/v3 onlara atıf yapar.\n\n**NASIL:**\n1. T2: sentetik merdiven, eşik |yanlılık| < 0.02 px (SNR > 50).\n2. T3: 2000 yıldız; yanlılık vs piksel fazı < 0.02 px; RMS / öngörülen σ oranı [0.8, 1.25] aralığında; SNR'a karşı tamlık eğrisi çıkarılır.\n3. Her aday için aynı tohum, aynı gürültü; sonuç tablosu: yanlılık(faz), oran, süre/yıldız.\n4. Doygun çekirdek (Barnard NaN çekirdek [V]) için ayrı vaka: kanat uyumu; σ'nın daha büyük çıktığı gösterilir.\n5. Opus tasarım gözden geçirmesi: yalnızca eşikler ve seçilen yöntemin gerekçesi.\n\n**GİRDİ / ÇIKTI:** Girdi: gerçek VARIANCE/EPSF HDU'ları, liste 03 uyum kodu. Çıktı: `tests/test_T2.py`, `test_T3.py`, `results/D4/`, bias-vs-faz ve RMS/σ grafikleri.\n\n**KABUL:** |yanlılık(faz)| < 0.02 px (SNR > 50); RMS/σ ∈ [0.8, 1.25]; seçilen yöntem geçenlerin en basitidir; geçen yoksa 'merkezleme kabul edilmedi' ve ölçülen sayı yazılır.\n\n**KANIT:** Grafikler + sonuç JSON.\n\n**ÖNCE:** 07-01; liste 03 ePSF uyumu\n\n**MODEL:** Sonnet: kod; tasarım Opus.\n\n**KAYNAK:** PLAN_spherex.md §2.6 (T2, T3); PLAN_spherex_v2.md F (D4), G Stage 2"
+ },
+ {
+  "id": "07-06",
+  "name": "[07-06] D5 ePSF normalleştirme/yönelim ve D13 enjeksiyon testi (çekirdek kaybı, merkez yanlılığı)",
+  "priority": 2,
+  "tags": [
+   "test",
+   "görüntü-işleme",
+   "model-sonnet",
+   "kişi-a"
+  ],
+  "est_hours": 5,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** D5'te ePSF (yıldızın beklenen biçimi) normalleştirme ve yönelimini, D13'te 500 enjekte yıldızla maske profillerinin çekirdek kaybını ve merkez yanlılığını sınıyoruz.\n- **Neden:** Yanlış normalleştirme veya devrik ePSF sessiz bir konum hatasıdır.\n- **Sana ne düşüyor:** 1) ePSF'i bilinen ofsetlerle uydur, devrik halle χ²'yi karşılaştır. 2) 10 gerçek kareye 500 yıldız ekle. 3) Maske profillerini karşılaştır.\n- **Bitti sayılır:** D5 öz-kurtarma < 0.001 px ve doğru yönelim seçilmiş; D13 çekirdek kaybı < %1, ek yanlılık ≤ 0.005 px; aşan profil reddedilip gerekçesi yazılı.\n- **Kapsam dışı:** Dosya içi ePSF ile kalibrasyon dosyası bayt karşılaştırması liste 01'dedir.\n- **Alan ve süre:** A, yaklaşık 5 saat.\n---\n\n**NE:** D5: ePSF'i kendisine bilinen ofsetlerle uydur (normalleştirme x1 mi x25 mi, x/y sırası); 200 gerçek yıldızda devrik ePSF χ². D13: 10 gerçek kareye 500 ePSF yıldızı enjekte et; maske profilleri karşılaştırılır.\n\n**NEDEN:** Yanlış normalleştirme veya devrik ePSF sessiz bir konum hatasıdır (QR1/QR2'de x/y sırası hatası biliniyor [V]); maske profili §2.1 ölçüme dayalı olmalı.\n\n**NASIL:**\n1. D5: öz-kurtarma < 0.001 px; doğru yönelim devrik olandan açıkça düşük χ² (karşılaştırma tablosu); photutils Σ = oversampling² gereği vs dosyadaki birim toplam akı (S0.8) belgelenir.\n2. D5 ek: dosya içi ePSF ile kalibrasyon dosyası bayt karşılaştırması liste 01'dedir; burada sonucu kullan.\n3. D13: merkez profili (fit maskesi + OVERFLOW + DICHROIC + STREAK + GHOST) ile yalnızca fit maskesi; ölçülen: yıldız çekirdek kaybı oranı ve merkez yanlılığı.\n4. D13 eşikleri: çekirdek kaybı < %1, eklenen yanlılık ≤ 0.005 px.\n5. Sonuç hangi maske profilinin benimseneceğini yazar (liste 02/03 ile uyum).\n\n**GİRDİ / ÇIKTI:** Girdi: EPSF HDU, gerçek kareler. Çıktı: `tests/test_D5.py`, `test_D13.py`, `results/D5`, `results/D13`.\n\n**KABUL:** D5 öz-kurtarma < 0.001 px ve doğru yönelim seçilir; D13 çekirdek kaybı < %1 ve ek yanlılık ≤ 0.005 px; aşan profil reddedilir ve gerekçesi yazılır.\n\n**KANIT:** Tablo ve JSON çıktıları.\n\n**ÖNCE:** 07-01, 07-05\n\n**MODEL:** Sonnet: enjeksiyon ve analiz kodu.\n\n**KAYNAK:** PLAN_spherex_v2.md F (D5, D13); PLAN_spherex_v3.md §2.1, §5 madde 5-6"
+ },
+ {
+  "id": "07-07",
+  "name": "[07-07] T-V2/D2: dönmüş kare çizim testi (θ = 0.5°, 37°, 180°) ve D1b kütüphane SIP doğruluğu",
+  "priority": 2,
+  "tags": [
+   "test",
+   "arayüz",
+   "kullanıcı-bakışı",
+   "model-sonnet",
+   "kişi-d"
+  ],
+  "est_hours": 5,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** Dönmüş damalı görüntülerde (θ = 0.5°, 37°, 180°) çizilen kenarları analitik kenarlarla karşılaştırıyor; D1b'de Firefly ve Aladin Lite'ın pix→sky konumunu astropy ile sınıyoruz.\n- **Neden:** Farklı yönelimli kareleri blink etmek için çizim hata sınırı bilinmeli.\n- **Sana ne düşüyor:** 1) Üç θ için kenar hatasını ekran pikselinde ölç. 2) Üç modu eşiklerle karşılaştır. 3) D1b'de 5 yıldızı karşılaştır, Q-H2'yi kullanıcıya sor.\n- **Bitti sayılır:** Mod R ≤ 0.5 ekran px + 0.01 yerel px; R-k ≤ 0.0625 px; Mod N tam; Firefly < 0.01 px, Aladin < 0.1 px; kullanıcı yanıtı kayıtlı.\n- **Kapsam dışı:** Tam sayı zoom testi 07-02'dedir.\n- **Alan ve süre:** D, yaklaşık 5 saat.\n---\n\n**NE:** Dönmüş damalı görüntüde çizilen kenarlar analitik kenarlarla karşılaştırılır: GPU afin NN (Mod R), sunucu k = 8 NN (R-k), tam sayı katı hareket (Mod N). D1b: Firefly ve Aladin Lite için 5 yıldız/köşe pikselinin pix→sky değeri astropy ile karşılaştırılır.\n\n**NEDEN:** Farklı roll'daki kareler (0.7-3.8° bir geçiş içinde [V]) çapraz yönelimli blink için R-k gerektirir; çizim hatası sınırı bilinmeli. Dış kütüphaneler SIP'i yanlış işlerse yalnız bağlam amaçlı kullanılır.\n\n**NASIL:**\n1. θ = 0.5°, 37°, 180° sentetik damalar; kenar hatası ekran pikselinde ölçülür.\n2. Eşikler: Mod R ≤ 0.5 ekran px + 0.01 yerel px; R-k ≤ 0.0625 px (1/(2k), k = 8); Mod N 180°'de tam.\n3. R-k'da işaretçiler (marker) hata 0 (float, aynı dönüşüm).\n4. D1b: Firefly < 0.01 px, Aladin < 0.1 px; aksi halde 'yalnız bağlam' etiketi.\n5. Kullanıcı sorusu (Q-H2 / Q7): 'Hangi modda yıldızın adımı daha kolay görülüyor? Mod R'ın döndürülmüş kare görünümü sizi rahatsız ediyor mu?'\n\n**GİRDİ / ÇIKTI:** Girdi: 07-01 sentetik görüntü, görüntüleyici (liste 05). Çıktı: `tests/e2e/test_TV2.py`, `test_D1b.py`, `results/T-V2`, `results/D1b`.\n\n**KABUL:** Her mod için tablo: θ x hata; R ≤ 0.5 ekran px + 0.01 yerel px; R-k ≤ 0.0625 px; N tam; D1b eşikleri; geçmeyen satır açıkça listeli; kullanıcı yanıtı kayıtlı.\n\n**KANIT:** Ölçüm tablosu + ekran görüntüleri + kullanıcı yanıtı.\n\n**ÖNCE:** 07-02\n\n**MODEL:** Sonnet: harness; çıktıyı Haiku koşturur.\n\n**KAYNAK:** PLAN_spherex_v2.md F (D1b, D2/T-V2), D (mod tablosu); PLAN_spherex_v3.md §2.2"
+ },
+ {
+  "id": "07-08",
+  "name": "[07-08] T5 Gaia astrometri testi ve D6 WCS düzeltme modeli, D7 astrometri penceresi",
+  "priority": 2,
+  "tags": [
+   "test",
+   "astrometri",
+   "model-sonnet",
+   "kişi-b"
+  ],
+  "est_hours": 6,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** T5'te Gaia yıldızlarıyla (bilinen konum kataloğu) merkezlerimizi karşılaştırıyor; D6'da WCS düzeltme modelini, D7'de astrometri penceresini seçiyoruz.\n- **Neden:** Ölçülen WCS düzeltmesi tüm yayımlanan konumları belirler; model ölçümle seçilmeli.\n- **Sana ne düşüyor:** 1) T5: kare başına medyan ofset ve RMS raporu çıkar. 2) D6: modelleri %70/%30 ayrımıyla dene. 3) D7: pencere boyutlarını dene.\n- **Bitti sayılır:** T5 RMS(norm. artık) ∈ [0.8, 1.5]; D6 seçilen model eşiği geçiyor; D7 σ_corr ≤ 0.01 px ve N ≥ 20; kapsamı bilinmeyen hedef 'ÖLÇÜLMEDİ'.\n- **Kapsam dışı:** Hareket (μ) testi 07-09'dadır.\n- **Alan ve süre:** B, yaklaşık 6 saat.\n---\n\n**NE:** T5: izole, değişmeyen Gaia yıldızları (G < 17, RUWE < 1.4 [ASSUMPTION: sütun var]) uzay hareketiyle taşınır, uyumlu merkezlerle karşılaştırılır. D6: shift / benzerlik / afin / +poly2 modelleri %70/%30 ayrımıyla. D7: 128², 256², 512², tam kare pencereler.\n\n**NEDEN:** Ölçülen WCS düzeltmesi (C.9) tüm yayımlanan konumları belirler; model seçimi ölçümle yapılır. R12: yüksek enlemde (R Dra) Gaia yıldızı seyrek olabilir.\n\n**NASIL:**\n1. T5: kare başına medyan ofset ve RMS raporu; normalleştirilmiş artıkların RMS'i 0.8-1.5 ise geçer; tutarlı ofset > 3σ ise düzeltme uygulanır, ham değerler korunur.\n2. D6: Gaia yıldızlarının %70'i uyum, %30'u dışarıda; 50 kare; karmaşık model ancak dışarıda-tutulmuş RMS ≥ %10 iyileşirse seçilir.\n3. D7: 5 hedefte eşleşen yıldız sayısı N ve σ_corr; en küçük pencere σ_corr ≤ 0.01 px ve N ≥ 20.\n4. Takma alarm (v3 §2.3): kayma > 0.5 px veya öngörülen sapma vektörüyle korelasyon r > 0.8 (≥ 10 karede) [ASSUMPTION eşikleri]; testte alarmın tetiklendiği/tetiklenmediği yazılır.\n5. Ön bilgi: çerçeve A'da başlık WCS Gaia'dan ~0.01 px [INTERIM: tek kare; B/C TAMAMLANMADI].\n\n**GİRDİ / ÇIKTI:** Girdi: 5 hedefin kareleri + Gaia tabloları (ESA Gaia TAP hata verdi [V: s0_C]; önbellek). Çıktı: `tests/test_T5.py`, `test_D6.py`, `test_D7.py`, `results/`.\n\n**KABUL:** T5 RMS(norm. artık) ∈ [0.8, 1.5]; D6 seçilen model eşiği geçer; D7 σ_corr ≤ 0.01 px ve N ≥ 20 (en küçük pencere); kapsamı bilinmeyen hedefler 'ÖLÇÜLMEDİ' yazılır.\n\n**KANIT:** Kare başına rapor + grafikler.\n\n**ÖNCE:** 07-01, 07-05; liste 03 Gaia eşleme/WCS düzeltme\n\n**MODEL:** Sonnet: analiz; Opus yalnız model seçimi gözden geçirmesi.\n\n**KAYNAK:** PLAN_spherex.md §2.6 (T5); PLAN_spherex_v2.md F (D6, D7), C.8-C.9; PLAN_spherex_v3.md §2.3; stage0/s0_C.md"
+ },
+ {
+  "id": "07-09",
+  "name": "[07-09] T6 bilinen hareket testi: Barnard μ (Gaia ile ±3σ ve %10), doygun çekirdek notu",
+  "priority": 2,
+  "tags": [
+   "test",
+   "astrometri",
+   "model-sonnet",
+   "kişi-b"
+  ],
+  "est_hours": 4,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** Barnard Yıldızı'nın uyumlu hareketini (μ, gökyüzünde yıllık kayma) Gaia μ ile, ε Indi B'ninkini literatür μ ile karşılaştırıyoruz.\n- **Neden:** Projenin ana iddiası gerçek hareketi ölçmektir.\n- **Sana ne düşüyor:** 1) Geçişlerin eklem konum uyumunu al. 2) Barnard'ı Gaia ile karşılaştır. 3) ε Indi B'yi literatürle karşılaştır, hedef raporuna aktar.\n- **Bitti sayılır:** Barnard: ±3σ_μ ve fark ≤ %10; ε Indi B: ±3σ; yalnız kanat uyumu varsa 'kısmi', eşik değişmiyor.\n- **Kapsam dışı:** WCS düzeltmesi 07-08'dedir.\n- **Alan ve süre:** B, yaklaşık 4 saat.\n---\n\n**NE:** Barnard Yıldızı'nın uyumlu μ değeri Gaia μ ile karşılaştırılır. Ayrıca ε Indi B için literatür μ ile aynı karşılaştırma (v2 Stage 3 kabulü).\n\n**NEDEN:** Projenin ana iddiası: 1 pikselin 1 piksel olarak görünmesi ve gerçek hareketin ölçülmesi. Barnard'ın çekirdeği NaN (doygun) [V]; kanat uyumunda σ daha büyük olur.\n\n**NASIL:**\n1. Her geçiş için eklem konum (C.7b) ve geçişler arası μ uyumu; Barnard yaklaşık 0.96 px (geçiş 0→1) ve 1.7 px (0→2) kayar (aritmetik, v3 §4).\n2. Eşik: |μ_ölçülen − μ_Gaia| ≤ 3σ_μ VE fark ≤ %10 (v1 T6).\n3. Doygunluk nedeniyle sadece 'kanat uyumu, daha geniş σ' sonucu elde edilirse bu açıkça 'kısmi' yazılır; eşik değiştirilmez.\n4. ε Indi B: Gaia yoksa literatür μ; birleşik kaynak (Ba/Bb çözülmedi) notuyla ±3σ.\n5. Sonuç hedef raporuna (liste 08) aktarılır.\n\n**GİRDİ / ÇIKTI:** Girdi: Barnard 358 kare [V: s0_A], liste 03/04 hareket uyumu. Çıktı: `tests/test_T6.py`, `results/T6/`.\n\n**KABUL:** Barnard: ±3σ_μ ve %10; ε Indi B: ±3σ literatürle; eşiği geçmeyen sonuç gizlenmez; doygunluk notu varsa 'kısmi' etiketi.\n\n**KANIT:** Sonuç JSON + μ karşılaştırma grafiği.\n\n**ÖNCE:** 07-05, 07-08; liste 03/04 hareket uyumu\n\n**MODEL:** Sonnet: test ve analiz.\n\n**KAYNAK:** PLAN_spherex.md §2.6 (T6); PLAN_spherex_v2.md G Stage 3; PLAN_spherex_v3.md §4"
+ },
+ {
+  "id": "07-10",
+  "name": "[07-10] D8/D9 sunucu hızı testi: 50 kare koşturan betik ve sonuç yorumu (S3 okuyucu, sağlayıcı, bölge)",
+  "priority": 2,
+  "tags": [
+   "test",
+   "sunucu",
+   "model-haiku",
+   "kişi-c"
+  ],
+  "est_hours": 3,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** 06-08'de koşan 50 karelik betiğin sonuçlarını D8/D9 eşikleriyle yorumlayıp karar notu yazıyoruz.\n- **Neden:** Bölge-içi gecikme ölçülmedi [NV]; 'canlı alan' iddiası ancak D9 sonrası yapılır.\n- **Sana ne düşüyor:** 1) reports/d9_*.json'u oku. 2) p50, p95, hata, bayt ve GET sayılarını tabloya yaz. 3) 'Canlı rastgele alan' iddiasına evet/hayır/ölçülmedi yaz.\n- **Bitti sayılır:** Sayılar eşiklerle yan yana; p50 < 1 sn yoksa 'geçmedi'; tek sağlayıcı ölçüldüyse diğeri 'ölçülmedi'.\n- **Kapsam dışı:** Betiği makinede koşturmak 06-08'dedir.\n- **Alan ve süre:** C, yaklaşık 3 saat.\n---\n\n**NE:** Aynı 50 karelik betiği (liste 06 okuyucusu) kiralanan makinede çalıştırıp D8 ve D9 kararlarını eşiklerle yorumlayan görev. Çalıştırma 06-08 içinde yapılır; burada yalnızca eşik hesabı ve karar notu yazılır.\n\n**NEDEN:** Bölge-içi gecikme hiç ölçülmedi [NV]; Türkiye'den p50 3,90 s, p95 12,7 s [V]. 'Canlı alan' iddiası yalnız D9 sonrası yapılabilir (v3).\n\n**NASIL:**\n1. D8 (v3 sürümü): bayt ≤ 2x satır aralığı ve p50 < 1 s / kare-penceresi.\n2. D9: sağlayıcı seçimi: en ucuz olan, EC2 p50'nin 1.5 katı içinde ve hata oranı < %1. Hetzner Ashburn varlığı [ASSUMPTION]; ölçülmediyse 'yalnız AWS ölçüldü' yazılır, diğeri uydurulmaz.\n3. Tabloya: p50, p95, dosya açma süresi, hata sayısı, bayt/kare, GET sayısı/kare.\n4. Sonuç: 'canlı rastgele alan' iddiasına izin var mı (evet/hayır/ölçülmedi).\n\n**GİRDİ / ÇIKTI:** Girdi: `reports/d9_*.json` (06-08). Çıktı: `results/D8`, `results/D9`, karar notu.\n\n**KABUL:** Sayılar eşiklerle yan yana; p50 < 1 s sağlanmıyorsa açıkça 'geçmedi'; yalnız tek sağlayıcı ölçüldüyse diğeri 'ölçülmedi'.\n\n**KANIT:** Sonuç tablosu.\n\n**ÖNCE:** 06-04, 06-08\n\n**MODEL:** Haiku: sayı toplama ve eşik karşılaştırma.\n\n**KAYNAK:** PLAN_spherex_v3.md §2.4, §5 madde 4; PLAN_spherex_v2.md F (D8, D9), B.5"
+ },
+ {
+  "id": "07-11",
+  "name": "[07-11] D10 yığma birimi testi ve D14 aktarım formatı (float32+zstd, float16, 8-bit PNG) ölçümü",
+  "priority": 3,
+  "tags": [
+   "test",
+   "veri-analizi",
+   "kullanıcı-bakışı",
+   "sonra",
+   "model-sonnet",
+   "kişi-c"
+  ],
+  "est_hours": 4,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** D10'da geçiş-başı ve kanal (λ eşleşmeli) yığmayı karşılaştırıyor; D14'te float32+zstd, float16 ve 8-bit PNG aktarım biçimlerini 500 kare x 64² için ölçüyoruz.\n- **Neden:** D10 WISE 0855 algılanabilirliğini, D14 aktarım boyutunu belirler.\n- **Sana ne düşüyor:** 1) D10'u yalnız yığma gerekirse koş, yoksa 'gerekmedi' yaz. 2) D14'te üç biçimin boyutunu ve yüklenme süresini ölç. 3) Q-H4'ü kullanıcıya sor.\n- **Bitti sayılır:** D10 seçimi ölçülmüş sayıyla; D14'te float32 (float16 yalnız ≥ 2x hızlıysa); gerekmeyen D10 için 'gerekmedi' kaydı, sahte sonuç yok.\n- **Kapsam dışı:** Yığma kodu liste 04'tedir; 8-bit PNG ölçüm için kullanılmaz.\n- **Alan ve süre:** C, yaklaşık 4 saat, sonra.\n---\n\n**NE:** D10: geçiş başına dedektör başına yığma ile kanal (λ eşleşmeli) yığma karşılaştırması; D14: 500 kare 64² için boyut ve yükleme süresi.\n\n**NEDEN:** D10 yalnızca yığma gerekirse (WISE 0855 algılanabilirliği belirler) anlamlıdır; D14 aktarım boyutunu belirler. Gösterim farklarının sanat olup olmadığına kullanıcı bakar.\n\n**NASIL:**\n1. D10: fark görüntülerinde statik yıldız artıkları ve ε Indi B / WISE 0855 SNR'ı; düşük medyan artık + en az eşit SNR kazanır.\n2. D10 kullanıcı sorusu (Q-H4): 'Bu fark görüntülerinde yıldız artıkları kabul edilebilir mi, yoksa hedefi gizliyor mu?'\n3. D14: float32+zstd, float16, 8-bit PNG; 500 kare x 64² için boyut ve tarayıcıda yükleme süresi.\n4. D14 eşiği: float16 en az 2 kat hızlı değilse float32 kalır; 8-bit PNG ölçüm için KULLANILMAZ (yalnız önizleme olabilir).\n5. D10 yalnızca WISE 0855 yığma gerektiriyorsa koşturulur; aksi halde 'gerekmedi' kaydı.\n\n**GİRDİ / ÇIKTI:** Girdi: 07-01 verisi, liste 04 yığma. Çıktı: `results/D10`, `results/D14`.\n\n**KABUL:** D10 seçimi ölçülmüş sayıyla; D14 float32 (veya float16 yalnız ≥ 2x hızlıysa) belgeli; D10 gerekmediyse 'gerekmedi' kaydı sahte sonuç değil.\n\n**KANIT:** Tablolar + Q-H4 yanıtı.\n\n**ÖNCE:** 07-01; liste 04 yığma\n\n**MODEL:** Sonnet: karşılaştırma kodu.\n\n**KAYNAK:** PLAN_spherex_v2.md F (D10, D14), G Stage 5; PLAN_spherex_v3.md §4.2"
+ },
+ {
+  "id": "07-12",
+  "name": "[07-12] Regresyon paketi koşu betiği: tüm testleri tek komutla koşturup tek sonuç tablosu üretmek",
+  "priority": 2,
+  "tags": [
+   "test",
+   "demo-5-gün",
+   "model-sonnet",
+   "kişi-c"
+  ],
+  "est_hours": 4,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** T1-T6, T-V1, T-V2, D1b, D2-D7, D13, D14 ve sunucu testlerini sırayla koşturan, results/summary.md tablosu ve çıkış kodu üreten run_regression.py'yi yazıyoruz.\n- **Neden:** Her kod değişiminden sonra geriye gidişi (regression) yakalamak.\n- **Sana ne düşüyor:** 1) Test kaydını yaz. 2) --fast ve --full modlarını ekle. 3) Tabloyu ve çıkış kodunu üret; bozuk sürümle dene.\n- **Bitti sayılır:** Tek komutla tüm testler koşuyor; konumu yuvarlayan bozuk sürümde paket KIRMIZI; D15 tabloda İPTAL görünüyor.\n- **Kapsam dışı:** D15 (Drizzle) kullanıcı kararıyla iptal, koşulmaz.\n- **Alan ve süre:** C, yaklaşık 4 saat, demo.\n---\n\n**NE:** `run_regression.py`: T1-T6, T-V1, T-V2, D1b, D2-D7, D13, D14 ve 06 listesindeki sunucu testlerini sırayla çalıştırır, `results/summary.md` tablosu ve çıkış kodu üretir. D15 (Drizzle) kullanıcı tarafından İPTAL edildi: tabloda 'İPTAL (kullanıcı kararı)' satırı, koşulmaz.\n\n**NEDEN:** Her kod değişiminden sonra geriye gidişi (regression) yakalamak; dürüstlük raporu (STATUS.md) buradan sayı çeker.\n\n**NASIL:**\n1. Test kaydı: id, komut, eşik, kapsam gereği (`needs_real_data`, `needs_browser`, `needs_user`).\n2. Çalıştırma modları: `--fast` (sentetik), `--full` (gerçek veri + Playwright); kullanıcı bakışı gerektirenler 'BEKLİYOR' (geçti sayılmaz).\n3. Çıktı tablosu: test, eşik, ölçülen, durum (GEÇTİ / GEÇMEDİ / ATLANDI / BEKLİYOR / İPTAL).\n4. Çıkış kodu: GEÇMEDİ varsa ≠ 0; ATLANDI/BEKLİYOR ayrıca sayılır.\n5. Koşu tarihi ve veri sha özetini tabloya yaz (07-01 şeması).\n\n**GİRDİ / ÇIKTI:** Girdi: 07-02..07-11 test dosyaları. Çıktı: `scripts/run_regression.py`, `results/summary.md`.\n\n**KABUL:** Tek komutla tüm kayıtlı testler koşar; kasıtlı bozulmuş bir dönüşümle (ör. float konumu yuvarlayan sürüm) paket KIRMIZI olur; D15 tabloda İPTAL olarak görünür.\n\n**KANIT:** summary.md + bozulmuş sürüm koşusu çıktısı.\n\n**ÖNCE:** 07-01; en az 07-02, 07-03, 07-04\n\n**MODEL:** Sonnet: betik.\n\n**KAYNAK:** PLAN_spherex_v2.md F, G Stage 8; DECISIONS_AND_TASK.md (drizzle hayır)"
+ },
+ {
+  "id": "07-13",
+  "name": "[07-13] Hedef başına son kabul kontrol listesi: 5 yarışma hedefi için ölçülebilir geçti/geçmedi",
+  "priority": 1,
+  "tags": [
+   "test",
+   "rapor",
+   "demo-5-gün",
+   "kullanıcı-bakışı",
+   "model-haiku",
+   "kişi-d"
+  ],
+  "est_hours": 4,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** 5 hedef (Barnard, Epsilon Indi B, WISE 0855, RW Aurigae, R Draconis) için tek şablonlu, her kutusu bir sonuca veya ekran görüntüsüne bağlı son kabul listesini dolduruyoruz.\n- **Neden:** SPHEREx'in gösteremediği hedef dürüstçe 'gösterilemedi' denmeli, başkasıyla değiştirilmemeli.\n- **Sana ne düşüyor:** 1) Şablonu 5 hedef için doldur. 2) Her kutuya GEÇTİ, GEÇMEDİ veya ÖLÇÜLMEDİ yaz. 3) Ekran görüntülerini ve son soruyu kullanıcıya gönder.\n- **Bitti sayılır:** 5 hedefin hepsi dolu; her madde bir dosya/log/ekran görüntüsüne bağlı; 'ÖLÇÜLMEDİ' sayısı yazılı; kapsamsız hedef için 'gösterilemedi' dolu.\n- **Kapsam dışı:** Hedef raporları liste 08'dedir; hedef değiştirilmez.\n- **Alan ve süre:** D, yaklaşık 4 saat, demo.\n---\n\n**NE:** 5 hedef (Barnard Yıldızı, Epsilon Indi B, WISE 0855, RW Aurigae, R Draconis) için tek şablonlu kabul kontrol listesi; her kutu bir test sonucuna veya ekran görüntüsüne bağlıdır.\n\n**NEDEN:** Kapsam kararı: yalnız bu 5 hedef; SPHEREx'in gösteremediği hedef (WISE 0855 olabilir) dürüstçe 'gösterilemedi' diye raporlanır, başkasıyla DEĞİŞTİRİLMEZ. WISE 0855, RW Aur, R Dra kapsamı BİLİNMİYOR (TAP başarısız [V: s0_A]).\n\n**NASIL:**\n1. Madde 1 kapsam: kare sayısı / dedektör / geçiş (0 olabilir, yazılı).\n2. Madde 2 görüntü: T-V1 geçti; hedef penceresi native piksel; blink çalışıyor; rozet (θ_res, WCS düzeltmesi) görünür.\n3. Madde 3 konum: float marker + elips; Gaia bindirme; T5 geçti; doygun hedefte 'saturated-fit' rozeti (Barnard).\n4. Madde 4 hareket/parlaklık: Barnard ve ε Indi B için T6; WISE 0855 için algılandı/algılanmadı + SNR; RW Aur ve R Dra için kare başına parlaklık/λ paneli (değişen yıldız).\n5. Madde 5 sunucu: önbellek sıcak, < 3 sn yükleme [v3 §4.1], çevrimdışı yedek mevcut (liste 06).\n6. Her kutu: GEÇTİ / GEÇMEDİ / ÖLÇÜLMEDİ; ÖLÇÜLMEDİ gizlenmez; kullanıcıya ekran görüntüleri ve son soru gider.\n\n**GİRDİ / ÇIKTI:** Girdi: `results/summary.md`, hedef raporları (liste 08). Çıktı: `acceptance/<hedef>.md` x 5, `acceptance/summary.md`.\n\n**KABUL:** 5 hedefin her biri için dolu liste; her madde bir dosya/log/ekran görüntüsüne bağlı; 'ÖLÇÜLMEDİ' sayısı açıkça yazılı; kapsamsız hedef için 'gösterilemedi' maddesi dolu.\n\n**KANIT:** acceptance/ dosyaları + kullanıcı onay mesajı.\n\n**ÖNCE:** 07-12; liste 08 hedef raporları\n\n**MODEL:** Haiku: şablonu sonuçlarla doldurma, kontrol.\n\n**KAYNAK:** DECISIONS_AND_TASK.md (kapsam kararı); PLAN_spherex_v3.md §4; PLAN_spherex_v2.md G Stage 7 kabulleri"
+ },
+ {
+  "id": "07-14",
+  "name": "[07-14] Sentetik cisimle kurtarma testi (kullanıcı özelliği ve hareketli bulucu ile ortak)",
+  "priority": 3,
+  "tags": [
+   "test",
+   "sonra",
+   "model-sonnet",
+   "kişi-a"
+  ],
+  "est_hours": 3,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** Gerçek karelere bilinen konum, hız ve parlaklıkta sahte cisim ekleyip konumunu, akısını ve bulunma oranını ölçüyor; etiket ve yalıtımın çalıştığını doğruluyoruz.\n- **Neden:** Bulucunun bilimsel doğruluğunu sınamak; sahte cisim gerçek sonuçlara karışmamalı.\n- **Sana ne düşüyor:** 1) 4+ ve 8+ kareli iki alan seç. 2) Sabit tohumla 200 sahte cisim ekle. 3) Konum, akı, bulunma oranı ve yalıtım/etiket testlerini yap.\n- **Bitti sayılır:** SNR ≥ 7 için ≥ %90 bulunma ve konum hatası 3σ içinde; yalıtım testi sıfır sızıntı.\n- **Kapsam dışı:** Özelliği kullanıcıya göstermek 04-17'dedir; bu görev bilimsel doğruluğu sınar.\n- **Alan ve süre:** A, yaklaşık 3 saat, sonra.\n---\n\n**ARKA PLAN (sade dille):** Gerçek karelere bilinen konumda, hızda ve parlaklıkta sahte bir cisim eklenir; sistem onu geri bulabiliyor mu diye ölçülür (enjeksiyon-kurtarma). 04-17 kullanıcıya bu özelliği gösterir; bu görev bilimsel doğruluğu sınar.\n\n**AMAÇ:** Eklenen cismin konumu, akısı ve bulunma oranını ölçmek; etiketin ve yalıtımın çalıştığını doğrulamak.\n\n**NASIL (adım adım):**\n1. En az 4 kareli ve ≥8 kareli iki alan seç (v2 D11).\n2. Sabit tohumla 200 sahte cisim: hız aralığı, farklı SNR.\n3. Her biri için konum hatası (σ biriminde), akı sapması ve bulunma oranı.\n4. Yalıtım testi: sahte cisim önbellekte, CSV'de, ölçüm tablosunda yok.\n5. Etiket testi: ekran, PNG ve CSV çıktılarında 'SENTETİK' var.\n\n**GİRDİ / ÇIKTI:** Girdi: gerçek kareler. Çıktı: kurtarma tablosu.\n\n**KABUL:** SNR ≥ 7 için ≥ %90 bulunma ve konum hatası 3σ içinde (v2 D11 ölçütü); yalıtım testi sıfır sızıntı.\n\n**KANIT:** Tablo ve grafik.\n\n**ÖNCE:** 04-17, 04-06\n\n**MODEL:** Sonnet.\n\n**DİKKAT EDİLECEKLER (olası tuzaklar):**\n- Sahte cismi eklerken ePSF'in aynısıyla bulmak iyimser sonuç verir (03-12 notu); değişik bir PSF bölgesi de dene.\n\n**KAYNAKLAR:** Yerel: plan/PLAN_spherex_v2.md (D11); http://byw.tools/wiseview: Help ve About bölümleri (yerel kopya: sources\\wiseview.md). https://github.com/backyardworlds/wiseview: kaynak kod; ilgili dosyaların yerel kopyaları sources_wiseview\\ klasöründe (flash3.js, image_parsing.py, unwise_cutout.py, unoverse.py)."
+ },
+ {
+  "id": "07-15",
+  "name": "[07-15] 5 hedef için otomatik kontak sayfası (regresyon ekran görüntüleri)",
+  "priority": 3,
+  "tags": [
+   "test",
+   "demo-5-gün",
+   "kullanıcı-bakışı",
+   "model-haiku",
+   "kişi-d"
+  ],
+  "est_hours": 3,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** Her koşuda 5 hedef için kontak sayfası PNG'si (12 karelik ızgara) üretip önceki koşuyla karşılaştırıyor ve kullanıcıya göstermeye hazırlıyoruz.\n- **Neden:** Varsayılan ayarlar değişince hedeflerin hâlâ iyi göründüğünü bir bakışta görmek.\n- **Sana ne düşüyor:** 1) Her hedef için 12 kare seç. 2) 02-20 işleviyle PNG üret. 3) Önceki koşuyla piksel farkı raporu çıkar.\n- **Bitti sayılır:** 5 PNG üretiliyor; WISE 0855 gibi kapsamı bilinmeyen hedef için 'kapsam yok' kartı çıkıyor.\n- **Kapsam dışı:** Izgara işlevi 02-20'dedir; kapsamsız hedef hata değil durumdur.\n- **Alan ve süre:** D, yaklaşık 3 saat, demo.\n---\n\n**ARKA PLAN (sade dille):** Kontak sayfası, bir hedefin birçok karesini küçük bir ızgarada yan yana gösteren tek resimdir. Varsayılan ayarlar değiştiğinde 5 hedefin hâlâ iyi göründüğünü bir bakışta görmeyi sağlar.\n\n**AMAÇ:** Her koşuda 5 hedef için kontak sayfası PNG'si üretip karşılaştırmak ve kullanıcıya göstermek.\n\n**NASIL (adım adım):**\n1. display_defaults.json ile her hedefin 12 karesini seç (aynı dedektör, geçiş boyunca eşit aralık).\n2. 02-20 işleviyle ızgara PNG'si üret; hedef adı ve ayar sürümü başlıkta.\n3. Önceki koşuyla piksel farkı raporu; büyük fark uyarı.\n4. Çıktıyı klasöre kaydet ve kullanıcıya göstermek için hazırla (Q-H3).\n\n**GİRDİ / ÇIKTI:** Girdi: 5 hedef kare listesi. Çıktı: 5 PNG + fark raporu.\n\n**KABUL:** 5 PNG üretilir; WISE 0855 gibi kapsamı bilinmeyen hedef için 'kapsam yok' kartı üretilir.\n\n**KANIT:** PNG'ler ve fark raporu.\n\n**ÖNCE:** 02-20, 02-22\n\n**MODEL:** Haiku: koşturma ve karşılaştırma.\n\n**DİKKAT EDİLECEKLER (olası tuzaklar):**\n- Kapsamı bilinmeyen hedefler (WISE 0855, RW Aur, R Dra) boş görünür; bunu hata değil durum olarak göster.\n\n**KAYNAKLAR:** Yerel: plan/DISPLAY_LAYER_DESIGN.md (§3.3, N2)."
+ },
+ {
+  "id": "07-16",
+  "name": "[07-16] ZODI anahtarı testi: ölçüm değişmez, arka plan sıçraması ölçülür",
+  "priority": 2,
+  "tags": [
+   "test",
+   "demo-5-gün",
+   "model-sonnet",
+   "kişi-d"
+  ],
+  "est_hours": 3,
+  "description": "**ÖZET (sade dille)**\n- **Ne yapıyoruz:** ZODI (gezegenler arası tozun arka plan parıltısı) anahtarının ölçümü etkilemediğini ve blink'te arka plan sıçramasını azaltıp azaltmadığını doğruluyoruz.\n- **Neden:** Sıçramanın azalacağı henüz varsayım [ASSUMPTION]; ölçülüp raporlanacak.\n- **Sana ne düşüyor:** 1) Aynı kareleri ham, zodi, flat modlarında üret. 2) Üç modda ölçüm CSV'lerini karşılaştır. 3) Barnard ve ε Indi B'de sıçramayı hesapla.\n- **Bitti sayılır:** Üç modda CSV hash'i aynı; sıçrama sayıları tabloda, kararın gerekçesi yazılı.\n- **Kapsam dışı:** Medyan sıçraması yalnız arka planı ölçer, hareketli cismi ölçmez.\n- **Alan ve süre:** D, yaklaşık 3 saat, demo.\n---\n\n**ARKA PLAN (sade dille):** ZODI (zodiacal ışık), Güneş ışığını yansıtan gezegenler arası tozun gökyüzünde yaptığı zayıf arka plan parıltısıdır. SPHEREx IMAGE uzantısında bu parıltı çıkarılmamıştır; ayrı ZODI uzantısında modeli durur [V: IRSA giriş öğreticisi]. Gösterimde çıkarırsak yıldızlar netleşir ve blink'te arka plan kareler arasında zıplamaz. Ölçüm ham veriden yapılır, bu anahtardan etkilenmez.\n\n**AMAÇ:** İki şeyi doğrulamak: (1) anahtar ölçümü hiç etkilemiyor, (2) ZODI çıkarılınca blink'teki arka plan sıçraması gerçekten azalıyor mu.\n\n**NASIL (adım adım):**\n1. Aynı kare dizisini ham, zodi, flat modlarında üret; ölçüm tablosunu (CSV) üç modda üret ve karşılaştır.\n2. Her modda ardışık karelerin arka plan medyan farklarının standart sapmasını hesapla (aynı dedektör, aynı geçiş).\n3. Barnard ve ε Indi B için tekrarla; sonucu tabloya yaz.\n4. Beklenti 'ZODI açıkken sıçrama azalır'; bu [ASSUMPTION], ölçülüp raporlanacak. Azalmıyorsa varsayılan yeniden değerlendirilir.\n\n**GİRDİ / ÇIKTI:** Girdi: kare dizisi. Çıktı: CSV hash'leri ve sıçrama tablosu.\n\n**KABUL:** Üç modda CSV hash'i aynı; sıçrama sayıları tabloda ve kararın gerekçesi yazılı.\n\n**KANIT:** Tablo ve CSV hash'leri.\n\n**ÖNCE:** 02-19, 05-20\n\n**MODEL:** Sonnet.\n\n**DİKKAT EDİLECEKLER (olası tuzaklar):**\n- Medyan sıçraması sadece arka plan düzeyini ölçer; hareket eden cismi ölçmez.\n\n**KAYNAKLAR:** Yerel: plan/DISPLAY_LAYER_DESIGN.md (§2.1 adım 3); https://caltech-ipac.github.io/irsa-tutorials/spherex-intro/ (ZODI uzantısı; yerel kopya sources\\irsa-tut-spherex-intro.md)."
+ }
+]
