@@ -25,7 +25,8 @@ Son güncelleme: 2026-11-15. Ana proje hafızası: [Second Brain](docs/second-br
 | 03-07 epoch | `b_astrometri/gaia/epoch.py`; 11 epoch testi; kutup geometrisi vektörel yöntemle düzeltildi | 02-03 entegrasyonu, HEALPix/sorgu seçimi ve kovaryans belirsizliği açık. Barnard örneği RV=0 varsayımlı tahmindir. |
 | 03-04 elips | `b_astrometri/centroid/ellipse.py`, `test_ellipse.py`; centroid test paketinde yer alıyor | ClickUp önkoşulu 03-03 doğrulanmadı; yerel modül ClickUp kapanışı demek değil. |
 | 03-14 koordinat denetimi | `coord_audit.py`, `test_coord_audit.py`; statik denetim alt-piksel float/origin=1 kalıplarını arıyor | Kod/test prototipi var; 02-03 ve 03-03 önkoşulları doğrulanmadı. Görev kabulü açık. |
-| Proje hafızası | `docs/second-brain/`, `HANDOFF.md`, `docs/AGENT_LOOP.md` | Güncel ClickUp bağlantısı yok; son snapshot 2026-11-15 ve yalnız o anın kaydıdır. |
+| 04-01 geçiş gruplama | `b_astrometri/motion/passes.py`, 4 test; Barnard 358 kare/3 pass, ε Indi B 458 kare/4 pass; gap listesi eklendi | Liste 02 manifesti bulunamadı; iki yerel kare listesinde `SPS_EPA` alanı yok. H-03 bekliyor, görev kabulü açık. Çıktılar `C:/Users/behlu/reports/04-01-passes/` altında. |
+| Proje hafızası | `docs/second-brain/`, `HANDOFF.md`, `docs/AGENT_LOOP.md`, `graphify-out/` | ClickUp GET /user HTTP 401; 2026-11-14 tarihli snapshot güncel durum değildir. H-02 yerel token yenilemesi bekliyor. |
 
 ## İnsan girdisi bekleyen adım
 
@@ -34,15 +35,16 @@ H-01: Akif'in 02-03 koordinat/piksel kuralları ile 02-12 L1 cache çıktıları
 ## Son test (2026-11-15)
 
 - **Döngü tur 2 (04-01):** `b_astrometri/motion/passes.py` + `test_passes.py` (4 test OK; Barnard 358 kare → 3 geçiş [46/55/37 gün], ε Indi B → 4 geçiş [46/45/15/10 gün]).
+- **Döngü tur 3 (03-02 kısmi/prototip):** `b_astrometri/centroid/d5_check.py`, `test_d5_check.py` (3 test OK) ve `d5_result.md` eklendi. `×1`/`×25` kendi-kurtarma (`< 0.001 px`) + `25×` akı ölçeği ve sentetik yönelim `χ²_ν` ayrımı doğrulandı; 200 gerçek yıldız (`02-07` / `H-01`) `[NV]` açık bırakıldı.
 
 ```powershell
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/motion -p 'test_*.py' -v
 # 4 test OK
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/centroid -p 'test_*.py' -v
-# 16 test OK
+# 26 test OK
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/gaia -p 'test_*.py' -v
 # 30 test OK
 git diff --check
 ```
 
-ClickUp API aracı bu çalışma oturumunda mevcut değil. Görev durumu değiştirilmedi, yorum/mesaj gönderilmedi. Önceki anlık görüntüde bütün ilgili işler `to do` idi; güncel durumu ayrıca doğrulamadan aynı sonucu varsayma.
+ClickUp API canlı okuma denemesi yerel tokenla HTTP 401 döndürdü. Görev durumu değiştirilmedi, yorum/mesaj gönderilmedi. 2026-11-14 tarihli anlık görüntüde Behlül'e atanan 46 görevin tamamı `to do` idi; bunu güncel durum varsayma. Erişim için H-02'yi tamamlat; 04-01 üretim girdisi için H-03'ü yanıtla.
