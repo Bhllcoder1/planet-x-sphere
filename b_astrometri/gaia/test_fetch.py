@@ -38,6 +38,25 @@ class Response:
         pass
 
 
+class ErrorResponse:
+    """Simulates a non-2xx HTTP response that raises HTTPError on raise_for_status."""
+    def __init__(self, status_code):
+        self.status_code = status_code
+        self.content = b""
+
+    def raise_for_status(self):
+        err = requests.HTTPError(f"{self.status_code}")
+        err.response = self
+        raise err
+
+
+def http_error(status_code):
+    """Return an HTTPError with the given status code, for use in Session responses."""
+    err = requests.HTTPError(f"{status_code}")
+    err.response = type("FakeResp", (), {"status_code": status_code})()
+    return err
+
+
 class Session:
     def __init__(self, responses):
         self.responses = iter(responses)
@@ -167,6 +186,24 @@ class FetchTests(unittest.TestCase):
                 fetch.parse_catalogue(document(ra=ra, dec=dec))
         fetch.parse_catalogue(document(ra=0, dec=-90))
         fetch.parse_catalogue(document(ra=359.9, dec=90))
+
+    def test_permanent_http_error_not_retried(self):
+        """4xx errors (except 429) must raise immediately without retry."""
+        for status in (400, 403, 404, 422):
+            session = Session([http_error(status), document()])
+            with self.subTest(status=status), \
+                 self.assertRaisesRegex(RuntimeError, f"permanent HTTP {status}"):
+                fetch.fetch_tile("esa", "q", self.root / "cache", session=session, attempts=2)
+            # Only one call was made — the permanent error stopped retry
+            self.assertEqual(len(session.calls), 1,
+                             f"Expected exactly 1 call for HTTP {status}, got {len(session.calls)}")
+
+    def test_429_is_retried_like_transient_error(self):
+        """429 Too Many Requests is transient and must be retried."""
+        session = Session([http_error(429), document()])
+        with patch.object(fetch.time, "sleep"):
+            fetch.fetch_tile("esa", "q", self.root / "cache", session=session, attempts=2)
+        self.assertEqual(len(session.calls), 2, "429 should trigger a retry")
 
     def test_external_stream_rejected_before_astropy(self):
         for href in ("file:///private/data", "https://example.invalid/data"):

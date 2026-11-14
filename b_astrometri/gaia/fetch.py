@@ -109,6 +109,19 @@ def fetch_tile(provider, query, cache, *, attempts=2, timeout=45, session=None):
                            "seconds": round(time.monotonic() - started, 3)}
         except (ValueError, ET.ParseError) as error:
             raise RuntimeError(f"{provider} invalid catalogue: {error}") from error
+        except requests.HTTPError as error:
+            # 4xx errors are permanent (server understood the request but refused/can't serve it).
+            # 429 Too Many Requests is transient and may be retried like any other network error.
+            # Note: timeout=(connect, read) limits time between bytes, not total transfer time;
+            # a server streaming data very slowly can still exceed the intended budget.
+            status = error.response.status_code if error.response is not None else None
+            if status is not None and 400 <= status < 500 and status != 429:
+                raise RuntimeError(
+                    f"{provider} permanent HTTP {status} (not retried): {error}"
+                ) from error
+            if attempt + 1 == attempts:
+                raise RuntimeError(f"{provider} failed after {attempts} attempts: {error}") from error
+            time.sleep(min(2 ** attempt, 8))
         except requests.RequestException as error:
             if attempt + 1 == attempts:
                 raise RuntimeError(f"{provider} failed after {attempts} attempts: {error}") from error
