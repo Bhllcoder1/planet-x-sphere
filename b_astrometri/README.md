@@ -59,4 +59,13 @@ Konum bilimi: ePSF ile merkezleme, Gaia eşleme, WCS düzeltmesi, hareket uydurm
 | 10-11 | 6 h | demo | Okuma paneli, WCS-düzeltme rozeti ve geçişler arası hareket ölçüm paneli |
 | 10-12 | 5 h | demo | Spektrum / ışık eğrisi paneli: RW Aur ve R Dra için zorunlu minimum |
 
-Her görevin ayrıntısı `docs/tasks/tasks_<liste>.json` dosyasında ve ClickUp'ta.
+Her görevin ayrıntısı ClickUp'ta (Planet XSphere çalışma alanı).
+
+## Alt klasörler
+
+- `centroid/  ePSF ile merkezleme ve hata elipsi
+- `gaia/      Gaia sorgusu, epoğa taşıma, eşleme
+- `wcs/       WCS düzeltmesi ve aberasyon alarmı
+- `motion/    hareket uydurma
+- `movers/    hareketli cisim bulucu ve SkyBoT etiketleme
+- `reports/   5 hedefin sonuç raporları

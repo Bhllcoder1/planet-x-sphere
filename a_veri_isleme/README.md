@@ -66,4 +66,12 @@ NASA/IRSA'dan veri almak (TAP sorgusu, S3 okuma), pencere kesmek, maskelemek, ar
 | 11-14 | 5 h |  | Spektrum grafiği (hata çubuklu, dedektöre göre renkli) ve tablosu |
 | 11-15 | 2 h | demo | Her çıktıya kaynak bloğu ve dürüst sınır notu eklemek |
 
-Her görevin ayrıntısı `docs/tasks/tasks_<liste>.json` dosyasında ve ClickUp'ta.
+Her görevin ayrıntısı ClickUp'ta (Planet XSphere çalışma alanı).
+
+## Alt klasörler
+
+- `fetch/     NASA/IRSA'dan kare listesi (TAP) ve piksel okuma (S3)
+- `process/   maske, arka plan, yıldız bulma, doymuş çekirdek
+- `products/  kare ürün dosyaları ve manifest
+- `display/   gerdirme, PNG ve küçük resim üretimi
+- `exports/   CSV, FITS kesit ve spektrum çıktıları

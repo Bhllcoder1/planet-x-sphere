@@ -63,4 +63,10 @@ Tarayıcı görüntüleyicisi (Mod N, blink, işaretler, bayraklar, gerdirme ara
 | 11-22 | 2 h |  | Tasarım gözden geçirme kapısı: erişilebilirlik, tutarlılık ve dürüstlük |
 | 11-23 | 3 h | demo | Geçmiş kayıtlarında küçük resim (thumbnail) göstermek |
 
-Her görevin ayrıntısı `docs/tasks/tasks_<liste>.json` dosyasında ve ClickUp'ta.
+Her görevin ayrıntısı ClickUp'ta (Planet XSphere çalışma alanı).
+
+## Alt klasörler
+
+- `viewer/    görüntüleyici çekirdeği (Mod N, blink, işaretler, bayraklar)
+- `pages/     site sayfaları ve paneller
+- `design/    tasarım belirteçleri ve tel örgüler

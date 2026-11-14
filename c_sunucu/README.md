@@ -63,4 +63,11 @@ FastAPI sunucusu, önbellek, kiralık makine kurulumu ve kapatma, dağıtım (Do
 | 11-11 | 3 h | demo | PNG çıktısı: grid, işaretçi ve rozet metni gömülü görünüm kaydı |
 | 11-13 | 5 h | sonra | Kesit FITS çıktısı: IRSA çok uzantılı düzen (IMAGE, FLAGS, VARIANCE, ZODI, EPSF, WCS-WAVE) |
 
-Her görevin ayrıntısı `docs/tasks/tasks_<liste>.json` dosyasında ve ClickUp'ta.
+Her görevin ayrıntısı ClickUp'ta (Planet XSphere çalışma alanı).
+
+## Alt klasörler
+
+- `api/       sunucu uç noktaları ve API sözleşmesi
+- `cache/     L0/L1/L2 önbellek
+- `accounts/  giriş, oturum, geçmiş, profil
+- `deploy/    Docker ve Caddy dosyaları
