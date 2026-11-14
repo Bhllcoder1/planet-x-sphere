@@ -80,4 +80,5 @@ API hesabı Behlül Anik doğrulandı; çalışma alanı ID `1100330000031287`. 
 
 ## Oturum notu 2026-11-15
 - ClickUp okundu: 199 gorev, hepsi 'to do' (kapanis yapilmadi). Siradaki bagimsiz gorev 03-04 yerelde tamamlandi: `b_astrometri/centroid/ellipse.py` + `test_ellipse.py` (6 test; centroid dizininde toplam 13 test gecti). 2B Gauss 1-sigma kapsama %39,3 Monte Carlo ile dogrulandi. cat.json entegrasyonu 03-03 fit_result'a bagli [NV].
-- Sonraki: 03-12/03-14 (denetim, bagimsiz), 03-02 (ePSF normalizasyon denetimi), 04-01 (gecis gruplama).
+- Otonom ajan dongusu `docs/AGENT_LOOP.md` olarak tasarlandi ve ilk turda **03-14 koordinat kurallari denetimi** tamamlandi: `b_astrometri/centroid/coord_audit.py` + `test_coord_audit.py` (3 test). Denetim `ellipse.py` icindeki `rho` alaninin `numpy.float64` dondurdugunu yakaladi ve native `float` olarak duzeltildi; `b_astrometri/centroid` (16 test) + `b_astrometri/gaia` (30 test) = 46 test gecti.
+- Sonraki: 03-12 (enjeksiyon/kurtarma duzenegi), 03-02 (ePSF normalizasyon denetimi), 04-01 (gecis gruplama).

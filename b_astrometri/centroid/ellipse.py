@@ -32,13 +32,13 @@ def error_ellipse(cov, k: float = 1.0) -> dict:
         raise ValueError("cov simetrik olmali")
     if k <= 0:
         raise ValueError("k > 0 olmali")
-    sxx, syy, sxy = c[0, 0], c[1, 1], 0.5 * (c[0, 1] + c[1, 0])
+    sxx, syy, sxy = float(c[0, 0]), float(c[1, 1]), float(0.5 * (c[0, 1] + c[1, 0]))
     if sxx < 0 or syy < 0:
         raise ValueError("kosegen negatif olamaz")
     vals = np.linalg.eigvalsh(np.array([[sxx, sxy], [sxy, syy]]))
     if vals[0] < -1e-12 * max(1.0, vals[1]):
         raise ValueError("cov pozitif yari-tanimli degil")
-    lam1, lam2 = max(vals[1], 0.0), max(vals[0], 0.0)
+    lam1, lam2 = float(max(vals[1], 0.0)), float(max(vals[0], 0.0))
     theta = 0.5 * math.atan2(2.0 * sxy, sxx - syy)
     sig_x, sig_y = math.sqrt(sxx), math.sqrt(syy)
     rho = sxy / (sig_x * sig_y) if sig_x > 0 and sig_y > 0 else 0.0
