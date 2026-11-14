@@ -33,12 +33,16 @@ H-01: Akif'in 02-03 koordinat/piksel kuralları ile 02-12 L1 cache çıktıları
 
 ## Son test (2026-11-15)
 
+- **Döngü tur 2 (04-01):** `b_astrometri/motion/passes.py` + `test_passes.py` (4 test OK; Barnard 358 kare → 3 geçiş [46/55/37 gün], ε Indi B → 4 geçiş [46/45/15/10 gün]).
+
 ```powershell
+& 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/motion -p 'test_*.py' -v
+# 4 test OK
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/centroid -p 'test_*.py' -v
 # 16 test OK
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/gaia -p 'test_*.py' -v
 # 30 test OK
- git diff --check
+git diff --check
 ```
 
 ClickUp API aracı bu çalışma oturumunda mevcut değil. Görev durumu değiştirilmedi, yorum/mesaj gönderilmedi. Önceki anlık görüntüde bütün ilgili işler `to do` idi; güncel durumu ayrıca doğrulamadan aynı sonucu varsayma.
