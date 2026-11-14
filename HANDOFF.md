@@ -37,12 +37,13 @@ H-01: Akif'in 02-03 koordinat/piksel kuralları ile 02-12 L1 cache çıktıları
 
 - **Döngü tur 2 (04-01):** `b_astrometri/motion/passes.py` + `test_passes.py` (4 test OK; Barnard 358 kare → 3 geçiş [46/55/37 gün], ε Indi B → 4 geçiş [46/45/15/10 gün]).
 - **Döngü tur 3 (03-02 kısmi/prototip):** `b_astrometri/centroid/d5_check.py`, `test_d5_check.py` (3 test OK) ve `d5_result.md` eklendi. `×1`/`×25` kendi-kurtarma (`< 0.001 px`) + `25×` akı ölçeği ve sentetik yönelim `χ²_ν` ayrımı doğrulandı; 200 gerçek yıldız (`02-07` / `H-01`) `[NV]` açık bırakıldı.
+- **Döngü tur 4 (03-05 prototip):** `b_astrometri/centroid/wing_fit.py` + `test_wing_fit.py` (2 test OK) eklendi. NaN/OVERFLOW çekirdek maskeli kanat uyumu, `saturated_fit` rozeti, `> %50` maskeli kesitte `unmeasurable` dönüşü ve `ellipse.catalog_fields` entegrasyonu doğrulandı; Barnard 358 gerçek kare taraması `02-08`/`03-03` (`H-01`) bekliyor `[NV]`.
 
 ```powershell
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/motion -p 'test_*.py' -v
 # 4 test OK
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/centroid -p 'test_*.py' -v
-# 26 test OK
+# 28 test OK
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/gaia -p 'test_*.py' -v
 # 30 test OK
 git diff --check
