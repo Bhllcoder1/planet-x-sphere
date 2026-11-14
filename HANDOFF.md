@@ -27,6 +27,9 @@ Son güncelleme: 2026-11-15, aktif geliştirme oturumu. Bu dosya Claude Code/Cod
 | 00-05 çalışma protokolü | `docs/WORK_PROTOCOL.md`; 7 kural, 3 seçim provası | ClickUp'ta kapatılmadı. |
 | 08-01 sonuç şablonu | `b_astrometri/reports/hedefler_sablon.md`; 6 bölüm ve tarihsel örnekler | Yeni bilimsel ölçüm yapılmadı; ClickUp'ta kapatılmadı. |
 | 01-03 Gaia istemcisi | `b_astrometri/gaia/fetch.py`, `test_fetch.py`; 11 test geçti | Küçük karo alternatifi 16/16 başarılı; 49.176 tekil kaynak/67,364 sn. Önkoşul ve ClickUp kapanışı ayrı. |
+| 03-15 WiseView epoch testi | `b_astrometri/gaia/test_epoch_wiseview.py`; 6 test geçti | Barnard 2010 WISE MJD'ye taşındı; katalog↔epoch >10" sapma [V]. RV=−110 km/s [ASSUMPTION]. |
+| epsf.py NaN fix | `b_astrometri/centroid/epsf.py:131` + `test_epsf.py`; 7 test geçti | NaN-güvenli eşik; regresyon testi eklendi. |
+| **Commit** | `aa15f4f` — dal `b/01-03-gaia-fetch` | 23 dosya, 1853 ekleme; push/PR henüz yok. |
 
 ## Aktif işler — aynı dosyaya tekrar ajan verme
 
@@ -53,11 +56,12 @@ Araçtaki ajan oturumları başka uygulamaya taşınmaz. Devir sırasında çal�
 
 ## Sonraki somut adımlar
 
-1. Graphify çıktısını ve örnek sorgusunu doğrula; grafiğin kapsamını ve son anlık görüntü tarihini kaydet.
-2. Kullanıcının istediği TypeSafe skill `.agents/skills/typesafe-ai/` içine tek npx yöntemiyle kuruldu. İlgili işlerde SKILL.md oku. Görüntü/Box deneysel; canlı API denemesi yapılmadı. Skill canlı testten önce veri kapsamı/bütçe/onay ister; henüz test isteği yok.
-3. EPSF kanıtı `reports/epsf-real-smoke.json` ve `reports/epsf-detector2-region220.png` içinde. Konum self-recovery fiziksel akı doğruluğu demek değildir.
-4. Eksik önkoşullara bağlı görevleri tamamlanmış gösterme. 01-01 ortam mevcut ve çalışıyor; temiz kurulum/lockfile kabulü ayrı ve açık.
-5. Kullanıcı H-01 yanıtı gelirse ilgili kodu inceleyip entegrasyon sözleşmesini netleştir. Sonrasında 03-02/04-03 sırasına geç.
+1. **TypeSafe cookbook analizi tamamlandı (bu oturum):** 27 cookbook okundu; kodda LLM/prompt yok, hiçbiri uymuyor. fetch.py ve epsf.py kırılganlıkları listelendi. epsf.py NaN fix yapıldı ve commit edildi.
+2. **03-15 WiseView testi yapıldı ve commit edildi:** 6 test geçti. Önkoşulsuz tamamlandı.
+3. **Açık fetch.py kırılganlıkları:** Toplam süre sınırı yok (stream=True gerekeceği not edildi), 4xx/5xx kalıcı hata ayrımı yok, bağlantı ölçeği varsayımı (6.2"/px). Bunlar ayrı iş olarak ele alınabilir.
+4. Graphify `finalize()` için `.graphify_labels.json` gerekiyor; henüz oluşturulmadı. GRAPH_REPORT.md eksik.
+5. Kullanıcı H-01 yanıtı gelirse entegrasyon sözleşmesini netleştir; ardından 03-02/04-03 sırasına geç.
+6. ClickUp kapanışları: 00-05, 08-01, 01-03, 03-07, 03-01 ve 03-15 yerel olarak tamamlandı; ClickUp'ta hâlâ `to do`.
 
 ## Test komutları
 
