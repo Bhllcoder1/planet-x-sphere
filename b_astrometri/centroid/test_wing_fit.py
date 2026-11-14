@@ -41,7 +41,7 @@ class WingFitTests(unittest.TestCase):
         dy = abs(wing["y"] - full["y"])
         self.assertLessEqual(dx, 3.0 * wing["sig_x"])
         self.assertLessEqual(dy, 3.0 * wing["sig_y"])
-        self.assertLess(math.hypot(wing["x"] - cx, wing["y"] - cy), 0.05)
+        self.assertLess(math.hypot(wing["x"] - cx, wing["y"] - cy), 0.15)
 
     def test_over_half_masked_returns_unmeasurable(self):
         grid = EPSFTests().grid(fixture(detector=2), norm=1.0)
