@@ -1,0 +1,20 @@
+{
+  "excludes": [
+    ".git/**",
+    "graphify-out/**",
+    "docs/plan/**",
+    "docs/research/**",
+    "docs/stage0/**",
+    ".github/**",
+    "a_veri_isleme/**",
+    "c_sunucu/**",
+    "d_site/**",
+    "ops/**",
+    "tests/**",
+    "contracts/**",
+    ".agents/**",
+    "skills-lock.json"
+  ],
+  "gitignore": true,
+  "scope_note": "Targeted Behlul project memory + task documents + new astrometry code; archived research/plans/stage0 raw reports and other team implementation excluded."
+}
