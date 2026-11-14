@@ -59,7 +59,8 @@ def group_passes(
         raise ValueError("empty_status 'unknown' veya 'no_coverage' olmali")
     if not frames:
         return {"status": empty_status, "gap_days": float(gap_days),
-                "passes": [], "pass_of_frame": {}}
+                "n_frames": 0, "n_passes": 0, "passes": [], "gaps": [],
+                "pass_of_frame": {}}
 
     enriched = []
     for idx, f in enumerate(frames):
@@ -68,11 +69,19 @@ def group_passes(
     enriched.sort(key=lambda item: (item[0], item[1]))
 
     groups: list[list[tuple[float, str, str, Any]]] = []
+    gaps: list[dict[str, Any]] = []
     for item in enriched:
-        if not groups or (item[0] - groups[-1][-1][0]) > gap_days:
+        if not groups:
             groups.append([item])
         else:
-            groups[-1].append(item)
+            previous = groups[-1][-1]
+            gap = item[0] - previous[0]
+            if gap > gap_days:
+                gaps.append({"from_frame": previous[1], "to_frame": item[1],
+                             "gap_days": float(gap), "new_pass_id": len(groups) + 1})
+                groups.append([item])
+            else:
+                groups[-1].append(item)
 
     passes: list[dict[str, Any]] = []
     pass_of_frame: dict[str, int] = {}
@@ -104,6 +113,7 @@ def group_passes(
         "n_frames": len(enriched),
         "n_passes": len(passes),
         "passes": passes,
+        "gaps": gaps,
         "pass_of_frame": pass_of_frame,
     }
 

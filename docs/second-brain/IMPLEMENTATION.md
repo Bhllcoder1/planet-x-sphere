@@ -38,3 +38,11 @@ Kare isimleri `data/C/hdr_?.txt` başlıklarından gelir. Tam arşiv listesinin 
 ## Bağımsız kapsam denetimi
 
 Ana ajan, B penceresindeki **1.048.576 native piksel merkezinin tamamını** WCS ile göğe dönüştürüp başarılı 16 koniden en az birine düştüğünü doğruladı. FITS kaynak kimlikleri tekil, satır sayısı 49.176 ve epoch değerleri 2016.0. Kanıt: `reports/gaia-B-coverage-audit.json`. Bu geometrik kapsam testidir; kataloğun bilimsel tamlık oranını ölçmez.
+
+## Geçiş gruplama prototipi — 04-01
+
+Kaynak: `b_astrometri/motion/passes.py`. 30 günden **büyük** ardışık-kare boşluklarında yeni pass açar; `passes.json` içinde pass aralıkları, dedektör sayıları ve açık `gaps` listesi, `pass_of_frame.json` içinde kare eşlemesi üretir. Centroid-motion çevrimdışı test klasöründe 4 test vardır.
+
+Stage 0 yerel kare listesiyle doğrulama: Barnard 358/358 kare, 3 pass (46/55/37 gün), iki boşluk; ε Indi B 458/458 kare, 4 pass (46/45/15/10 gün), üç boşluk. Çıktılar depo dışı `C:/Users/behlu/reports/04-01-passes/{Barnard,EpsInd_B}/` altında. Bu, mevcut liste verisiyle modül kontrolüdür.
+
+**Sınır / kabul açık:** depo ve Stage 0 taramasında Liste 02 üretim manifesti bulunmadı. Kaydedilmiş `frames_*.json` girdilerinde `SPS_EPA` alanı yok; bu nedenle üretilen pass yönelim kümeleri boş ve görevdeki yönelim çıktısı kanıtlanmadı. Release/provenance tekilleştirmesi de bu fonksiyonda yapılmaz; Liste 02 girdisinin sözleşmesi beklenir. ClickUp 04-01'i tamamlandı saymayın. İnsan girdisi [HUMAN_ACTIONS.md](HUMAN_ACTIONS.md) H-03'te tutulur.

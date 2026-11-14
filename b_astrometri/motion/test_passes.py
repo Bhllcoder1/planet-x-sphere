@@ -17,6 +17,10 @@ class PassGroupingTests(unittest.TestCase):
         res = group_passes(frames, gap_days=30.0)
         self.assertEqual(res["n_passes"], 2)
         self.assertEqual(res["pass_of_frame"], {"a": 1, "b": 1, "c": 2})
+        self.assertEqual(len(res["gaps"]), 1)
+        self.assertEqual((res["gaps"][0]["from_frame"], res["gaps"][0]["to_frame"],
+                          res["gaps"][0]["new_pass_id"]), ("b", "c", 2))
+        self.assertAlmostEqual(res["gaps"][0]["gap_days"], 30.0001, places=8)
         self.assertTrue(res["passes"][0]["stack_ok_by_detector"]["1"])
         self.assertFalse(res["passes"][1]["stack_ok_by_detector"]["2"])
 
@@ -26,6 +30,7 @@ class PassGroupingTests(unittest.TestCase):
         self.assertEqual(unk["status"], "unknown")
         self.assertEqual(nocov["status"], "no_coverage")
         self.assertEqual(unk["passes"], [])
+        self.assertEqual(unk["gaps"], [])
 
     def test_write_outputs_roundtrip(self):
         frames = [
@@ -39,6 +44,7 @@ class PassGroupingTests(unittest.TestCase):
             f_data = json.loads(f_path.read_text(encoding="utf-8"))
             self.assertEqual(p_data["n_passes"], 1)
             self.assertEqual(p_data["passes"][0]["sps_epa"], [0.0])
+            self.assertEqual(p_data["gaps"], [])
             self.assertEqual(f_data, {"f1": 1, "f2": 1})
 
     def test_stage0_barnard_and_eps_ind_if_available(self):
@@ -52,12 +58,16 @@ class PassGroupingTests(unittest.TestCase):
         self.assertEqual(b_res["n_frames"], 358)
         self.assertEqual(b_res["n_passes"], 3)
         self.assertEqual(len(b_res["pass_of_frame"]), 358)
+        self.assertEqual(len(b_res["gaps"]), 2)
         self.assertEqual([round(p["duration_days"]) for p in b_res["passes"]], [46, 55, 37])
+        self.assertTrue(all(g["gap_days"] > 30 for g in b_res["gaps"]))
 
         e_frames = json.loads(eps_b.read_text(encoding="utf-8"))["science"]
         e_res = group_passes(e_frames)
         self.assertEqual(e_res["n_passes"], 4)
+        self.assertEqual(len(e_res["gaps"]), 3)
         self.assertEqual([round(p["duration_days"]) for p in e_res["passes"]], [46, 45, 15, 10])
+        self.assertTrue(all(g["gap_days"] > 30 for g in e_res["gaps"]))
 
 
 if __name__ == "__main__":

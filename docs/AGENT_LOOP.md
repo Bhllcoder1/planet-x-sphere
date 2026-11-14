@@ -7,6 +7,7 @@ Kullanıcı çıktısı veya ara onay beklemeden Behlül Anik'e atanan bağıms�
 1. **Durum ve Görev Oku**
    - `HANDOFF.md` ve `docs/second-brain/TASKS.md` dosyalarını oku.
    - Canlı ClickUp bağlantısı varsa `Behlül Anik` görevlerini oku; yoksa snapshot'ı yalnızca tarihli tarihsel kayıt olarak kullan. Snapshot'tan güncel durum çıkarma.
+   - Canlı API `401` döndürürse yeniden-deneme döngüsüne girme; H-02'yi kaydet ve güncel görev durumunu doğrulanmamış bırak.
    - Bu iş döngüsü görev/yorum/mesaj durumunu ClickUp'ta değiştirmez; kullanıcı açıkça isterse ayrı işlem olarak ele al.
    - `H-01` (Akif 02-03/02-12) veya kullanıcı kararı/hesap erişimi bekleyen görevleri atla.
    - `WORK_PROTOCOL.md` sırasıyla (öncelik, bağımlılık yok, tek dosya sahipliği) sıradaki bağımsız görevi seç.

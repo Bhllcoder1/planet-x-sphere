@@ -13,8 +13,11 @@
     "tests/**",
     "contracts/**",
     ".agents/**",
-    "skills-lock.json"
+    "skills-lock.json",
+    "b_astrometri/centroid/d5_check.py",
+    "b_astrometri/centroid/test_d5_check.py",
+    "b_astrometri/centroid/d5_result.md"
   ],
   "gitignore": true,
-  "scope_note": "Targeted Behlul project memory + task documents + new astrometry code; archived research/plans/stage0 raw reports and other team implementation excluded."
+  "scope_note": "Targeted Behlul project memory + tracked astrometry work; archived research/plans/stage0 raw reports and other teams' implementation excluded. Concurrent untracked D5 work is excluded until reviewed and committed; remove those exact exclusions then rebuild."
 }

@@ -48,10 +48,10 @@
     "semantic_hash": "b12d09512c52cbb8cd487263e64972fe"
   },
   "HANDOFF.md": {
-    "mtime": 1794698548.7073123,
-    "seen": 1794698650.6845138,
-    "ast_hash": "a66f8cc1cc39369e751dfb27a5515db5",
-    "semantic_hash": "a66f8cc1cc39369e751dfb27a5515db5"
+    "mtime": 1794700042.2577605,
+    "seen": 1794700156.6156204,
+    "ast_hash": "40e1c1c3fb770b58487761da309ec300",
+    "semantic_hash": "40e1c1c3fb770b58487761da309ec300"
   },
   "README.md": {
     "mtime": 1794695460.0272524,
@@ -96,22 +96,22 @@
     "semantic_hash": "ce250926159f3ad976899598073b060d"
   },
   "docs/second-brain/HUMAN_ACTIONS.md": {
-    "mtime": 1794695770.2998385,
-    "seen": 1794698296.237852,
-    "ast_hash": "fcc673539c730e43fd1ac114ea98b171",
-    "semantic_hash": "fcc673539c730e43fd1ac114ea98b171"
+    "mtime": 1794700027.4454346,
+    "seen": 1794700156.6156204,
+    "ast_hash": "c325a67fc5910b2590928dcf5ff090f3",
+    "semantic_hash": "c325a67fc5910b2590928dcf5ff090f3"
   },
   "docs/second-brain/IMPLEMENTATION.md": {
-    "mtime": 1794696402.3257384,
-    "seen": 1794698296.237852,
-    "ast_hash": "733a5ed5be8a1c59e73a8e77e2617e52",
-    "semantic_hash": "733a5ed5be8a1c59e73a8e77e2617e52"
+    "mtime": 1794699579.338759,
+    "seen": 1794699712.6470199,
+    "ast_hash": "d2301feb9df02b2b334918c807e4c89b",
+    "semantic_hash": "d2301feb9df02b2b334918c807e4c89b"
   },
   "docs/second-brain/NOW.md": {
-    "mtime": 1794698743.5343387,
-    "seen": 1794698765.4428658,
-    "ast_hash": "6c2fa7e7ca9c3aaf07a7d0295e5846f0",
-    "semantic_hash": "6c2fa7e7ca9c3aaf07a7d0295e5846f0"
+    "mtime": 1794700062.5170755,
+    "seen": 1794700156.6156204,
+    "ast_hash": "b6041a1e235f605c11a162564920ae24",
+    "semantic_hash": "b6041a1e235f605c11a162564920ae24"
   },
   "docs/second-brain/README.md": {
     "mtime": 1794695961.7532291,
@@ -168,9 +168,21 @@
     "semantic_hash": "3bf52c9359785ef95c369605c6edc434"
   },
   "docs/AGENT_LOOP.md": {
-    "mtime": 1794698747.9607625,
-    "seen": 1794698765.4428658,
-    "ast_hash": "cde0e4c4ce0434d9ed6d329aa35e59ca",
-    "semantic_hash": "cde0e4c4ce0434d9ed6d329aa35e59ca"
+    "mtime": 1794699210.4074519,
+    "seen": 1794699243.5254166,
+    "ast_hash": "d3e60fede06608502586044108a23d32",
+    "semantic_hash": "d3e60fede06608502586044108a23d32"
+  },
+  "b_astrometri/motion/passes.py": {
+    "mtime": 1794699360.7692783,
+    "seen": 1794699712.6470199,
+    "ast_hash": "8b76e85931e886dd4e153137eb356ace",
+    "semantic_hash": "8b76e85931e886dd4e153137eb356ace"
+  },
+  "b_astrometri/motion/test_passes.py": {
+    "mtime": 1794699526.8627641,
+    "seen": 1794699712.6470199,
+    "ast_hash": "f4e90250d37d00516ab4617838f183ac",
+    "semantic_hash": "f4e90250d37d00516ab4617838f183ac"
   }
 }

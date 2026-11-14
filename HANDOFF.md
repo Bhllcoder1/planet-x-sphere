@@ -25,6 +25,7 @@ Son güncelleme: 2026-11-15. Ana proje hafızası: [Second Brain](docs/second-br
 | 03-07 epoch | `b_astrometri/gaia/epoch.py`; 11 epoch testi; kutup geometrisi vektörel yöntemle düzeltildi | 02-03 entegrasyonu, HEALPix/sorgu seçimi ve kovaryans belirsizliği açık. Barnard örneği RV=0 varsayımlı tahmindir. |
 | 03-04 elips | `b_astrometri/centroid/ellipse.py`, `test_ellipse.py`; centroid test paketinde yer alıyor | ClickUp önkoşulu 03-03 doğrulanmadı; yerel modül ClickUp kapanışı demek değil. |
 | 03-14 koordinat denetimi | `coord_audit.py`, `test_coord_audit.py`; statik denetim alt-piksel float/origin=1 kalıplarını arıyor | Kod/test prototipi var; 02-03 ve 03-03 önkoşulları doğrulanmadı. Görev kabulü açık. |
+| 03-02 D5 yerel WIP | `d5_check.py`, `test_d5_check.py`, `d5_result.md` dosyaları şu an çalışma ağacında ve testleri çalıştı | Dosyalar henüz Git tarafından izlenmiyor; gerçek 02-07 yıldız verisi yok. İnsan/Claude çalışması sürerken bu dosyaları bu commit'e ekleme. |
 | 04-01 geçiş gruplama | `b_astrometri/motion/passes.py`, 4 test; Barnard 358 kare/3 pass, ε Indi B 458 kare/4 pass; gap listesi eklendi | Liste 02 manifesti bulunamadı; iki yerel kare listesinde `SPS_EPA` alanı yok. H-03 bekliyor, görev kabulü açık. Çıktılar `C:/Users/behlu/reports/04-01-passes/` altında. |
 | Proje hafızası | `docs/second-brain/`, `HANDOFF.md`, `docs/AGENT_LOOP.md`, `graphify-out/` | ClickUp GET /user HTTP 401; 2026-11-14 tarihli snapshot güncel durum değildir. H-02 yerel token yenilemesi bekliyor. |
 
@@ -48,3 +49,7 @@ git diff --check
 ```
 
 ClickUp API canlı okuma denemesi yerel tokenla HTTP 401 döndürdü. Görev durumu değiştirilmedi, yorum/mesaj gönderilmedi. 2026-11-14 tarihli anlık görüntüde Behlül'e atanan 46 görevin tamamı `to do` idi; bunu güncel durum varsayma. Erişim için H-02'yi tamamlat; 04-01 üretim girdisi için H-03'ü yanıtla.
+
+## Claude Code / eşzamanlı D5 devri
+
+Çalışma ağacında 03-02 için yeni dosyalar belirdi; `claude` süreci hâlâ çalışıyor. D5 testi başarılı: 3 yeni D5 testi (komut çıktısında içe alınan 7 EPSF testi de keşfedildi). `test_d5_check.py` doğrudan `EPSFTests` sınıfını import ettiği için unittest keşfi EPSF testlerini bu dosya altında da topluyor; `import test_epsf as ...` biçimiyle yalnız fixture/grid yardımcısını kullanmak çift keşfi önler. Dosyalar incelenip bu test keşfi düzeltilmeden commit'e dahil edilmesin. Gerçek 02-07 yıldız verisi/200 kesit hâlâ yok; H-04 bekliyor.

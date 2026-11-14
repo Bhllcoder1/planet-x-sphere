@@ -2,7 +2,7 @@
 
 ## Aktif kapsam
 
-Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanışından ayrı izliyoruz. GitHub özellik dalı `b/01-03-gaia-fetch`; `main` doğrudan değiştirilmez. ClickUp API/bağlantısı bu oturumda kullanılamıyor; son API anlık görüntüsü 2026-11-15 tarihli ve görev durumu hakkında güncel iddia sayılmaz.
+Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanışından ayrı izliyoruz. GitHub özellik dalı `b/01-03-gaia-fetch`; `main` doğrudan değiştirilmez. Canlı ClickUp `GET /user` isteği yerel kişisel token ile HTTP 401 döndürdü. 2026-11-14 tarihli snapshot yalnızca tarihsel durum kanıtıdır; görev durumunu güncel sayma.
 
 İnsan girdisi gereken bağımlılıklar [HUMAN_ACTIONS.md](HUMAN_ACTIONS.md) içinde. H-01 (Akif'in 02-03/02-12 çıktılarının yeri/hazır oluşu) yanıtlanana kadar bağlı üretim entegrasyonu bekler. Bağımsız işlerde yalnız görev önkoşulları sağlananlar yürütülür. Yerel kod/test geçmesi tek başına ClickUp kabulü değildir.
 
@@ -18,17 +18,23 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 ## Şu anki yerel doğrulama
 
 - `[V]` 2026-11-15: centroid testleri 16/16, Gaia testleri 30/30 geçti; `git diff --check` temiz. Bu testler koordinat denetimi prototipini de içeriyor.
-- `[V]` 2026-11-15 son kontrolde özellik dalı yerel/uzak `159b05ba5ec7fc98757ec90e934e75a6fc675791` commit'inde eşleşti. Önceki `f0b34ac` kontrolden sonra 03-14/agent-loop (`77369bb`) ve 03-12 spesifikasyonu (`159b05b`) da özellik dalına gönderildi; `main` değiştirilmedi.
+- `[V]` 2026-11-15: `d93e952` 04-01 pass gruplama prototipini özellik dalına ekledi; `main` değiştirilmedi.
 - `[NV]` 03-14 kabulü açık: ClickUp önkoşulları 02-03 ve 03-03'ün tamamlandığı doğrulanmadı. Koordinat denetimi prototipi var; görevi kapatmayın.
 - `[NV]` 03-12 için T1–T4 harness spesifikasyonu depoda; test kodu ve sayısal sonuçlar henüz üretilmedi. Önkoşullar 03-01/03-03 ayrıca doğrulanmalı.
+- `[V]` ClickUp snapshot'ı 2026-11-14 22:23 UTC'de yazılmış; o anda Behlül'e atanmış 46 görevin hepsi `to do` idi. Canlı GET /user HTTP 401 olduğu için bu durum bugün için doğrulanmış sayılmaz.
+- `[NV]` ClickUp okuma erişimini yenilemek için H-02 gerekiyor; token değeri sohbet veya depoya aktarılmamalı.
+- `[V]` 04-01 yerel pass gruplaması 4/4 testte geçti; Barnard 358 kare/3 pass, ε Indi B 458/4 ve gap listeleri yazıldı. Çıktı kanıtı depo dışı `C:/Users/behlu/reports/04-01-passes/`.
+- `[NV]` 04-01 tam kabulü açık: Liste 02 manifesti yok, yerel frame JSON'larında `SPS_EPA` alanı yok ve release tekilleştirmesi modülde değil. H-03 girdisi bekleniyor.
+- `[V]` Çalışma ağacında 03-02 için D5 kod/test/sonuç dosyaları oluştu; sentetik akı ölçeği ve yönelim denemeleri geçiyor. D5 komutu 10 test çalıştırdı (3 D5 + doğrudan içe alınan EPSF testleri).
+- `[NV]` D5 için 02-07'den 200 gerçek yıldız/kesit yok; sonuç sentetik prototip. Üç D5 dosyası şu an untracked ve etkin Claude süreciyle eşzamanlı, bu yüzden dal commit'ine eklenmedi. H-04, 02-07 örneklemini bekliyor.
+- `[V]` GitHub REST API'sinde bu dal için daha önceki PR araması açık veya kapalı PR bulmadı; PR henüz açılmadı.
 - [HUMAN_ACTIONS.md](HUMAN_ACTIONS.md) içindeki H-01 çözülmeden 02-03/02-12'ye bağlı üretim entegrasyonuna geçme.
 
 ## Sonraki adımlar
 
-1. Prototip değişikliklerini ve devir kaydını gözden geçir; Graphify'ın üretilmiş hafıza görünümünü kaynaklarla eşleştir.
-2. Özellik dalına commit/push et ve `git ls-remote` ile uzak commit'i doğrula.
-3. H-01 için kullanıcı yanıtını bekle. Bağımlılıkları doğrulanmamış görevi tamamlandı sayma.
-4. Sonraki bağımsız ClickUp görevini yalnız güncel görev kabul koşulları ve yerel girdileri doğrulandıktan sonra seç.
+1. Özellik dalındaki değişiklikleri taslak PR ile incelemeye sun; birleştirme/ClickUp kapanışı yapma.
+2. H-02 ile ClickUp erişimini yenile; güncel atama/durum/önkoşulları canlı API'den oku.
+3. H-01 ve H-03 yanıtlarına göre bağlı üretim işlerini sürdür; hazır olmayan önkoşulları tamamlanmış sayma.
 
 ## Oturum kaydı
 

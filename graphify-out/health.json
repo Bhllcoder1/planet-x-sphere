@@ -1,26 +1,26 @@
 {
-  "node_count": 211,
+  "node_count": 233,
   "unverified_node_count": 0,
-  "raw_edge_count": 371,
+  "raw_edge_count": 417,
   "non_object_edges": 0,
   "missing_endpoint_edges": 0,
   "dangling_endpoint_edges": 0,
   "external_reference_edges": 0,
   "self_loop_edges": 0,
-  "valid_candidate_edges": 371,
+  "valid_candidate_edges": 417,
   "exact_duplicate_edges": 0,
-  "directed_unique_endpoint_pairs": 371,
-  "directed_same_endpoint_collapsed_edges": 0,
-  "undirected_unique_endpoint_pairs": 371,
-  "undirected_same_endpoint_collapsed_edges": 0,
-  "same_endpoint_group_count": 0,
+  "directed_unique_endpoint_pairs": 416,
+  "directed_same_endpoint_collapsed_edges": 1,
+  "undirected_unique_endpoint_pairs": 416,
+  "undirected_same_endpoint_collapsed_edges": 1,
+  "same_endpoint_group_count": 1,
   "relation_variant_groups": 0,
   "source_file_variant_groups": 0,
   "source_location_variant_groups": 0,
-  "context_variant_groups": 0,
+  "context_variant_groups": 1,
   "post_build_graph_type": "Graph",
-  "post_build_node_count": 211,
-  "post_build_edge_count": 371,
+  "post_build_node_count": 233,
+  "post_build_edge_count": 416,
   "post_build_error": "",
   "producer_suppression": {
     "path": "C:\\Users\\behlu\\AppData\\Roaming\\uv\\tools\\graphifyy\\Lib\\site-packages\\graphify\\extract.py",
@@ -101,5 +101,24 @@
     ],
     "error": ""
   },
-  "examples": []
+  "examples": [
+    {
+      "source": "b_astrometri_motion_passes_write_pass_outputs",
+      "target": "b_astrometri_motion_passes_py_path",
+      "edge_count": 2,
+      "relations": [
+        "references"
+      ],
+      "source_files": [
+        "b_astrometri/motion/passes.py"
+      ],
+      "source_locations": [
+        "L121"
+      ],
+      "contexts": [
+        "generic_arg",
+        "parameter_type"
+      ]
+    }
+  ]
 }
