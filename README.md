@@ -1,5 +1,7 @@
 # planet-x-sphere
 
+Kalıcı çalışma hafızası: [Second Brain](docs/second-brain/README.md) · [Şu an / sonraki adım](docs/second-brain/NOW.md).
+
 NASA SPHEREx taramasının görüntülerinden, verilen bir gökyüzü bölgesinin zaman içindeki değişimini **piksel hassasiyetiyle** gösteren ve hareketli cisimleri öne çıkaran bir web aracı (NASA Space Apps). Kapsam: yarışmanın 5 test hedefi (Barnard'ın Yıldızı, ε Indi B, WISE 0855, RW Aur, R Dra).
 
 ## Nereden başlamalı
