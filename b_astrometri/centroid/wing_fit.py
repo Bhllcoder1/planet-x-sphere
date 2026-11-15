@@ -109,3 +109,23 @@ def fit_epsf_wing(
         "masked_fraction": masked_fraction,
         **ellipse,
     }
+
+
+def wing_fit_summary(results: list[dict]) -> dict:
+    """Summarise a list of fit_epsf_wing results."""
+    if not results:
+        return {"n_fits": 0, "n_ok": 0, "ok_rate": 0.0}
+    n_ok = sum(1 for r in results if r.get("status") == "ok")
+    return {
+        "n_fits": len(results),
+        "n_ok": n_ok,
+        "ok_rate": float(n_ok / len(results)),
+    }
+
+
+if __name__ == "__main__":
+    summary = wing_fit_summary([])
+    print(f"wing_fit_summary (bos): {summary}")
+    assert summary["n_fits"] == 0
+    assert summary["ok_rate"] == 0.0
+    print("03-05 wing_fit: OK")
