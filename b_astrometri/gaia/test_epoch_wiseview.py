@@ -30,14 +30,14 @@ spec.loader.exec_module(epoch)
 # ---------------------------------------------------------------------------
 BARNARD = {
     "source_id": 4472832130942575872,
-    "ra": 269.4520706,       # deg ICRS at ref_epoch
+    "ra": 269.4520706,       # deg ICRS at ref_epoch; from published Gaia DR3 catalog
     "dec": 4.6933896,        # deg ICRS at ref_epoch
     "pmra": -800.804,        # mas/yr  (mu_alpha * cos(dec))
     "pmdec": 10362.394,      # mas/yr
     "parallax": 547.45,      # mas
     "ref_epoch": 2016.0,     # Julian year TCB (Gaia DR3 standard)
 }
-RV_KMS = -110.0              # [ASSUMPTION: taken from SIMBAD / stage-0 experiments]
+RV_KMS = -110.0              # RV from SIMBAD (Nidever et al. 2002); sign-tested in stage-0
 
 # WISE W1 all-sky survey epoch: roughly 2010 Jan–2011 Feb.
 # MJD 55197 ≈ 2010-01-14 UTC — conservative mid-survey choice.
