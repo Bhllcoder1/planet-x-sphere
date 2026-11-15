@@ -84,3 +84,22 @@ def compare_orientation(grid, cutouts: list[dict]) -> dict:
         "transposed_wins": transposed_wins,
         "psf_transpose": bool(transposed_wins > normal_wins),
     }
+
+
+def d5_check_summary(orientation_result: dict) -> dict:
+    """Summarise compare_orientation result."""
+    if not orientation_result or orientation_result.get("status") != "measured":
+        return {"status": orientation_result.get("status", "unknown"), "measured": False}
+    return {
+        "status": "measured",
+        "measured": True,
+        "n_stars": orientation_result.get("n_stars", 0),
+        "psf_transpose_flag": orientation_result.get("psf_transpose", False),
+    }
+
+
+if __name__ == "__main__":
+    summary = d5_check_summary({"status": "no_data"})
+    print(f"d5_check_summary (no_data): {summary}")
+    assert not summary["measured"]
+    print("03-02 d5_check: OK")
