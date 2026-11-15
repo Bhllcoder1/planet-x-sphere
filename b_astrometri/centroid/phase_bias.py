@@ -101,3 +101,23 @@ def write_phase_bias_csv(rows: list[dict], path: str | Path) -> Path:
         writer.writeheader()
         writer.writerows(rows)
     return out
+
+
+def phase_bias_summary(rows: list[dict]) -> dict:
+    """Ozet: toplam satir, ortalama sapma (tum snr/faz), T2/T3 gecen satir sayisi."""
+    if not rows:
+        return {"n_rows": 0, "mean_abs_bias_px": float("nan"), "n_passed": 0}
+    biases = [abs(r["bias_x_px"]) + abs(r["bias_y_px"]) for r in rows]
+    n_passed = sum(1 for r in rows if r.get("passed_t2_t3") is True)
+    return {
+        "n_rows": len(rows),
+        "mean_abs_bias_px": float(sum(biases) / len(biases)),
+        "n_passed": n_passed,
+    }
+
+
+if __name__ == "__main__":
+    summary = phase_bias_summary([])
+    print(f"phase_bias_summary (bos): {summary}")
+    assert summary["n_rows"] == 0
+    print("03-13 phase_bias: OK")
