@@ -20,7 +20,7 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 - `[V]` 2026-11-15: centroid testleri 16/16, Gaia testleri 30/30 geçti; `git diff --check` temiz. Bu testler koordinat denetimi prototipini de içeriyor.
 - `[V]` 2026-11-15: `d93e952` 04-01 pass gruplama prototipini özellik dalına ekledi; `main` değiştirilmedi.
 - `[NV]` 03-14 kabulü açık: ClickUp önkoşulları 02-03 ve 03-03'ün tamamlandığı doğrulanmadı. Koordinat denetimi prototipi var; görevi kapatmayın.
-- `[NV]` 03-12 için T1–T4 harness spesifikasyonu depoda; test kodu ve sayısal sonuçlar henüz üretilmedi. Önkoşullar 03-01/03-03 ayrıca doğrulanmalı.
+- `[V]` 03-12 T1–T4 girdi/çıktı/eşik şartnamesi `b_astrometri/centroid/harness_spec.md` içinde; ClickUp açıklamasına göre bu görev test kodu yazmaz. Test uygulaması 07-04/07-05 kapsamındadır. Canlı ClickUp durumu 401 nedeniyle doğrulanamadı.
 - `[V]` ClickUp snapshot'ı 2026-11-14 22:23 UTC'de yazılmış; o anda Behlül'e atanmış 46 görevin hepsi `to do` idi. Canlı GET /user HTTP 401 olduğu için bu durum bugün için doğrulanmış sayılmaz.
 - `[NV]` ClickUp okuma erişimini yenilemek için H-02 gerekiyor; token değeri sohbet veya depoya aktarılmamalı.
 - `[V]` 04-01 yerel pass gruplaması 4/4 testte geçti; Barnard 358 kare/3 pass, ε Indi B 458/4 ve gap listeleri yazıldı. Çıktı kanıtı depo dışı `C:/Users/behlu/reports/04-01-passes/`.
@@ -58,7 +58,8 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 - 03-02: 03-01 ve 02-07 gerçek yıldız seçimini bekler. Kabulde konum kadar akı da doğrulanmalı (×1/×25 ölçeği).
 - 03-07: 02-03 koordinat sözleşmesine bağlanır; saf epoch/paralaks testleri bağımsız hazırlanabilir.
 - 04-03: ePSF, maskeler ve WCS düzeltmesiyle gerçek veri bütünleştirmesi gerekir.
-- 03-13: Sentetik 03-12 benzeri faz taraması ve iki grafik hazır; gerçek T2 harness/03-03 merkezi uyumu H-06, grafiklerin görsel kabulü H-07 bekliyor.
+- 03-12: T1–T4 şartnamesi güncellendi; fiziksel 1 px T1 kayması ekran yakınlaştırmalarından ayrıldı, T2 strict SNR>50 ve faz/eksen raporu, T3 SNR-dilimi oranı ve JSON alan uygulanabilirliği açıklandı.
+- 03-13: Sentetik faz taraması ve iki grafik hazır; 07-05 üretim T2/T3 testleri ile 03-03 merkezleme uyum arayüzü H-06, grafiklerin görsel kabulü H-07 bekliyor.
 - 04-04: WISE 0855 kapsamı `unknown`; TAP/SIA sorgu başarısızlığı sıfır kare demek değildir. Kanonik Liste 01 kare/geçiş çıktısı H-09 gelene kadar zorlanmış fotometriyi başlatma.
 - 04-03: piksel düzeyindeki sentetik fotometri/coadd prototipi hazır; RA/Dec→WCS kare akışı ve çıktı dosyası gerçek veri entegrasyonu H-08 bekliyor.
 - 04-06: sentetik hareketli iz bağlama kodu hazır; gerçek asteroid için ortak tangent düzlemi WCS/FITS ve üç karelik kaynak kataloğu H-10 bekliyor. İki noktalı hız hipotezleri mevcut; planlanan hız ızgarası henüz yok.
