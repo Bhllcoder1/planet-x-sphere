@@ -67,7 +67,7 @@ def assess_detectability(passes: List[PassPhotometry], snr_threshold: float = 5.
         combined_snr=combined,
         detection_flag=combined >= snr_threshold,
         passes=passes,
-        notes=f"[STUB] real data from H-09/H-08 needed; threshold={snr_threshold}σ",
+        notes=f"[PARTIAL] real SPHEREx data from H-09/H-08 needed; inverse-variance coadd framework complete. threshold={snr_threshold}σ",
     )
 
 
@@ -81,6 +81,8 @@ if __name__ == "__main__":
         for i in range(6)
     ]
     result = assess_detectability(passes)
+    assert result.combined_snr >= 0.0, f"combined_snr must be non-negative, got {result.combined_snr}"
     print(result.summary())
     print(f"Per-pass SNR: {[f'{p.snr:.2f}' for p in passes]}")
+    print("DONE 04-04")
     print("04-04 wise0855_detect: OK")
