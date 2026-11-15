@@ -23,6 +23,7 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 | 04-06 hareketli bağlama | `b_astrometri/movers/linker.py`; 2 sentetik test; `detection_refs` frame_id/det_id korur | Gerçek asteroid doğrulaması yok; Stage 0 D için ortak WCS/FITS/katalog H-10 bekliyor. Hız ızgarası henüz yok. Görev açık. |
 | 04-04 WISE 0855 | `b_astrometri/reports/04-04-wise0855/wise0855_detect.json`: coverage `unknown`; TAP/SIA unsuccessful, photometry not run | Canonical List 01 result missing; H-09. Query failure is not zero coverage; 04-04 remains open. |
 | 04-01 geçiş gruplama | 4 test; Barnard 358 kare/3 geçiş, ε Indi B 458 kare/4 geçiş; boşluk listesi | Liste 02 manifesti ve `SPS_EPA` alanı bulunamadı; H-03. Kabul açık. |
+| 07-04 T1/T4 | T1 için 2 sayısal sentetik test; T4 için 9 gerçek SIP-3 kesitte 7.569 piksel tarandı, max dönüş hatası `4.47e-11 px` | T1 ekran/Playwright, T4 için geniş gerçek pencere kapsamı ve D3'te 100 pencere eksik; H-11. 07-04 kısmi. |
 
 ## İnsan girdileri
 
@@ -36,15 +37,17 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 - H-08: 04-03 için Liste 03 ePSF/WCS, Liste 02 maskeleri ve D13 enjeksiyon verisinin yolu/şeması.
 - H-09: WISE 0855 canonical List 01 coverage/frame/pass result path or `unknown/not ready`.
 - H-10: 04-06 için en az üç karelik gerçek asteroid kataloğu ve ortak tangent düzlemi sağlayan WCS/FITS yolu.
+- H-11: 07-04 D3 için 50/100/200 px boyutlarında 100 gerçek WCS penceresi; T1 ekran testi için 07-03/07-02 görüntüleyici Playwright testi veya sahibi.
 
 ## Son doğrulama
 
-Bu oturumda: centroid **24/24**, motion **10/10**, movers **2/2**, Gaia **30/30** test geçti; toplam **66**. ERFA bir testte mesafe düzeltme uyarısı bastı, test yine geçti. `git diff --check` temiz. Graphify targeted corpus **42 dosya**, **305 düğüm**, **562 kenar**, **17 topluluk**; kayıp/eksik uç yok, 3 aynı-uçlu kenar sade grafikte birleşiyor. Token maliyeti host araçlarında sunulmadığı için bilinmiyor.
+Son test turunda: centroid **24/24**, motion **10/10**, movers **4/4**, Gaia **30/30**, ayrıca 07-04 T1/T4 birim testleri **3/3** benzersiz test geçti (T1 dosyası EPSF testlerini de içe aktardığından ilgili komut 10 test bildirir). Toplam benzersiz test **71**. `git diff --check` temiz. Graphify corpus **45 dosya** (25 kod, 20 belge), **320 düğüm**, **591 kenar**, **23 topluluk**; eksik/başıboş uç yok, 3 aynı-uç kenar sade grafikte birleşiyor. Token maliyeti araçlarda sunulmadığı için bilinmiyor.
 
 ```powershell
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/centroid -p 'test_*.py' -v
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/motion -p 'test_*.py' -v
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/gaia -p 'test_*.py' -v
+& 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s tests -p 'test_T*.py' -v
 ```
 - **Döngü tur 5 (03-13 sentetik prototip):** `b_astrometri/centroid/phase_bias.py` + `test_phase_bias.py` (3 test; centroid 24/24). 20 faz × SNR 20/50/100 × 200 denemeden CSV ve iki ayrı grafik `b_astrometri/reports/03-13-synthetic/` altına yazıldı. SNR 100 sentetik ölçütleri geçti; 07-05 üretim T2/T3 testleri ve 03-03 üretim entegrasyonu ile insanın “eğri düz mü?” incelemesi bekliyor (`H-06`, `H-07`). Gerçek FITS kullanılmadı.
 

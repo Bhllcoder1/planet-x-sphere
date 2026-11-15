@@ -1,13 +1,44 @@
-"""07-04 (T4): WCS piksel -> gok -> piksel gidis-donus dogrulamasi (< 1e-4 px).
+"""07-04 (T4): WCS piksel -> gök -> piksel gidiş-dönüş doğrulaması (< 1e-4 px).
 
-AP/BP ters terimi tek basina kullanilmaz; all_pix2world(..., 0) ardindan
-all_world2pix(..., 0, tolerance=1e-8, maxiter=50) kullanilir.
+AP/BP ters terimi tek başına kullanılmaz; all_pix2world(..., 0) ardından
+all_world2pix(..., 0, tolerance=1e-8, maxiter=50) kullanılır. Gerçek kesitleri
+tam piksel taramasıyla denetlemek için `python tests/test_T4.py --real-dir PATH`
+kullanılabilir.
 """
+import argparse
+import json
+import sys
 import unittest
+from pathlib import Path
 
 import numpy as np
 from astropy.io import fits
 from astropy.wcs import WCS
+
+
+def _validate_real_cutout(path: Path) -> dict:
+    with fits.open(path, memmap=True) as hdus:
+        image = hdus["IMAGE"]
+        header = image.header
+        if header.get("A_ORDER") != 3 or header.get("B_ORDER") != 3:
+            raise ValueError(f"{path.name}: SIP düzeni 3 olmalı")
+        wcs = WCS(header)
+        y, x = np.indices(image.data.shape, dtype=float)
+        ra, dec = wcs.all_pix2world(x.ravel(), y.ravel(), 0)
+        x_back, y_back = wcs.all_world2pix(ra, dec, 0, tolerance=1e-8, maxiter=50)
+        error = np.hypot(x_back - x.ravel(), y_back - y.ravel())
+        if not np.isfinite(error).all():
+            raise ValueError(f"{path.name}: sonlu olmayan dönüş hatası")
+        result = {
+            "file": path.name,
+            "shape": list(image.data.shape),
+            "sip_order": 3,
+            "pixels_checked": int(error.size),
+            "max_error_px": float(error.max()),
+        }
+        if result["max_error_px"] >= 1e-4:
+            raise AssertionError(f"{path.name}: T4 hatası {result['max_error_px']:.6g} px")
+        return result
 
 
 def _spherex_like_sip_wcs() -> WCS:
@@ -52,4 +83,14 @@ class T4WCSRoundtripTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    if len(sys.argv) > 1 and sys.argv[1] == "--real-dir":
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--real-dir", required=True, type=Path)
+        args = parser.parse_args()
+        files = sorted(args.real_dir.glob("*.fits"))
+        if not files:
+            parser.error(f"{args.real_dir} altında FITS kesiti bulunamadı")
+        results = [_validate_real_cutout(path) for path in files]
+        print(json.dumps({"cutouts": results, "max_error_px": max(r["max_error_px"] for r in results)}, indent=2))
+    else:
+        unittest.main()

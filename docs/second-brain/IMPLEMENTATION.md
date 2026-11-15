@@ -65,6 +65,12 @@ Stage 0 yerel kare listesiyle doğrulama: Barnard 358/358 kare, 3 pass (46/55/37
 
 **Sınır / kabul açık:** bunlar `test_epsf.fixture(detector=2)` sentetik sonuçlarıdır; 03-12 şartnamesi ile 07-05 kapsamındaki üretim T2/T3 test kodu veya 03-03 üretim uyum entegrasyonu değildir. Sayısal sentetik ölçütler geçti; ClickUp canlı durumu 401 nedeniyle doğrulanamadı. H-06 03-03 arayüzünü, H-07 kullanıcının “eğri düz mü?” görsel kararını bekletir. 03-13 görevi tamamlandı sayılmaz.
 
+## 07-04 T4 — gerçek WCS dönüş doğrulaması
+
+`tests/test_T4.py --real-dir <Stage0 B/cut>` dokuz gerçek FITS kesitinin SIP-3 `IMAGE` WCS başlıklarını doğrular ve her 29×29 piksel merkezini 0 tabanlı piksel→gök→piksel dönüşünden geçirir. 7.569 pikselde en büyük hata `4.47e-11 px`; `1e-4 px` eşiğinin altında. Kesitler depoya eklenmedi. Komut ve kesit bazlı sayılar [T4 doğrulama raporunda](../../b_astrometri/reports/07-04-t4-real/README.md).
+
+**Sınır / kabul açık:** bu, yalnız eldeki dokuz küçük kesitte T4 kanıtıdır. 07-04 D3 için gerekli 50/100/200 px boyutlarında 100 gerçek pencere yok; T1 ekran kontrolü 07-03 görüntüleyici testine bağlı. H-11 bekliyor; 07-04 bütünüyle tamamlanmadı.
+
 ## Sabit konumlu zorlanmış ePSF fotometrisi — 04-03 prototipi
 
 `b_astrometri/motion/forced_phot.py` sabit piksel konumunda `(F, b)` ağırlıklı doğrusal uyumunu, `sigma_flux`, `chi2_nu`, hatalı-uyum eşiğini (`>5`), maske/uyarı bayraklarını ve ters-varyanslı kare birleştirmeyi sağlar. Sentetik enjeksiyon-kurtarma, doymuş NaN çekirdek, hata eşiği, meta veri önceliği, bayrak/variance doğrulaması ve geçersiz coadd örnekleri için testler var.
