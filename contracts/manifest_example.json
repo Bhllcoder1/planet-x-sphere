@@ -1,0 +1,104 @@
+{
+  "schema_version": "2.0.0",
+  "release": "dr1",
+  "pipever": "l2b-v27-2026-229",
+  "target": "barnard",
+  "frames_ready": 2,
+  "frames_total": 48,
+  "links": {
+    "irsa_tap": "https://irsa.ipac.caltech.edu/TAP",
+    "s3_bucket": "s3://nasa-irsa-spherex",
+    "documentation": "https://github.com/Bhllcoder1/planet-x-sphere"
+  },
+  "modes": {
+    "supported_modes": ["N", "R-k", "raw"],
+    "default_mode": "N",
+    "theta_res_threshold_deg": 0.68
+  },
+  "passes": [
+    {
+      "pass_id": 0,
+      "frame_ids": [
+        "2025W34_2B_0557_2D2",
+        "2025W34_2B_0558_2D2"
+      ],
+      "start_mjd": 60911.49,
+      "end_mjd": 60911.52,
+      "duration_days": 0.03
+    }
+  ],
+  "frames": [
+    {
+      "id": "2025W34_2B_0557_2D2",
+      "detector": "D2",
+      "mjd_avg": 60911.49,
+      "sps_epa": 180.0,
+      "roll_deg": 180.25,
+      "wavelength_um": 1.42,
+      "pass": 0,
+      "dimensions": {
+        "width": 64,
+        "height": 64
+      },
+      "paths": {
+        "img": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0557_2D2/img.f32",
+        "var": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0557_2D2/var.f32",
+        "flg": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0557_2D2/flg.u32",
+        "cat": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0557_2D2/cat.json",
+        "geom": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0557_2D2/geom.json",
+        "meta": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0557_2D2/meta.json",
+        "thumb": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0557_2D2/thumb_64.png"
+      },
+      "transform": {
+        "mode_n_dx": 0,
+        "mode_n_dy": 0,
+        "mode_n_rotate180": true,
+        "theta_res_deg": 0.25,
+        "badge": "mode-n"
+      },
+      "wcs_badge": {
+        "shift_px": 0.03,
+        "sigma_px": 0.05,
+        "n_stars": 12
+      },
+      "unusable_for_astrometry": false,
+      "stray_light_suspect": false
+    },
+    {
+      "id": "2025W34_2B_0558_2D2",
+      "detector": "D2",
+      "mjd_avg": 60911.52,
+      "sps_epa": 180.0,
+      "roll_deg": 180.31,
+      "wavelength_um": 1.42,
+      "pass": 0,
+      "dimensions": {
+        "width": 64,
+        "height": 64
+      },
+      "paths": {
+        "img": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0558_2D2/img.f32",
+        "var": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0558_2D2/var.f32",
+        "flg": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0558_2D2/flg.u32",
+        "cat": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0558_2D2/cat.json",
+        "geom": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0558_2D2/geom.json",
+        "meta": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0558_2D2/meta.json",
+        "thumb": "cache/dr1/l2b-v27-2026-229/barnard/2025W34_2B_0558_2D2/thumb_64.png"
+      },
+      "transform": {
+        "mode_n_dx": 1,
+        "mode_n_dy": 0,
+        "mode_n_rotate180": true,
+        "theta_res_deg": 0.31,
+        "badge": "mode-n"
+      },
+      "wcs_badge": {
+        "shift_px": 0.04,
+        "sigma_px": 0.06,
+        "n_stars": 11
+      },
+      "unusable_for_astrometry": false,
+      "stray_light_suspect": false
+    }
+  ]
+}

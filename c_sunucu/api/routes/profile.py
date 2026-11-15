@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from accounts.history import HistoryEntry, HistoryRepository, new_entry
@@ -381,3 +382,18 @@ async def restore_from_url(
         entry.id,
     )
     return RestoreOut(entry_id=entry.id, share_url=entry.share_url)
+
+
+@router.get("/view", response_class=HTMLResponse, summary="Profil ve geçmiş HTML sayfası (Görev 11-09)")
+async def get_profile_page() -> HTMLResponse:
+    """d_site/pages/profile.html sayfasını döndürür."""
+    # Find profile.html relative to repo root
+    html_path = Path(__file__).resolve().parent.parent.parent / "d_site" / "pages" / "profile.html"
+    if not html_path.exists():
+        # Fallback if structure varies
+        alt_path = Path("d_site/pages/profile.html")
+        if alt_path.exists():
+            html_path = alt_path
+        else:
+            raise HTTPException(status_code=404, detail="profile.html bulunamadı")
+    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))

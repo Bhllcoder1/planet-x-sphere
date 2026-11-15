@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Bhllcoder1/planet-x-sphere/contracts/manifest.schema.json",
+  "title": "SPHEREx Viewer Target Manifest v2",
+  "description": "Hedef manifest şeması v2 — kareler, modlar, dönüşümler, geçişler ve ürün dosyası yolları [V: PLAN_v2 C.15, PLAN_v3 §2.6].",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "release",
+    "pipever",
+    "target",
+    "frames_ready",
+    "frames_total",
+    "frames",
+    "passes",
+    "modes"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["2.0.0", "2"],
+      "description": "Manifest şema sürümü (istemci uyuşmazsa hata verir)."
+    },
+    "release": {
+      "type": "string",
+      "description": "Veri sürümü etiketi (ör. dr1, dr2)."
+    },
+    "pipever": {
+      "type": "string",
+      "description": "Boru hattı sürümü (ör. l2b-v27-2026-229)."
+    },
+    "target": {
+      "type": "string",
+      "description": "Hedef slug kimliği (ör. barnard, eps_indi_b)."
+    },
+    "frames_ready": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "İstemciye hazır işlenmiş kare sayısı (ilerlemeli yazım: frames_ready / frames_total)."
+    },
+    "frames_total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Hedef için toplam beklenen kare sayısı."
+    },
+    "links": {
+      "type": "object",
+      "description": "Hedef veya dış kaynak bağlantıları.",
+      "properties": {
+        "irsa_tap": { "type": "string" },
+        "s3_bucket": { "type": "string" },
+        "documentation": { "type": "string" }
+      }
+    },
+    "modes": {
+      "type": "object",
+      "description": "Kullanılabilir görüntüleme modları ve ayarları.",
+      "required": ["supported_modes", "default_mode"],
+      "properties": {
+        "supported_modes": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["N", "R-k", "raw"] }
+        },
+        "default_mode": {
+          "type": "string",
+          "enum": ["N", "R-k", "raw"]
+        },
+        "theta_res_threshold_deg": {
+          "type": "number",
+          "default": 0.68,
+          "description": "Mode N için üst roll eşiği (0.68°)."
+        }
+      }
+    },
+    "passes": {
+      "type": "array",
+      "description": "MJD boşluğu > 30 gün kuralına göre kümelenmiş geçişler [V: s0_A].",
+      "items": {
+        "type": "object",
+        "required": ["pass_id", "frame_ids"],
+        "properties": {
+          "pass_id": { "type": "integer", "minimum": 0 },
+          "frame_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "start_mjd": { "type": "number" },
+          "end_mjd": { "type": "number" },
+          "duration_days": { "type": "number" }
+        }
+      }
+    },
+    "frames": {
+      "type": "array",
+      "description": "Kare meta verileri ve dosya yolları.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "detector",
+          "mjd_avg",
+          "sps_epa",
+          "wavelength_um",
+          "pass",
+          "paths",
+          "wcs_badge",
+          "unusable_for_astrometry",
+          "stray_light_suspect"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "detector": { "type": "string", "pattern": "^D[1-6]$" },
+          "mjd_avg": { "type": "number" },
+          "sps_epa": { "type": "number" },
+          "roll_deg": { "type": "number" },
+          "wavelength_um": { "type": "number" },
+          "pass": { "type": "integer", "minimum": 0 },
+          "dimensions": {
+            "type": "object",
+            "required": ["width", "height"],
+            "properties": {
+              "width": { "type": "integer" },
+              "height": { "type": "integer" }
+            }
+          },
+          "paths": {
+            "type": "object",
+            "required": ["img", "var", "flg", "cat", "geom", "meta"],
+            "properties": {
+              "img": { "type": "string" },
+              "var": { "type": "string" },
+              "flg": { "type": "string" },
+              "cat": { "type": "string" },
+              "geom": { "type": "string" },
+              "meta": { "type": "string" },
+              "thumb": { "type": "string" },
+              "raster": { "type": "string" }
+            }
+          },
+          "transform": {
+            "type": "object",
+            "properties": {
+              "mode_n_dx": { "type": "integer" },
+              "mode_n_dy": { "type": "integer" },
+              "mode_n_rotate180": { "type": "boolean" },
+              "theta_res_deg": { "type": "number" },
+              "badge": { "type": "string" }
+            }
+          },
+          "wcs_badge": {
+            "type": "object",
+            "required": ["shift_px", "sigma_px", "n_stars"],
+            "properties": {
+              "shift_px": { "type": "number" },
+              "sigma_px": { "type": "number" },
+              "n_stars": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "unusable_for_astrometry": { "type": "boolean" },
+          "stray_light_suspect": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

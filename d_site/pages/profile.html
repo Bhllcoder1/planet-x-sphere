@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kullanıcı Profili ve Geçmiş — SPHEREx Viewer</title>
+  <style>
+    :root {
+      --bg-color: #0f141c;
+      --card-bg: #1a2230;
+      --card-border: #2a364a;
+      --text-main: #e2e8f0;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --accent-badge: #0284c7;
+      --danger: #ef4444;
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 16px;
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-width: 320px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 12px;
+    }
+
+    h1, h2 {
+      font-weight: 600;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      background: var(--accent-badge);
+      color: #fff;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    select, input, button {
+      background: #111827;
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+    }
+
+    select:focus, input:focus {
+      outline: 2px solid var(--primary);
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.15s ease;
+    }
+
+    button.primary {
+      background: var(--primary);
+      color: #0f141c;
+      border: none;
+    }
+
+    button.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    button.danger {
+      background: transparent;
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    button.danger:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .status-msg {
+      padding: 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .link-action {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .link-action:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+      .controls {
+        flex-direction: column;
+      }
+      select, input, button {
+        width: 100%;
+      }
+      th, td {
+        padding: 8px 6px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1 id="userHeading">Kullanıcı Profili</h1>
+        <div style="margin-top: 4px;">
+          <span class="badge" id="roleBadge">Yükleniyor...</span>
+          <span id="createdText" style="font-size: 0.85rem; color: var(--text-muted); margin-left: 8px;"></span>
+        </div>
+      </div>
+      <div>
+        <a href="/" class="link-action">← Görüntüleyiciye Dön</a>
+      </div>
+    </header>
+
+    <!-- Profil İstatistikleri -->
+    <section class="card">
+      <h2>Arama ve Etkinlik Özeti</h2>
+      <div class="profile-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="statTotalSearches">-</div>
+          <div class="stat-label">Toplam Arama / İstek</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statDistinctTargets">-</div>
+          <div class="stat-label">Farklı Hedef Sayısı</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statLastVisit" style="font-size: 1rem; margin-top: 6px;">-</div>
+          <div class="stat-label">Son Ziyaret / Kayıt</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Geçmiş Listesi -->
+    <section class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+        <h2>İnceleme Geçmişi</h2>
+        <button id="btnClearHistory" class="danger">Tüm Geçmişi Temizle</button>
+      </div>
+
+      <div class="controls">
+        <input type="text" id="searchFilter" placeholder="Kare ID veya koordinat ara..." style="flex: 2; min-width: 150px;">
+        <select id="targetFilter" style="flex: 1; min-width: 120px;">
+          <option value="all">Tüm Hedefler</option>
+          <option value="barnard">Barnard's Star</option>
+          <option value="eps_indi_b">ε Indi B</option>
+          <option value="wise0855">WISE 0855</option>
+          <option value="rw_aur">RW Aur</option>
+          <option value="r_dra">R Dra</option>
+        </select>
+        <select id="sortFilter" style="flex: 1; min-width: 120px;">
+          <option value="newest">En Yeni İlk</option>
+          <option value="oldest">En Eski İlk</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>Zaman (UTC)</th>
+              <th>Hedef</th>
+              <th>Kare ID</th>
+              <th>Pencere (x, y, w, h)</th>
+              <th>İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr>
+              <td colspan="5" class="status-msg">Geçmiş kayıtları yükleniyor...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    let rawHistory = [];
+
+    async function fetchProfileData() {
+      try {
+        const meRes = await fetch('/profile/me');
+        if (meRes.ok) {
+          const me = await meRes.json();
+          document.getElementById('userHeading').textContent = me.display_name || me.username || 'Kullanıcı';
+          document.getElementById('roleBadge').textContent = me.role || 'Kullanıcı';
+          if (me.created_at) {
+            document.getElementById('createdText').textContent = 'Kayıt: ' + new Date(me.created_at).toLocaleDateString();
+          }
+        }
+      } catch (e) {
+        console.warn('Profil me alınamadı:', e);
+      }
+
+      try {
+        const histRes = await fetch('/profile/history');
+        if (histRes.ok) {
+          const data = await histRes.json();
+          rawHistory = data.items || [];
+          renderHistory();
+        } else {
+          document.getElementById('historyBody').innerHTML = '<tr><td colspan="5" class="status-msg">Geçmiş yüklenemedi. Giriş yapıldığından emin olun.</td></tr>';
+        }
+      } catch (e) {
+        document.getElementById('historyBody').innerHTML = '<tr><td colspan="5" class="status-msg">Hata: Sunucuya bağlanılamadı.</td></tr>';
+      }
+    }
+
+    function renderHistory() {
+      const targetFilter = document.getElementById('targetFilter').value;
+      const sortFilter = document.getElementById('sortFilter').value;
+      const query = document.getElementById('searchFilter').value.toLowerCase().trim();
+
+      let items = [...rawHistory];
+
+      // İstatistikler
+      document.getElementById('statTotalSearches').textContent = items.length;
+      const distinctTargets = new Set(items.map(it => it.target_id)).size;
+      document.getElementById('statDistinctTargets').textContent = distinctTargets;
+      if (items.length > 0) {
+        const latestTime = items.reduce((max, it) => it.timestamp > max ? it.timestamp : max, items[0].timestamp);
+        document.getElementById('statLastVisit').textContent = new Date(latestTime).toLocaleString('tr-TR');
+      } else {
+        document.getElementById('statLastVisit').textContent = '-';
+      }
+
+      // Süzme
+      if (targetFilter !== 'all') {
+        items = items.filter(it => it.target_id === targetFilter);
+      }
+      if (query) {
+        items = items.filter(it => 
+          (it.frame_id && it.frame_id.toLowerCase().includes(query)) ||
+          (it.target_id && it.target_id.toLowerCase().includes(query)) ||
+          (`${it.x0},${it.y0}`.includes(query))
+        );
+      }
+
+      // Sıralama
+      items.sort((a, b) => {
+        if (sortFilter === 'newest') return b.timestamp.localeCompare(a.timestamp);
+        return a.timestamp.localeCompare(b.timestamp);
+      });
+
+      const tbody = document.getElementById('historyBody');
+      if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="status-msg">Kayıtlı geçmiş bulunamadı.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = items.map(it => `
+        <tr>
+          <td>${new Date(it.timestamp).toLocaleString('tr-TR')}</td>
+          <td><span class="badge">${escapeHtml(it.target_id)}</span></td>
+          <td><code>${escapeHtml(it.frame_id)}</code></td>
+          <td>${it.x0}, ${it.y0} (${it.width}×${it.height})</td>
+          <td>
+            <a href="${escapeHtml(it.share_url || `/?target=${it.target_id}&frame=${it.frame_id}&x0=${it.x0}&y0=${it.y0}`)}" class="link-action">
+              Geri Yükle →
+            </a>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    document.getElementById('targetFilter').addEventListener('change', renderHistory);
+    document.getElementById('sortFilter').addEventListener('change', renderHistory);
+    document.getElementById('searchFilter').addEventListener('input', renderHistory);
+
+    document.getElementById('btnClearHistory').addEventListener('click', async () => {
+      if (!confirm('Tüm inceleme geçmişinizi silmek istediğinize emin misiniz?')) return;
+      try {
+        const res = await fetch('/profile/history', { method: 'DELETE' });
+        if (res.ok) {
+          rawHistory = [];
+          renderHistory();
+        }
+      } catch (e) {
+        alert('Geçmiş silinirken hata oluştu.');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', fetchProfileData);
+  </script>
+</body>
+</html>

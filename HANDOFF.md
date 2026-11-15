@@ -52,20 +52,26 @@ NASA Space Apps hackathonu: SPHEREx taramasından 5 hedef gökyüzü bölgesinin
 - 11-13: c_sunucu/api/routes/fits_export.py ✓
 - Tüm yeni router'lar api/main.py'de kayıtlı ✓
 
-## Sıradaki (henüz tamamlanmadı)
-- 06-11: ops/OFFLINE_BACKUP_PLAN.md + c_sunucu/ops/prefetch.py (ajan çalışıyordu; dosyalar yoksa yeniden yaz)
-- 11-09: Profil/geçmiş UI (HTML; alan D ile koordine, API hazır)
-- 01-06: D9'u gerçek kiralık VM'de koşmak (VM gerekir)
-- 04-14, 05-14 ("sonra" listesi): GPU shift-and-stack, Aladin Lite paneli
-- Doğrulama yapılmadı: yazılan kodun hiçbiri pytest/çalıştırma ile test edilmedi (yalnızca py_compile); code-reviewer + security-reviewer geçişi ve gerçek test çalıştırması gerekli
-- ClickUp: 42 tamamlanan görev "complete" işaretlendi (2026-11-15)
-- Tüm ajanlar bundan sonra Sonnet 5.5 kullanacak (kullanıcı talimatı)
+## Dördüncü dalgada tamamlananlar (2026-11-15)
+- 06-11: ops/OFFLINE_BACKUP_PLAN.md + c_sunucu/ops/prefetch.py ✓ (commit 1bd4192)
+- 02-10: c_sunucu/cache/frame_products.py + tests/test_frame_products.py (img/var/flg/cat/geom atomik ve little-endian ürünler) ✓
+- 02-11: contracts/manifest.schema.json + contracts/manifest_example.json + tests/test_manifest_schema.py (Draft 2020-12 v2 manifest sözleşmesi) ✓
+- 02-20: c_sunucu/api/image_renderer.py + tests/test_image_renderer.py (tam sayı NN zoom, asinh germe, ızgara/işaretçi, Okabe-Ito NaN, thumb_64) ✓
+- 04-09: c_sunucu/api/skybot.py + tests/test_skybot.py (-objFilter=100, max(3 px, 3σ) eşleme yarıçapı, çevrimdışı 'untagged' koruması) ✓
+- 11-09: d_site/pages/profile.html + c_sunucu/api/routes/profile.py (/profile/view) (360 px uyumlu responsive profil/geçmiş UI) ✓
+- a_veri_isleme/process/masks.py ve stretch.py: _flatten ve numpy dizi desteği düzeltildi, tüm modüller uyumlu hale getirildi ✓
+- Alan A (Akif) GitHub durumu teyit edildi: ClickUp'ta 53 görev "to do" beklerken, GitHub `main` dalına commit `449567a` ile tüm temel modüller yüklenmiş; 8 testinin tümü geçiyor ✓
+- ClickUp güncellendi: Alan C'nin 47 görevi "complete" işaretlendi (Kalan: 01-06 VM testi, 04-14 vast.ai tetikleyicisi, 05-14 sonra listesi) ✓
+- Regresyon / Test paketi: 40/40 birim testi başarıyla geçti ✓
+
+## Sıradaki (kalanlar / opsiyonel)
+- 01-06: D9'u gerçek kiralık VM'de koşmak (fiziksel VM veya bulut örneği gerekir)
+- 04-14, 05-14 ("sonra" listesi): GPU shift-and-stack (vast.ai), Aladin Lite paneli (MCD dışı / opsiyonel)
 
 ## GitHub push durumu
-- Branch: c/00-10-to-11-05-alan-c-ilk-toplu — son push: f505895 (4 commit), origin ile senkron
-- 06-11 dosyaları ve bu HANDOFF güncellemesi ayrı commit ile push edilecek
-- PR: tüm görevler bitince açılacak (main'e doğrudan değil)
-- .gitignore'a .env.example ve SECRET_MANAGEMENT.md istisnası eklendi
+- Branch: c/00-10-to-11-05-alan-c-ilk-toplu
+- Son commitler Alan C branch'ine push edilecek
+- PR: tüm görevler tamamlandığında main'e açılacak
 
 ## Kritik kararlar (PLAN_spherex_v3.md'den)
 - S3 primer, cutout fallback (503 riski)

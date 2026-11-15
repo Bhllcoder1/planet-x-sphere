@@ -93,6 +93,8 @@ MASK_PROFILE_TABLE: Dict[str, MaskProfileSpec] = {
 
 
 def _flatten(data: Any) -> List[Any]:
+    if np is not None and isinstance(data, np.ndarray):
+        return data.ravel().tolist()
     if isinstance(data, (list, tuple)):
         out: List[Any] = []
         for item in data:
