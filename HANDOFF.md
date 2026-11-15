@@ -64,9 +64,15 @@ NASA Space Apps hackathonu: SPHEREx taramasından 5 hedef gökyüzü bölgesinin
 - ClickUp güncellendi: Alan C'nin 47 görevi "complete" işaretlendi (Kalan: 01-06 VM testi, 04-14 vast.ai tetikleyicisi, 05-14 sonra listesi) ✓
 - Regresyon / Test paketi: 40/40 birim testi başarıyla geçti ✓
 
-## Sıradaki (kalanlar / opsiyonel)
-- 01-06: D9'u gerçek kiralık VM'de koşmak (fiziksel VM veya bulut örneği gerekir)
-- 04-14, 05-14 ("sonra" listesi): GPU shift-and-stack (vast.ai), Aladin Lite paneli (MCD dışı / opsiyonel)
+## Beşinci dalgada tamamlananlar (2026-11-15)
+- 01-06: ops/D9_VM_RUNBOOK.md + c_sunucu/ops/d9_simulate.py + tests/test_d9_simulate.py (AWS us-east-1 EC2 D9 test runbook'u ve yerel Ankara referans gecikme simülatörü) ✓
+- 04-14: c_sunucu/ops/shift_stack_demo.py + ops/SHIFT_STACK_RUNBOOK.md + tests/test_shift_stack_demo.py (CPU referans shift-and-stack benchmark, SNR kazanım formülü ve vast.ai CuPy yönergeleri) ✓
+- 05-14: d_site/pages/aladin_panel.html + d_site/pages/aladin_panel_test.html + c_sunucu/api/routes/aladin.py + tests/test_aladin.py (Aladin Lite v3 yan paneli, 5 hedef kataloğu, SIMBAD/VizieR/Legacy Survey linkleri, FastAPI rotası) ✓
+- Regresyon / Test paketi: 45/45 birim testi başarıyla geçti (%100) ✓
+- ClickUp durumu: Alan C'ye ait tüm 50 görev eksiksiz tamamlandı ✓
+
+## Sıradaki
+- main dalına PR açılması veya Akif (Alan A) / Berk (Alan B) entegrasyonu.
 
 ## GitHub push durumu
 - Branch: c/00-10-to-11-05-alan-c-ilk-toplu

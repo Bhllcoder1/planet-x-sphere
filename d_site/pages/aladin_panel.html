@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<!--
+  aladin_panel.html — Aladin Lite v3 Context Panel for SPHEREx Planet-X targets
+  Part of the planet-x-sphere project (Osman / newernever, Alan C)
+
+  Aladin Lite is distributed under the LGPLv3 license.
+  See: https://github.com/cds-astro/aladin-lite/blob/master/LICENSE
+  LGPLv3: https://www.gnu.org/licenses/lgpl-3.0.en.html
+
+  External links (SIMBAD, VizieR, Legacy Survey) are generated per-target
+  using the RA/Dec values defined in TARGETS below.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aladin Lite — SPHEREx Context Panel</title>
+
+  <!-- Aladin Lite v3 — LGPLv3 licensed -->
+  <script src="https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js" charset="utf-8"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+    }
+
+    /* ── Toggle button ─────────────────────────────────── */
+    #panel-toggle {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 1000;
+      background: #238636;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #panel-toggle:hover { background: #2ea043; }
+    #panel-toggle:focus-visible { outline: 2px solid #58a6ff; }
+
+    /* ── Slide-in panel ────────────────────────────────── */
+    #aladin-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 420px;
+      max-width: 100vw;
+      height: 100vh;
+      background: #161b22;
+      border-left: 1px solid #30363d;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+      z-index: 900;
+      overflow: hidden;
+    }
+    #aladin-panel.hidden { transform: translateX(100%); }
+
+    /* ── Panel header ──────────────────────────────────── */
+    #panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    #panel-header h2 { font-size: 16px; font-weight: 600; flex: 1; }
+    #target-label {
+      font-size: 12px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      padding: 2px 8px;
+      color: #8b949e;
+    }
+
+    /* ── Aladin container ──────────────────────────────── */
+    #aladin-container {
+      flex: 1;
+      position: relative;
+      min-height: 0;
+    }
+    #aladin-lite-div {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Error overlay ─────────────────────────────────── */
+    #aladin-error {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: #161b22;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+    #aladin-error.visible { display: flex; }
+    #aladin-error .error-icon { font-size: 36px; }
+    #aladin-error p { color: #8b949e; font-size: 14px; line-height: 1.5; }
+
+    /* ── External links ────────────────────────────────── */
+    #ext-links {
+      padding: 12px 16px;
+      border-top: 1px solid #30363d;
+      flex-shrink: 0;
+    }
+    #ext-links h3 { font-size: 12px; color: #8b949e; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .link-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ext-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 6px 12px;
+      color: #58a6ff;
+      text-decoration: none;
+      font-size: 13px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .ext-link:hover { background: #30363d; border-color: #58a6ff; }
+
+    /* ── 360 px mobile ─────────────────────────────────── */
+    @media (max-width: 480px) {
+      #aladin-panel {
+        width: 100vw;
+        border-left: none;
+      }
+      #panel-toggle {
+        top: 8px;
+        right: 8px;
+        font-size: 13px;
+        padding: 7px 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Toggle button — always visible, panel open/close does NOT affect page behind -->
+<button id="panel-toggle" aria-expanded="true" aria-controls="aladin-panel">
+  🔭 Sky Panel
+</button>
+
+<!-- Context panel -->
+<div id="aladin-panel" role="complementary" aria-label="Aladin Lite sky viewer">
+
+  <div id="panel-header">
+    <h2>🌌 Aladin Lite</h2>
+    <span id="target-label">—</span>
+  </div>
+
+  <div id="aladin-container">
+    <div id="aladin-lite-div"></div>
+
+    <!-- Shown when Aladin script fails to load (offline / CDN unreachable) -->
+    <div id="aladin-error" role="alert">
+      <span class="error-icon">⚠️</span>
+      <strong>Sky viewer unavailable</strong>
+      <p>Aladin Lite could not be loaded.<br>
+         Check your connection or try again later.<br>
+         The rest of the page continues to work normally.</p>
+    </div>
+  </div>
+
+  <div id="ext-links">
+    <h3>External Resources</h3>
+    <div class="link-row" id="ext-link-row">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ── Target catalogue ─────────────────────────────────────────────────── */
+const TARGETS = {
+  barnard:    { label: "Barnard's Star",   ra: 269.4521, dec:  +4.6933 },
+  eps_indi_b: { label: "eps Indi B",       ra: 330.84,   dec: -56.786  },
+  wise0855:   { label: "WISE 0855−0714",   ra: 129.0,    dec: -11.0    },
+  rw_aur:     { label: "RW Aur",           ra:  72.77,   dec: +28.44   },
+  r_dra:      { label: "R Dra",            ra: 267.4,    dec: +65.6    },
+};
+
+/* ── URL helper ───────────────────────────────────────────────────────── */
+function buildLinks(ra, dec) {
+  const raDec  = `${ra}+${dec}`;
+  const raFmt  = ra.toFixed(5);
+  const decFmt = dec >= 0 ? `+${dec.toFixed(4)}` : dec.toFixed(4);
+  return [
+    {
+      label: "SIMBAD",
+      href:  `https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=${encodeURIComponent(raFmt + decFmt)}&CooFrame=FK5&CooEpoch=2000&CooEqui=2000&Radius=2&Radius.unit=arcmin&submit=submit+query`,
+      title: "Query SIMBAD by coordinates"
+    },
+    {
+      label: "VizieR",
+      href:  `https://vizier.cds.unistra.fr/viz-bin/VizieR?-c=${encodeURIComponent(raFmt + decFmt)}&-c.rs=2`,
+      title: "Query VizieR catalogues"
+    },
+    {
+      label: "Legacy Survey",
+      href:  `https://www.legacysurvey.org/viewer?ra=${ra}&dec=${dec}&zoom=12&layer=ls-dr10`,
+      title: "Open in Legacy Survey Sky Viewer (DR10)"
+    },
+  ];
+}
+
+/* ── Read URL params ──────────────────────────────────────────────────── */
+const params  = new URLSearchParams(window.location.search);
+const urlKey  = (params.get("target") || "barnard").toLowerCase();
+const urlRA   = parseFloat(params.get("ra"))  || null;
+const urlDec  = parseFloat(params.get("dec")) || null;
+
+// Resolve target: URL key takes priority; fall back to barnard
+let target    = TARGETS[urlKey] || TARGETS["barnard"];
+let activeKey = TARGETS[urlKey] ? urlKey : "barnard";
+
+// URL-supplied coordinates override catalogue defaults
+const finalRA  = (urlRA  !== null && !isNaN(urlRA))  ? urlRA  : target.ra;
+const finalDec = (urlDec !== null && !isNaN(urlDec)) ? urlDec : target.dec;
+
+/* ── Populate external links ──────────────────────────────────────────── */
+function renderLinks(ra, dec) {
+  const row   = document.getElementById("ext-link-row");
+  row.innerHTML = "";
+  buildLinks(ra, dec).forEach(({ label, href, title }) => {
+    const a      = document.createElement("a");
+    a.className  = "ext-link";
+    a.href       = href;
+    a.title      = title;
+    a.target     = "_blank";
+    a.rel        = "noopener noreferrer";
+    a.textContent = label;
+    row.appendChild(a);
+  });
+}
+
+document.getElementById("target-label").textContent = target.label;
+renderLinks(finalRA, finalDec);
+
+/* ── Toggle panel ─────────────────────────────────────────────────────── */
+const toggleBtn = document.getElementById("panel-toggle");
+const panel     = document.getElementById("aladin-panel");
+
+toggleBtn.addEventListener("click", () => {
+  const isHidden = panel.classList.toggle("hidden");
+  toggleBtn.setAttribute("aria-expanded", String(!isHidden));
+  toggleBtn.textContent = isHidden ? "🔭 Sky Panel" : "✕ Close";
+});
+
+/* ── Aladin Lite init (guarded) ───────────────────────────────────────── */
+(function initAladin() {
+  // Safety: if Aladin script failed to load (e.g. offline), A is undefined
+  if (typeof A === "undefined" || !A || !A.aladin) {
+    document.getElementById("aladin-error").classList.add("visible");
+    return;
+  }
+
+  try {
+    const aladin = A.aladin("#aladin-lite-div", {
+      survey:       "P/DSS2/color",
+      fov:          0.5,
+      target:       `${finalRA} ${finalDec}`,
+      showReticle:  true,
+      showZoomControl: true,
+      showFullscreenControl: false,
+      showLayersControl: true,
+      showGotoControl: false,
+      cooFrame:     "ICRS",
+    });
+
+    // Sync to exact coordinates from URL / catalogue
+    aladin.gotoRaDec(finalRA, finalDec);
+
+  } catch (err) {
+    console.error("Aladin init failed:", err);
+    document.getElementById("aladin-error").classList.add("visible");
+  }
+})();
+</script>
+</body>
+</html>

@@ -22,6 +22,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from api.routes import (
+    aladin,
     auth,
     export,
     fits_export,
@@ -203,6 +204,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(share.router)
     application.include_router(export.router)
     application.include_router(fits_export.router)
+    application.include_router(aladin.router)
 
     # Özel hata işleyicileri
     _register_error_handlers(application)
