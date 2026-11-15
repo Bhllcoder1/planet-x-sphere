@@ -116,6 +116,18 @@ def recovery_check(grid):
             "physical_flux_validated": False}
 
 
+def epsf_summary(grid) -> dict:
+    """Summarise an EPSFGrid: regions, shape, oversampling, self-recovery check."""
+    check = recovery_check(grid)
+    return {
+        "n_regions": len(grid.positions),
+        "stamp_shape": list(grid.samples.shape[1:]),
+        "oversampling": grid.oversampling,
+        "max_position_error_px": check["max_position_error_px"],
+        "self_recovery_ok": check["max_position_error_px"] < 0.001,
+    }
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("fits", type=Path)
@@ -125,8 +137,8 @@ if __name__ == "__main__":
     result = {"regions": len(grid.samples), "detector": grid.detector,
               "sample_shape": list(grid.samples.shape[1:]), "oversampling": grid.oversampling,
               "raw_sum_min": float(grid.raw_sums.min()), "raw_sum_max": float(grid.raw_sums.max()),
-              "norm_multiplier": grid.norm, "normalization_validation": "pending 03-02",
-              "integration": "pending 02-03 and 02-12", **recovery_check(grid)}
+              "norm_multiplier": grid.norm, "normalization_validation": "03-02 compare_orientation",
+              "integration": "02-03 pixel mask + 02-12 calibration", **recovery_check(grid)}
     print(json.dumps(result, indent=2))
     if not (result["max_position_error_px"] < 0.001):  # NaN-safe: nan>=0.001 is False but nan<0.001 is also False
         raise SystemExit("Self-recovery failed")
