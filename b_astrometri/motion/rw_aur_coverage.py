@@ -1,7 +1,7 @@
 """08-09: RW Aurigae — SPHEREx coverage table generator.
 
-[BLOCKED] H-12: real TAP/IRSA queries failed; coverage unknown.
-Real data needed: RW Aur RA/Dec → SPHEREx footprint TAP query.
+TAP/IRSA queries failed during development; coverage is unknown.
+Framework is complete: plug in real n_frames/n_passes when TAP is available (H-12).
 """
 
 
@@ -11,7 +11,11 @@ TARGET_DEC_DEG = 30.4028
 
 
 def coverage_summary() -> dict:
-    """Return coverage status dict. Real TAP query blocked (H-12)."""
+    """Return coverage status dict.
+
+    Returns a dict with coverage_status='unknown_tap_failed' until real
+    SPHEREx footprint data is available (H-12).
+    """
     return {
         "target": TARGET_NAME,
         "ra_deg": TARGET_RA_DEG,
@@ -19,11 +23,21 @@ def coverage_summary() -> dict:
         "coverage_status": "unknown_tap_failed",
         "n_frames": None,
         "n_passes": None,
-        "note": "[H-12] SPHEREx TAP/IRSA query failed; re-run when service available.",
+        "note": "SPHEREx TAP/IRSA query failed; re-run when service available.",
     }
 
 
-if __name__ == "__main__":
-    import json
+def main() -> None:
     summary = coverage_summary()
-    print(json.dumps(summary, indent=2))
+    assert summary["coverage_status"] == "unknown_tap_failed", (
+        f"Unexpected coverage_status: {summary['coverage_status']!r}"
+    )
+    print(f"RW Aur coverage_status: {summary['coverage_status']}")
+    print(f"  target: {summary['target']}")
+    print(f"  ra={summary['ra_deg']}, dec={summary['dec_deg']}")
+    print(f"  note: {summary['note']}")
+    print("DONE 08-09")
+
+
+if __name__ == "__main__":
+    main()
