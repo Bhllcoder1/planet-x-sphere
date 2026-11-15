@@ -119,6 +119,25 @@ def group_passes(
     }
 
 
+def pass_summary(passes: list[dict[str, Any]]) -> dict[str, Any]:
+    """Summarise a list of pass dicts (as returned in group_passes result['passes']).
+
+    Returns {n_passes, total_frames, mjd_range_days}.
+    mjd_range_days is the span from the earliest mjd_min to the latest mjd_max
+    across all passes; 0.0 for an empty list.
+    """
+    if not passes:
+        return {"n_passes": 0, "total_frames": 0, "mjd_range_days": 0.0}
+    total_frames = sum(p.get("n_frames", 0) for p in passes)
+    mjd_min = min(p["mjd_min"] for p in passes)
+    mjd_max = max(p["mjd_max"] for p in passes)
+    return {
+        "n_passes": len(passes),
+        "total_frames": total_frames,
+        "mjd_range_days": float(mjd_max - mjd_min),
+    }
+
+
 def write_pass_outputs(result: dict[str, Any], out_dir: str | Path) -> tuple[Path, Path]:
     """passes.json ve pass_of_frame.json dosyalarini yaz."""
     out = Path(out_dir)
