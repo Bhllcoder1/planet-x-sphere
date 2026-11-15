@@ -1,16 +1,17 @@
+import importlib
 import unittest
 
 import numpy as np
 
 from d5_check import compare_orientation, self_recovery_ladder
-from test_epsf import EPSFTests, fixture
+epsf_tests = importlib.import_module("test_epsf")
 
 
 class D5CheckTests(unittest.TestCase):
     def test_norm_1_and_25_recovery_and_flux_scale(self):
-        hdu = fixture(detector=2)
-        g1 = EPSFTests().grid(hdu, norm=1.0)
-        g25 = EPSFTests().grid(hdu, norm=25.0)
+        hdu = epsf_tests.fixture(detector=2)
+        g1 = getattr(epsf_tests, "EPSFTests")().grid(hdu, norm=1.0)
+        g25 = getattr(epsf_tests, "EPSFTests")().grid(hdu, norm=25.0)
         r1 = self_recovery_ladder(g1)
         r25 = self_recovery_ladder(g25)
         self.assertTrue(r1["passed_recovery"])
@@ -32,7 +33,7 @@ class D5CheckTests(unittest.TestCase):
 
     def test_orientation_distinguishes_anisotropic_psf(self):
         # fixture() x ve y'de asimetrik Gauss (x^2/2 vs y^2/0.9) uretir.
-        g = EPSFTests().grid(fixture(detector=2), norm=1.0)
+        g = getattr(epsf_tests, "EPSFTests")().grid(epsf_tests.fixture(detector=2), norm=1.0)
         rng = np.random.default_rng(42)
         cutouts = []
         for _ in range(12):
@@ -50,7 +51,7 @@ class D5CheckTests(unittest.TestCase):
         self.assertLess(res["normal_chi2_nu_median"], res["transposed_chi2_nu_median"])
 
     def test_empty_cutouts_marks_pending_02_07(self):
-        g = EPSFTests().grid(fixture(detector=2), norm=1.0)
+        g = getattr(epsf_tests, "EPSFTests")().grid(epsf_tests.fixture(detector=2), norm=1.0)
         res = compare_orientation(g, [])
         self.assertEqual(res["status"], "pending_02_07")
         self.assertIsNone(res["psf_transpose"])

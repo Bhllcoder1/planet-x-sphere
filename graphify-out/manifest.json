@@ -48,10 +48,10 @@
     "semantic_hash": "b12d09512c52cbb8cd487263e64972fe"
   },
   "HANDOFF.md": {
-    "mtime": 1794700042.2577605,
-    "seen": 1794700156.6156204,
-    "ast_hash": "40e1c1c3fb770b58487761da309ec300",
-    "semantic_hash": "40e1c1c3fb770b58487761da309ec300"
+    "mtime": 1794700785.453186,
+    "seen": 1794700884.7949162,
+    "ast_hash": "4b35e78a2445a7a29068a1ac196a4308",
+    "semantic_hash": "4b35e78a2445a7a29068a1ac196a4308"
   },
   "README.md": {
     "mtime": 1794695460.0272524,
@@ -96,16 +96,16 @@
     "semantic_hash": "ce250926159f3ad976899598073b060d"
   },
   "docs/second-brain/HUMAN_ACTIONS.md": {
-    "mtime": 1794700027.4454346,
-    "seen": 1794700156.6156204,
-    "ast_hash": "c325a67fc5910b2590928dcf5ff090f3",
-    "semantic_hash": "c325a67fc5910b2590928dcf5ff090f3"
+    "mtime": 1794700808.3243854,
+    "seen": 1794700884.7949162,
+    "ast_hash": "41351fe2c9fd7abd2c3a18cbf6c59368",
+    "semantic_hash": "41351fe2c9fd7abd2c3a18cbf6c59368"
   },
   "docs/second-brain/IMPLEMENTATION.md": {
-    "mtime": 1794699579.338759,
-    "seen": 1794699712.6470199,
-    "ast_hash": "d2301feb9df02b2b334918c807e4c89b",
-    "semantic_hash": "d2301feb9df02b2b334918c807e4c89b"
+    "mtime": 1794700842.5865736,
+    "seen": 1794700884.7949162,
+    "ast_hash": "65f64c668584fb9f9e8e9a7699e1485f",
+    "semantic_hash": "65f64c668584fb9f9e8e9a7699e1485f"
   },
   "docs/second-brain/NOW.md": {
     "mtime": 1794700062.5170755,
@@ -184,5 +184,29 @@
     "seen": 1794699712.6470199,
     "ast_hash": "f4e90250d37d00516ab4617838f183ac",
     "semantic_hash": "f4e90250d37d00516ab4617838f183ac"
+  },
+  "b_astrometri/centroid/d5_check.py": {
+    "mtime": 1794699751.8404536,
+    "seen": 1794700588.3896372,
+    "ast_hash": "cb592757e75888a3f8faf079c593eb3a",
+    "semantic_hash": "cb592757e75888a3f8faf079c593eb3a"
+  },
+  "b_astrometri/centroid/test_d5_check.py": {
+    "mtime": 1794700528.6360033,
+    "seen": 1794700588.3896372,
+    "ast_hash": "b23135d66e9c58389b9e6151007191fd",
+    "semantic_hash": "b23135d66e9c58389b9e6151007191fd"
+  },
+  "b_astrometri/centroid/test_wing_fit.py": {
+    "mtime": 1794700605.5416992,
+    "seen": 1794700624.3640485,
+    "ast_hash": "b5a1a50d2d7324343d13265a02c54992",
+    "semantic_hash": "b5a1a50d2d7324343d13265a02c54992"
+  },
+  "b_astrometri/centroid/wing_fit.py": {
+    "mtime": 1794700403.2683334,
+    "seen": 1794700588.3896372,
+    "ast_hash": "ec9367ca5439938b737a7d93beabe37e",
+    "semantic_hash": "ec9367ca5439938b737a7d93beabe37e"
   }
 }

@@ -46,3 +46,15 @@ Kaynak: `b_astrometri/motion/passes.py`. 30 günden **büyük** ardışık-kare 
 Stage 0 yerel kare listesiyle doğrulama: Barnard 358/358 kare, 3 pass (46/55/37 gün), iki boşluk; ε Indi B 458/458 kare, 4 pass (46/45/15/10 gün), üç boşluk. Çıktılar depo dışı `C:/Users/behlu/reports/04-01-passes/{Barnard,EpsInd_B}/` altında. Bu, mevcut liste verisiyle modül kontrolüdür.
 
 **Sınır / kabul açık:** depo ve Stage 0 taramasında Liste 02 üretim manifesti bulunmadı. Kaydedilmiş `frames_*.json` girdilerinde `SPS_EPA` alanı yok; bu nedenle üretilen pass yönelim kümeleri boş ve görevdeki yönelim çıktısı kanıtlanmadı. Release/provenance tekilleştirmesi de bu fonksiyonda yapılmaz; Liste 02 girdisinin sözleşmesi beklenir. ClickUp 04-01'i tamamlandı saymayın. İnsan girdisi [HUMAN_ACTIONS.md](HUMAN_ACTIONS.md) H-03'te tutulur.
+
+## ePSF D5 kontrol prototipi — 03-02
+
+`b_astrometri/centroid/d5_check.py` ve testleri sentetik/öz-kurtarma kontrolü sağlar. 36 alt-piksel kaymada `norm=1` ve `norm=25` için konum hatası `<0.001 px`; `×25` modelin aynı görüntüde akı genliğinin `1/25` ölçeklenmesi kontrol edildi. 12 gürültülü sentetik kesitte normal PSF yönelimi devrik varyanttan daha düşük `χ²_ν` verdi. Çift keşif düzeltildikten sonra centroid dizini **21/21** geçti.
+
+**Sınır / kabul açık:** bu sonuç gerçek ePSF kalibrasyonunu veya yönelimi kanıtlamaz. 02-07'den 200 gerçek izole yıldız/kesit yok; `PSF_NORM=1` ve `PSF_TRANSPOSE=False` hâlâ `[ASSUMPTION]`. `d5_result.md` ve insan girdisi [HUMAN_ACTIONS.md](HUMAN_ACTIONS.md) H-04'te tutulur. ClickUp 03-02'yi kapatmayın.
+
+## Doymuş çekirdek kanat uyumu prototipi — 03-05
+
+`b_astrometri/centroid/wing_fit.py` geçersiz/NaN/OVERFLOW piksellerini maskeler; maskeli piksel oranı `%50` üzerindeyse `unmeasurable`, çekirdek maskelenmişse `saturated_fit` döndürür. Sentetik kesitlerde konum belirsizliğinin genişlemesi ve üç-sigma konum sınırı ile iki test geçti; elips alanları `ellipse.catalog_fields` üzerinden üretilir.
+
+**Sınır / kabul açık:** gerçek doymuş gözlem kareleriyle tarama yapılmadı. 02-08 ve 03-03 veri/önkoşulları H-05'te bekliyor. Bu prototip ClickUp 03-05 kabulü değildir.

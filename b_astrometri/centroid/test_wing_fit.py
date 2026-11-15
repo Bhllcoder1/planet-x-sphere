@@ -1,15 +1,17 @@
 import math
+import importlib
 import unittest
 
 import numpy as np
 
-from test_epsf import EPSFTests, fixture
 from wing_fit import fit_epsf_wing
+
+epsf_tests = importlib.import_module("test_epsf")
 
 
 class WingFitTests(unittest.TestCase):
     def test_artificial_core_mask_matches_within_3sigma_and_widens_uncertainty(self):
-        grid = EPSFTests().grid(fixture(detector=2), norm=1.0)
+        grid = getattr(epsf_tests, "EPSFTests")().grid(epsf_tests.fixture(detector=2), norm=1.0)
         rng = np.random.default_rng(7)
         cx, cy = grid.positions[220] + np.array([0.23, -0.17])
         yy, xx = np.mgrid[-4:5, -4:5] + np.array([[[cy]], [[cx]]])
@@ -44,7 +46,7 @@ class WingFitTests(unittest.TestCase):
         self.assertLess(math.hypot(wing["x"] - cx, wing["y"] - cy), 0.15)
 
     def test_over_half_masked_returns_unmeasurable(self):
-        grid = EPSFTests().grid(fixture(detector=2), norm=1.0)
+        grid = getattr(epsf_tests, "EPSFTests")().grid(epsf_tests.fixture(detector=2), norm=1.0)
         cx, cy = grid.positions[220]
         yy, xx = np.mgrid[-4:5, -4:5] + np.array([[[cy]], [[cx]]])
         img = np.full_like(xx, 10.0)
