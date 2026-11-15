@@ -22,6 +22,16 @@ $py='C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe'
 
 **Son çalışma:** centroid 28, gaia 35, movers 11, motion 15 = **89 test OK**
 
+## Bu oturumda eklenen raporlar (2026-11-15)
+
+| Görev | Rapor | Commit |
+|---|---|---|
+| 03-01 ePSF | `b_astrometri/reports/03-01-implementation.md` | bc84300 |
+| 03-02 D5 norm | `b_astrometri/reports/03-02-implementation.md` | 127f56d |
+| 03-05 kanat uyumu | `b_astrometri/reports/03-05-implementation.md` | 4c3e2bc |
+| 03-13 faz bias | `b_astrometri/reports/03-13-implementation.md` | a6b9833 |
+| 01-03 Gaia fetch | `b_astrometri/reports/01-03-implementation.md` | 1bc6342 |
+
 ## Tamamlanan işler (commit'e giren)
 
 | Görev | Dosya | Durum |
