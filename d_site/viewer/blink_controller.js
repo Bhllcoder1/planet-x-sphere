@@ -129,6 +129,24 @@ export class BlinkController {
     return `${safeIdx + 1} / ${seq.length}`;
   }
 
+  play() {
+    this.isPlaying = true;
+    this._emit();
+  }
+
+  pause() {
+    this.isPlaying = false;
+    this._emit();
+  }
+
+  goToFrame(idx) {
+    const seq = this.getActiveSequence();
+    if (seq.length === 0) return null;
+    this.currentIndex = ((idx % seq.length) + seq.length) % seq.length;
+    this._emit();
+    return this.getCurrentFrame();
+  }
+
   _emit() {
     if (this.onChange) {
       this.onChange({
