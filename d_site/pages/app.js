@@ -522,17 +522,16 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
     `;
   }
 
+  // Plot modu: "mjd" = flux vs zaman, "spectrum" = flux vs dalga boyu (anlık spektrum)
+  let plotMode = "mjd";
+
   function renderMultiEpochPlot() {
     if (!plotEl) return;
     const frames = activeFrames;
     if (!frames || frames.length === 0) return;
+    if (plotMode === "spectrum") { renderSpectrumPlot(frames); return; }
 
-    const w = 480;
-    const h = 135;
-    const padL = 48;
-    const padR = 20;
-    const padT = 18;
-    const padB = 28;
+    const w = 480, h = 135, padL = 48, padR = 20, padT = 18, padB = 28;
 
     const pts = frames.map((f, i) => {
       const rf = f.raw_record;
@@ -551,44 +550,99 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
 
     const xOf = (mjd) => padL + ((mjd - minMjd) / Math.max(1, maxMjd - minMjd)) * (w - padL - padR);
     const yOf = (flx) => h - padB - (flx / maxFlux) * (h - padT - padB);
-
     const polyPoints = pts.map((p) => `${xOf(p.mjd).toFixed(1)},${yOf(p.flux).toFixed(1)}`).join(" ");
     const curIdx = blink.currentIndex;
 
-    const circlesSvg = pts
-      .map((p) => {
-        const cx = xOf(p.mjd).toFixed(1);
-        const cy = yOf(p.flux).toFixed(1);
-        const isCur = p.i === curIdx;
-        return `
-          <g style="cursor:pointer;" data-frame-idx="${p.i}">
-            <circle cx="${cx}" cy="${cy}" r="${isCur ? 6 : 4}" fill="${isCur ? "#F0E442" : "#56B4E9"}" stroke="#000" stroke-width="1.5" />
-            <text x="${cx}" y="${Number(cy) - 8}" fill="#E6EDF3" font-family="monospace" font-size="9.5" text-anchor="middle">${p.flux.toFixed(0)} MJy/sr (${p.cwave.toFixed(2)}µm)</text>
-          </g>
-        `;
-      })
-      .join("");
+    const circlesSvg = pts.map((p) => {
+      const cx = xOf(p.mjd).toFixed(1);
+      const cy = yOf(p.flux).toFixed(1);
+      const isCur = p.i === curIdx;
+      return `<g style="cursor:pointer;" data-frame-idx="${p.i}">
+        <circle cx="${cx}" cy="${cy}" r="${isCur ? 6 : 4}" fill="${isCur ? "#F0E442" : "#56B4E9"}" stroke="#000" stroke-width="1.5" />
+        <text x="${cx}" y="${Number(cy) - 8}" fill="#E6EDF3" font-family="monospace" font-size="9.5" text-anchor="middle">${p.flux.toFixed(0)} MJy/sr (${p.cwave.toFixed(2)}µm)</text>
+      </g>`;
+    }).join("");
 
     plotEl.innerHTML = `
-      <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="Multi-epoch flux and astrometry plot">
+      <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img">
         <line x1="${padL}" y1="${h - padB}" x2="${w - padR}" y2="${h - padB}" stroke="#30363D" stroke-width="1" />
         <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h - padB}" stroke="#30363D" stroke-width="1" />
         <polyline fill="none" stroke="#56B4E9" stroke-width="1.8" stroke-dasharray="4 2" points="${polyPoints}" />
         ${circlesSvg}
         <text x="${padL}" y="${h - 8}" fill="#8B949E" font-family="monospace" font-size="10">MJD ${minMjd.toFixed(0)}</text>
         <text x="${w - padR}" y="${h - 8}" fill="#8B949E" font-family="monospace" font-size="10" text-anchor="end">MJD ${maxMjd.toFixed(0)}</text>
-        <text x="${w / 2}" y="${h - 8}" fill="#8B949E" font-family="monospace" font-size="10" text-anchor="middle">Peak Wing Flux (MJy/sr) vs Observation MJD (Click point to jump)</text>
-      </svg>
-    `;
+        <text x="${w / 2}" y="${h - 8}" fill="#8B949E" font-family="monospace" font-size="10" text-anchor="middle">Flux (MJy/sr) vs MJD — tıkla kareye atla</text>
+      </svg>`;
 
     plotEl.querySelectorAll("g[data-frame-idx]").forEach((g) => {
       g.addEventListener("click", () => {
         const idx = Number(g.getAttribute("data-frame-idx"));
-        if (Number.isInteger(idx)) {
-          stopAutoPlay();
-          blink.goToFrame(idx);
-          renderFrame();
-        }
+        if (Number.isInteger(idx)) { stopAutoPlay(); blink.goToFrame(idx); renderFrame(); }
+      });
+    });
+  }
+
+  // Anlık spektrum: flux vs dalga boyu (µm) — tüm frameler, her biri bir nokta
+  function renderSpectrumPlot(frames) {
+    if (!plotEl) return;
+    const w = 480, h = 155, padL = 52, padR = 20, padT = 18, padB = 32;
+    const curIdx = blink.currentIndex;
+
+    // Tüm frameleri dalga boyuna göre sırala
+    const pts = frames
+      .map((f, i) => ({
+        i,
+        lam: f.cwave_um || 0,
+        flux: f.raw_record?.peak_wing_flux_mjy_sr ?? 0,
+        isCur: i === curIdx,
+        det: f.detector,
+      }))
+      .filter((p) => p.lam > 0)
+      .sort((a, b) => a.lam - b.lam);
+
+    if (pts.length === 0) { plotEl.innerHTML = `<p style="font-size:11px;color:var(--text-muted);">Spektrum verisi yok.</p>`; return; }
+
+    const minLam = Math.min(...pts.map((p) => p.lam)) - 0.05;
+    const maxLam = Math.max(...pts.map((p) => p.lam)) + 0.05;
+    const maxFlux = Math.max(10, ...pts.map((p) => p.flux)) * 1.15;
+
+    const xOf = (lam) => padL + ((lam - minLam) / Math.max(0.01, maxLam - minLam)) * (w - padL - padR);
+    const yOf = (flx) => h - padB - (flx / maxFlux) * (h - padT - padB);
+    const polyLine = pts.map((p) => `${xOf(p.lam).toFixed(1)},${yOf(p.flux).toFixed(1)}`).join(" ");
+
+    // Renk: dedektör grubuna göre (SPHEREx'in 6 dedektörü)
+    const detColors = { "1": "#E69F00", "2": "#56B4E9", "3": "#009E73", "4": "#F0E442", "5": "#0072B2", "6": "#D55E00" };
+    const getDetColor = (det) => detColors[String(det).replace(/\D/g, "")[0]] || "#56B4E9";
+
+    const dots = pts.map((p) => {
+      const cx = xOf(p.lam).toFixed(1);
+      const cy = yOf(p.flux).toFixed(1);
+      return `<g style="cursor:pointer;" data-frame-idx="${p.i}">
+        <circle cx="${cx}" cy="${cy}" r="${p.isCur ? 7 : 4.5}" fill="${p.isCur ? "#F0E442" : getDetColor(p.det)}" stroke="#000" stroke-width="1.2" opacity="0.9"/>
+        ${p.isCur ? `<text x="${cx}" y="${Number(cy) - 10}" fill="#F0E442" font-family="monospace" font-size="9" text-anchor="middle">${p.flux.toFixed(0)} MJy/sr</text>` : ""}
+      </g>`;
+    }).join("");
+
+    // X ekseni bant çizgileri
+    const xLabels = [0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0].filter((l) => l >= minLam && l <= maxLam)
+      .map((l) => `<text x="${xOf(l).toFixed(1)}" y="${h - 10}" fill="#8B949E" font-family="monospace" font-size="9" text-anchor="middle">${l}µm</text>
+        <line x1="${xOf(l).toFixed(1)}" y1="${padT}" x2="${xOf(l).toFixed(1)}" y2="${h - padB}" stroke="#222" stroke-width="0.5" stroke-dasharray="2 3"/>`).join("");
+
+    plotEl.innerHTML = `
+      <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img">
+        <line x1="${padL}" y1="${h-padB}" x2="${w-padR}" y2="${h-padB}" stroke="#30363D" stroke-width="1"/>
+        <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h-padB}" stroke="#30363D" stroke-width="1"/>
+        ${xLabels}
+        <polyline fill="none" stroke="#444" stroke-width="1.2" stroke-dasharray="3 3" points="${polyLine}"/>
+        ${dots}
+        <text x="12" y="${h/2}" fill="#8B949E" font-family="monospace" font-size="9" transform="rotate(-90,12,${h/2})">Flux MJy/sr</text>
+        <text x="${w/2}" y="${h-2}" fill="#8B949E" font-family="monospace" font-size="10" text-anchor="middle">Dalga Boyu (µm) — SPHEREx 102 Bant Spektrumu</text>
+      </svg>`;
+
+    plotEl.querySelectorAll("g[data-frame-idx]").forEach((g) => {
+      g.addEventListener("click", () => {
+        const idx = Number(g.getAttribute("data-frame-idx"));
+        if (Number.isInteger(idx)) { stopAutoPlay(); blink.goToFrame(idx); renderFrame(); }
       });
     });
   }
@@ -1314,6 +1368,75 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
   doc.getElementById("btn-search")?.addEventListener("click", executeSearch);
   doc.getElementById("inp-search")?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") executeSearch();
+  });
+
+  // Plot modu toggle (Flux vs MJD ↔ Spektrum)
+  doc.getElementById("btn-plot-mode")?.addEventListener("click", (e) => {
+    plotMode = plotMode === "mjd" ? "spectrum" : "mjd";
+    e.target.textContent = plotMode === "mjd" ? "Flux vs MJD" : "Spektrum (λ)";
+    renderMultiEpochPlot();
+  });
+
+  // FOV seçici — boyutu displayState'e kaydet (backend gerektiğinde kullanılır)
+  doc.getElementById("sel-fov")?.addEventListener("change", (e) => {
+    displayState.fovSize = Number(e.target.value);
+  });
+
+  // WISE overlay — Aladin panelini WISE W1 ile aç
+  doc.getElementById("btn-wise")?.addEventListener("click", (e) => {
+    const isOn = e.target.textContent.includes("OFF");
+    e.target.textContent = isOn ? "WISE W1 Overlay: ON" : "WISE W1 Overlay: OFF";
+    e.target.classList.toggle("active-toggle", isOn);
+    if (isOn) {
+      // Aladin panelini aç ve WISE W1'e geç
+      const container = doc.getElementById("aladin-container");
+      if (container) container.style.display = "block";
+      const surveyEl = doc.getElementById("sel-aladin-survey");
+      if (surveyEl) surveyEl.value = "P/WISE/W1";
+      initOrUpdateAladin(activeTarget.raDeg, activeTarget.decDeg, "P/WISE/W1");
+      doc.getElementById("btn-aladin-toggle").textContent = "Kapat";
+    }
+  });
+
+  // Aladin Lite toggle
+  let aladinInst = null;
+  function initOrUpdateAladin(ra, dec, survey) {
+    const container = doc.getElementById("aladin-container");
+    if (!container) return;
+    const s = survey || doc.getElementById("sel-aladin-survey")?.value || "P/DSS2/color";
+    if (!window.A) {
+      container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin yükleniyor… İnternet bağlantısı gerekli.</p>`;
+      return;
+    }
+    if (!aladinInst) {
+      aladinInst = window.A.aladin("#aladin-lite-div", {
+        survey: s, fov: 0.1,
+        target: `${ra} ${dec}`,
+        showReticle: true,
+        showZoomControl: true,
+      });
+    } else {
+      aladinInst.gotoRaDec(ra, dec);
+      aladinInst.setImageSurvey(s);
+    }
+  }
+
+  doc.getElementById("btn-aladin-toggle")?.addEventListener("click", (e) => {
+    const container = doc.getElementById("aladin-container");
+    if (!container) return;
+    const isOpen = container.style.display !== "none";
+    container.style.display = isOpen ? "none" : "block";
+    e.target.textContent = isOpen ? "Aç" : "Kapat";
+    if (!isOpen) {
+      const frame = blink.getCurrentFrame();
+      const ra = frame?.raw_record?.measured_centroid?.ra_deg ?? activeTarget.raDeg;
+      const dec = frame?.raw_record?.measured_centroid?.dec_deg ?? activeTarget.decDeg;
+      initOrUpdateAladin(ra, dec);
+    }
+  });
+
+  doc.getElementById("sel-aladin-survey")?.addEventListener("change", (e) => {
+    if (aladinInst) aladinInst.setImageSurvey(e.target.value);
   });
 
   // Export CSV (11-02)
