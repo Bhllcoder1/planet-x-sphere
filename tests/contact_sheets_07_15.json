@@ -1,0 +1,42 @@
+{
+  "task_id": "07-15",
+  "targets_count": 5,
+  "honesty_rule": "Unverified targets emit honest status cards ('not_measured'), never substituted.",
+  "sheets": [
+    {
+      "target": "Barnard's Star",
+      "status": "verified",
+      "grid_cells": 12,
+      "populated_frames": 12,
+      "card_type": "image_grid_12"
+    },
+    {
+      "target": "Epsilon Indi B",
+      "status": "verified",
+      "grid_cells": 12,
+      "populated_frames": 12,
+      "card_type": "image_grid_12"
+    },
+    {
+      "target": "WISE 0855-0714",
+      "status": "not_measured",
+      "grid_cells": 12,
+      "populated_frames": 0,
+      "card_type": "honest_status_card_not_measured"
+    },
+    {
+      "target": "RW Aurigae",
+      "status": "not_measured",
+      "grid_cells": 12,
+      "populated_frames": 0,
+      "card_type": "honest_status_card_not_measured"
+    },
+    {
+      "target": "R Draconis",
+      "status": "not_measured",
+      "grid_cells": 12,
+      "populated_frames": 0,
+      "card_type": "honest_status_card_not_measured"
+    }
+  ]
+}
