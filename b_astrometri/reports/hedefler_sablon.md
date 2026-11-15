@@ -64,3 +64,10 @@ Tespit/S/N ve hareket ±σ: **ÖLÇÜLMEDİ [NV]**; bu görev ölçüm yapmaz (0
 **WISE 0855:** kimlik: WISE 0855; koordinat/öz hareket doğrulaması bu provada yapılmadı `[NV]`. Kapsam/geçiş/dedektör/MJD/SPS_EPA: **BİLİNMİYOR [NV]**. Tarihsel TAP denemeleri timeout/502/reset ile tamamlanamamış `[V: docs/stage0/s0_A.md, WISE0855 ve Completeness notes]`; bu **0 kare değildir**. Tespit/S/N, hareket ±σ ve görünürlük **ÖLÇÜLMEDİ [NV]**; üst sınır uydurulmaz. Uyarı: arşiv hatası, bilinmeyen kapsam; demo hazır değil `[NV]`. Ölçülmemiş olanlar: kapsam, fotometri/S/N, hareket ve demo. Sonuç: “Arşiv sorgusu tamamlanmadığından bu hedefin kapsamı ve tespiti henüz belirlenmedi.”
 
 Kaynaklar (depo köküne göre): `docs/plan/SITE_SPEC.md` W17/W18; `docs/stage0/s0_A.md`; `docs/stage0/s0_C.md`; ClickUp [08-01](https://app.clickup.com/t/z8qu5ddjz8). Bu dosya, görevdeki eski `hedefler/_sablon.md` / `spherex-kb/hedefler_sablon.md` çıktı yollarının ürün deposundaki karşılığıdır.
+
+## Doğrulama Kontrol Listesi
+
+- [ ] Kapsam tablosu tamamlandı
+- [ ] Zorlanmış fotometri S/N hesaplandı
+- [ ] Hareket vektörü görüntülendi
+- [ ] Uyarılar belgelendi
