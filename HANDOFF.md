@@ -38,5 +38,6 @@ Bu oturumda: centroid **21/21**, motion **4/4**, Gaia **30/30** test geçti; top
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/motion -p 'test_*.py' -v
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/gaia -p 'test_*.py' -v
 ```
+- **Döngü tur 5 (03-13 prototip):** `b_astrometri/centroid/phase_bias.py` + `test_phase_bias.py` (2 test OK; toplam 64 test: centroid 30, motion 4, gaia 30). Alt-piksel faz sapması ve `RMS/sigma_pred` CSV çıktısı doğrulandı; gerçek FITS/PNG `[NV]`.
 
 Aktif Claude Code süreci aynı çalışma ağacını kullanabiliyor; sonraki oturumda commit/çalışma ağacı kontrolü yapmadan dosya üzerine yazma. İnsan girdisi bekleyen işleri kapatma veya ClickUp durumunu varsayma.
