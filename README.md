@@ -1,37 +1,82 @@
 # planet-x-sphere
 
-Kalıcı çalışma hafızası: [Second Brain](docs/second-brain/README.md) · [Şu an / sonraki adım](docs/second-brain/NOW.md).
+SPHEREx astrometry pipeline — Gaia epoch propagation, ePSF photometry, moving object linking, and forced photometry for nearby star and solar system targets.
 
-NASA SPHEREx taramasının görüntülerinden, verilen bir gökyüzü bölgesinin zaman içindeki değişimini **piksel hassasiyetiyle** gösteren ve hareketli cisimleri öne çıkaran bir web aracı (NASA Space Apps). Kapsam: yarışmanın 5 test hedefi (Barnard'ın Yıldızı, ε Indi B, WISE 0855, RW Aur, R Dra).
+## What it does
 
-## Nereden başlamalı
-1. `docs/plan/DECISIONS_AND_TASK.md`: kararlar ve güncel durum.
-2. `docs/plan/PLAN_spherex_v3.md`: son plan.
-3. Kendi alanının klasöründeki `README.md` (görev listesi ve alt klasörler).
-4. ClickUp'ta (Planet XSphere çalışma alanı) sana atanmış görevler. Her görevin en üstünde sade bir özet var.
+This pipeline processes SPHEREx cutout images to:
 
-## Yapı
+- **Fetch and propagate Gaia DR3 catalogues** to the observation epoch (proper motion + parallax), with WiseView cross-check tests
+- **Build an effective PSF (ePSF)** from a `GriddedPSFModel` (33×33 stamp, 5× oversampling) and fit centroids from the wings of saturated sources
+- **Perform forced photometry** at a fixed sky position across all frames of a transit, combining per-frame flux measurements by inverse-variance weighting
+- **Link moving objects** using a pair-supported sparse velocity lattice with RANSAC-style consensus/refit
+- **Stack and diff transits** (rolling-window and pass-stack modes, view-only)
+- **Guard candidates** against STREAK, GHOST, CROSSTALK, TRANSIENT, and HALO flag bits
+
+## Repository layout
+
 ```
-planet-x-sphere/
-├── README.md, CONTRIBUTING.md, .gitignore
-├── .github/          CODEOWNERS ve PR şablonu
-├── a_veri_isleme/    Akif    : fetch, process, products, display, exports
-├── b_astrometri/     Behlül  : centroid, gaia, wcs, motion, movers, reports
-├── c_sunucu/         Osman   : api, cache, accounts, deploy
-├── d_site/           Furkan  : viewer, pages, design
-├── contracts/        alanlar arası sözleşmeler (manifest, API, URL şeması)
-├── ops/              kiralama, dağıtım, yedek (Osman)
-├── tests/            test verisi ve regresyon betiği
-└── docs/
-    ├── plan/         planlar, kararlar, site şartnamesi, ekip bölüşümü
-    ├── research/     araştırma notları ([V]/[NV] etiketli)
-    ├── stage0/       gerçek veri testlerinin raporları
-    └── TEAM.md       ekip ve alanlar
+b_astrometri/
+  gaia/          Gaia TAP fetch, epoch propagation, WiseView tests
+  centroid/      ePSF grid, wing fit, error ellipse, joint fit
+  motion/        Forced photometry, transit stacking, light curves
+  movers/        Moving-object linker, OUTLIER promotion, veto guard
+  reports/       Implementation reports and status notes (not FITS)
+docs/
+  second-brain/  TASKS.md, human-action log, project memory
 ```
 
-## Durum
-Planlama ve Stage 0 testleri bitti; ürün kodu henüz yok, alt klasörler boş. Süre tahminleri ve bazı eşikler [ASSUMPTION] etiketlidir. Bilinmeyenler: yarışma son tarihi, WISE 0855 / RW Aur / R Dra kapsamı.
+## Running the tests
 
-Kaynak sayfa kopyaları, görev dosyaları ve Stage 0 betikleri depoda değil; proje sahibinin yerel yedeğinde. Belgelerdeki `sources\` ve `stage0\` yolları o yedeğe işaret eder.
+Stage 0 virtual environment (Windows):
 
-Veri: NASA/IPAC IRSA (SPHEREx), ESA Gaia, IMCCE SkyBoT.
+```powershell
+$py = 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe'
+& $py -I -m unittest discover -s b_astrometri/centroid -p 'test_*.py'
+& $py -I -m unittest discover -s b_astrometri/gaia     -p 'test_*.py'
+& $py -I -m unittest discover -s b_astrometri/movers   -p 'test_*.py'
+& $py -I -m unittest discover -s b_astrometri/motion   -p 'test_*.py'
+```
+
+Last run: centroid 28, gaia 35, movers 11, motion 15 = **89 tests OK** (all synthetic).
+
+## Coordinate audit
+
+All production `.py` files must pass `coord_audit.py`. Forbidden calls:
+
+- `round()`, `math.floor()`, `math.ceil()`, `math.trunc()`, `np.rint()`
+- WCS pixel-to-sky with `origin=1`
+
+Pixel scale must be derived from `proj_plane_pixel_scales(wcs)`, never hardcoded.
+
+## Science targets
+
+All targets are pending real FITS delivery (H-xx human-input gates):
+
+| Target | Frames | Passes | Gate |
+|---|---|---|---|
+| Barnard's Star | ~358 | 3 | H-01, H-08 |
+| ε Indi B | ~458 | 4 | H-01, H-08 |
+| WISE 0855−0714 | unknown (TAP failed) | unknown | H-09 |
+| RW Aurigae | unknown (TAP failed) | unknown | H-09, H-12 |
+| R Draconis | unknown (TAP failed) | unknown | H-09 |
+
+Synthetic pass-grouping and stacking verified for Barnard and ε Indi B frame counts.
+
+## Limitations
+
+- All centroid, photometry, and linking results are **synthetic-data only** until real FITS is supplied.
+- Physical flux calibration is not implemented (ePSF amplitude is in image-native units).
+- Gaia production integration requires Akif's `a_veri_isleme` module (H-01).
+- Interpolation covariance is not propagated through the resampled variance plane.
+- Moving-object full velocity-grid coverage is not claimed; only pair-supported cells are searched.
+
+See `b_astrometri/reports/09-06-sinirliliklar.md` for the full limitations table.
+
+## Contributing
+
+See `CONTRIBUTING.md`. Key rules:
+
+- Raw FITS files and `reports/` output stay outside the repository.
+- `graphify-out/` is local derived output — do not commit.
+- Tokens and credentials stay in personal files only.
