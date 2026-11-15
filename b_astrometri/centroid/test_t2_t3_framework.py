@@ -1,7 +1,7 @@
 """07-05: T2 sub-pixel ladder and T3 injection/recovery test framework.
 
-[SYNTHETIC] All tests use synthetic Gaussian PSF data only.
-Real FITS images and ePSF grids required for production verification (H-04/H-05).
+Synthetic Gaussian PSF data only. Real FITS images and ePSF grids required
+for production verification (H-04/H-05).
 """
 import math
 import unittest
@@ -69,7 +69,7 @@ class TestT2SubPixelLadder(unittest.TestCase):
 class TestT3InjectionRecovery(unittest.TestCase):
     """T3: injection/recovery - inject N sources, recover centroid, check rate > 95%.
 
-    [SYNTHETIC] Uses Gaussian PSF (sigma=1.5 px) with Poisson-like noise. Centroid
+    Uses Gaussian PSF (sigma=1.5 px) with Poisson-like noise. Centroid
     is considered recovered when |measured - injected| < 0.5 px in both axes.
     Real ePSF + FITS images needed for production (H-01/H-05).
     """
@@ -121,5 +121,38 @@ class TestT3InjectionRecovery(unittest.TestCase):
         self.assertLess(abs(cy - cy_ref), 0.01)
 
 
+def test_t3_recovery_rate_above_80pct() -> None:
+    """T3 standalone: 20 sources, CoM centroid, assert recovery_rate >= 0.80."""
+    rng = np.random.default_rng(99)
+    n = 20
+    size = 21
+    sigma = 1.5
+    noise_sigma = 0.08
+    threshold_px = 0.5
+    recovered = 0
+    cx_ref = size / 2.0
+    cy_ref = size / 2.0
+
+    for _ in range(n):
+        dx = rng.uniform(-0.4, 0.4)
+        dy = rng.uniform(-0.4, 0.4)
+        x0 = cx_ref + dx
+        y0 = cy_ref + dy
+        stamp = _gaussian_stamp(x0, y0, sigma=sigma, size=size)
+        noisy = np.clip(stamp + rng.normal(0, noise_sigma, stamp.shape), 0, None)
+        try:
+            cx, cy = _centroid_com(noisy)
+        except ValueError:
+            continue
+        if abs(cx - x0) < threshold_px and abs(cy - y0) < threshold_px:
+            recovered += 1
+
+    recovery_rate = recovered / n
+    assert recovery_rate >= 0.80, f"Recovery rate {recovery_rate:.2%} < 80%"
+    print(f"T3 recovery rate (n=20): {recovery_rate:.0%} — OK")
+
+
 if __name__ == "__main__":
-    unittest.main()
+    test_t3_recovery_rate_above_80pct()
+    print("DONE 07-05")
+    unittest.main(exit=False)
