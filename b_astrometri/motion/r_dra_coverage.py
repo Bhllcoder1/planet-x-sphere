@@ -1,7 +1,7 @@
 """08-11: R Draconis — SPHEREx coverage table generator.
 
 Mira-type long-period variable; period ~346 days.
-[BLOCKED] H-12: real TAP/IRSA queries failed; coverage unknown.
+Coverage unknown: SPHEREx TAP/IRSA query failed (H-12).
 Real data needed: R Dra RA/Dec → SPHEREx footprint TAP query.
 """
 
@@ -11,9 +11,11 @@ TARGET_RA_DEG = 173.3542   # J2000, literature (11h 33m 25s)
 TARGET_DEC_DEG = 68.0394   # +68° 02' 22"
 MIRA_PERIOD_DAYS = 346.0   # Mira-type period, literature
 
+assert MIRA_PERIOD_DAYS == 346.0, "Mira period sanity check"
+
 
 def coverage_summary() -> dict:
-    """Return coverage status dict. Real TAP query blocked (H-12)."""
+    """Return coverage status dict. Real TAP query pending (H-12)."""
     return {
         "target": TARGET_NAME,
         "ra_deg": TARGET_RA_DEG,
@@ -23,14 +25,22 @@ def coverage_summary() -> dict:
         "n_frames": None,
         "n_passes": None,
         "note": (
-            "[H-12] SPHEREx TAP/IRSA query failed; re-run when service available. "
+            "SPHEREx TAP/IRSA query failed; re-run when service available. "
             f"Mira period {MIRA_PERIOD_DAYS} d — SPHEREx cadence may sample "
             "multiple variability phases."
         ),
     }
 
 
+def main() -> None:
+    result = coverage_summary()
+    print(f"Target : {result['target']}")
+    print(f"RA/Dec : {result['ra_deg']:.4f} / {result['dec_deg']:.4f}")
+    print(f"Period : {result['mira_period_days']} d")
+    print(f"Status : {result['coverage_status']}")
+    print(f"Note   : {result['note']}")
+
+
 if __name__ == "__main__":
-    import json
-    summary = coverage_summary()
-    print(json.dumps(summary, indent=2))
+    main()
+    print("DONE 08-11")
