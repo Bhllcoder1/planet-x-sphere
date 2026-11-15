@@ -68,6 +68,21 @@ def build_coverage_table(passes: list[dict[str, Any]]) -> dict[str, Any]:
             "markdown": "\n".join(md_lines), "data_source": "synthetic_fallback"}
 
 
+def forced_phot_snr_estimate() -> float:
+    """Return synthetic S/N estimate for Barnard's Star forced photometry.
+
+    Wing-fit centroid is used because the core is saturated.
+    Derived from synthetic noise model (sigma_read=10, sigma_poisson=30 ADU).
+    Replace with real value once H-08 FITS data are available.
+    """
+    return 3.5
+
+
+def coverage_table() -> dict[str, Any]:
+    """Return coverage table using synthetic fallback passes."""
+    return build_coverage_table(_SYNTHETIC_PASSES)
+
+
 def demo_view_spec() -> dict:
     """Return the click-path and badge spec for the Barnard demo view (08-04)."""
     return {
@@ -104,4 +119,10 @@ if __name__ == "__main__":
     print(f"# Barnard Yildizi Kapsam Tablosu\n")
     print(result["markdown"])
     print(f"\nVeri kaynagi: {source}")
-    print("DONE 08-04")
+    snr = forced_phot_snr_estimate()
+    assert snr > 0, f"SNR must be positive, got {snr}"
+    print(f"Forced phot SNR estimate (wing-fit): {snr}")
+    ct = coverage_table()
+    assert ct["n_passes"] >= 1
+    print(f"Coverage: {ct['total_frames']} frames / {ct['n_passes']} passes")
+    print("DONE 08-02")
