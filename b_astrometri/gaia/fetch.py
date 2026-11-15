@@ -128,7 +128,7 @@ def fetch_tile(provider, query, cache, *, attempts=2, timeout=45, session=None):
             time.sleep(min(2 ** attempt, 8))
 
 
-def frame_tiles(header, x0, y0, tile_half=256):
+def frame_tiles(header, x0, y0, tile_half=128):
     if tile_half not in (128, 256):
         raise ValueError("Tile half-size must be 128 or 256 pixels")
     if not all(math.isfinite(v) for v in (x0, y0)):
@@ -145,7 +145,7 @@ def frame_tiles(header, x0, y0, tile_half=256):
 
 
 def fetch_frame(header, x0, y0, cache, output, *, providers=("esa", "mast"), attempts=2,
-                timeout=45, session=None, tile_half=256):
+                timeout=45, session=None, tile_half=128):
     if not providers or any(p not in PROVIDERS for p in providers):
         raise ValueError("Choose mast and/or esa providers")
     tables, records = [], []
@@ -190,8 +190,8 @@ def main():
                         help="Ordered providers; ESA first because current MAST probes overflow")
     parser.add_argument("--attempts", type=int, default=2)
     parser.add_argument("--timeout", type=float, default=45)
-    parser.add_argument("--tile-half", type=int, choices=(128, 256), default=256,
-                        help="Half tile width in pixels; 128 uses sixteen smaller cones")
+    parser.add_argument("--tile-half", type=int, choices=(128, 256), default=128,
+                        help="Half tile width in pixels; default 128 uses sixteen smaller cones")
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[2]
     if any(p.resolve().is_relative_to(repo) for p in (args.cache, args.output)):

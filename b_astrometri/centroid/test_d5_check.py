@@ -1,5 +1,6 @@
 import importlib
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 
@@ -12,8 +13,19 @@ class D5CheckTests(unittest.TestCase):
         hdu = epsf_tests.fixture(detector=2)
         g1 = getattr(epsf_tests, "EPSFTests")().grid(hdu, norm=1.0)
         g25 = getattr(epsf_tests, "EPSFTests")().grid(hdu, norm=25.0)
-        r1 = self_recovery_ladder(g1)
+        with patch.object(g1, "model_at", wraps=g1.model_at) as model_at:
+            r1 = self_recovery_ladder(g1)
+        center = g1.positions[len(g1.positions) // 2]
+        sampled_phases = {(round(call.args[0] - center[0], 1),
+                           round(call.args[1] - center[1], 1))
+                          for call in model_at.call_args_list}
+        expected_phases = {(x / 10, y / 10) for x in range(10) for y in range(10)}
+        self.assertEqual(sampled_phases, expected_phases)
         r25 = self_recovery_ladder(g25)
+        self.assertEqual(r1["n_shifts"], 100)
+        self.assertEqual(r25["n_shifts"], 100)
+        self.assertAlmostEqual(r1["mean_flux_ratio"], 1.0, delta=1e-4)
+        self.assertAlmostEqual(r25["mean_flux_ratio"], 1.0, delta=1e-4)
         self.assertTrue(r1["passed_recovery"])
         self.assertTrue(r25["passed_recovery"])
         self.assertLess(r1["max_pos_error_px"], 0.001)

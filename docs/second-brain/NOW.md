@@ -17,7 +17,7 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 
 ## Şu anki yerel doğrulama
 
-- `[V]` 2026-11-15: centroid testleri 16/16, Gaia testleri 30/30 geçti; `git diff --check` temiz. Bu testler koordinat denetimi prototipini de içeriyor.
+- `[V]` 2026-11-15 latest focused runs: centroid 32/32, Gaia 35/35, D5 3/3; `git diff --check` clean.
 - `[V]` 2026-11-15: `d93e952` 04-01 pass gruplama prototipini özellik dalına ekledi; `main` değiştirilmedi.
 - `[NV]` 03-14 kabulü açık: ClickUp önkoşulları 02-03 ve 03-03'ün tamamlandığı doğrulanmadı. Koordinat denetimi prototipi var; görevi kapatmayın.
 - `[V]` 03-12 T1–T4 girdi/çıktı/eşik şartnamesi `b_astrometri/centroid/harness_spec.md` içinde; ClickUp açıklamasına göre bu görev test kodu yazmaz. Test uygulaması 07-04/07-05 kapsamındadır. Canlı ClickUp durumu 401 nedeniyle doğrulanamadı.
@@ -25,9 +25,11 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 - `[NV]` ClickUp okuma erişimini yenilemek için H-02 gerekiyor; token değeri sohbet veya depoya aktarılmamalı.
 - `[V]` 04-01 yerel pass gruplaması 4/4 testte geçti; Barnard 358 kare/3 pass, ε Indi B 458/4 ve gap listeleri yazıldı. Çıktı kanıtı depo dışı `C:/Users/behlu/reports/04-01-passes/`.
 - `[NV]` 04-01 tam kabulü açık: Liste 02 manifesti yok, yerel frame JSON'larında `SPS_EPA` alanı yok ve release tekilleştirmesi modülde değil. H-03 girdisi bekleniyor.
-- `[V]` Çalışma ağacında 03-02 için D5 kod/test/sonuç dosyaları oluştu; sentetik akı ölçeği ve yönelim denemeleri geçiyor. D5 komutu 10 test çalıştırdı (3 D5 + doğrudan içe alınan EPSF testleri).
-- `[NV]` D5 real-data acceptance still needs 200 isolated 02-07 stars (H-04); synthetic prototype files are tracked in commit `4edf9d4`.
-- `[V]` GitHub PR #1 is open and draft; on 2026-11-15 its head matched `72fefd2`. No review, merge, or ClickUp closure has happened.
+- `[V]` 03-02 D5: 100 exact phase pairs (0.0..0.9 by 0.1), x1/x25 self-recovery; 3 focused tests pass. Real template smoke: 600 fits on D2/D3/D6, max error 0.000514 px; zero real stars. Evidence outside repo at `C:/Users/behlu/reports/d5-real-templates-100phase.json`.
+- `[V]` 01-03 implementation: 128 px is now the default after the explicit 128-px live run returned 16/16; regression requires all 16 tiles and preserves output on failure. Gaia suite: 35 tests. 01-01 prerequisite / ClickUp closure remain unverified.
+- `[V]` 03-07: quality filter and A/B/C batch propagation smoke verified on the local Gaia catalogue: 49,176 -> 46,770, 2,406 rejected; IDs preserved, finite coordinates, zero warnings. Target 3px exclusion and 02-03 query/cache integration remain pending.
+- `[NV]` D5 real-star/orientation acceptance still needs 200 isolated 02-07 stars (H-04); the 100-phase/template checks do not replace that sample.
+- `[V]` GitHub PR #1 is open and draft; on 2026-11-15 the branch is pushed and PR #1 remains open/draft. No review, merge, or ClickUp closure has happened.
 - [HUMAN_ACTIONS.md](HUMAN_ACTIONS.md) içindeki H-01 çözülmeden 02-03/02-12'ye bağlı üretim entegrasyonuna geçme.
 
 ## Sonraki adımlar
@@ -46,9 +48,9 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 - [V] Ortam denetimi: mevcut Stage 0 venv Python 3.14.0, astropy 8.0.2, photutils 3.1.1, numpy 2.5.4, scipy 1.18.1, requests 2.34.2. SEP yok. Bu temiz kurulum/bağımlılık kilidi doğrulaması değildir.
 - 00-05 yerel çıktısı hazır: [çalışma protokolü](../WORK_PROTOCOL.md), yedi kural ve üç görevle seçim provası. ClickUp kapanışı yapılmadı.
 - 08-01 yerel çıktısı hazır: [hedef raporu şablonu](../../b_astrometri/reports/hedefler_sablon.md), altı bölüm ve tarihsel Barnard/bilinmeyen WISE 0855 doldurma provası. Yeni bilimsel ölçüm yapılmadı; ClickUp kapanışı yapılmadı.
-- Gaia küçük karo alternatifi başarılı: 16/16 canlı sorgu, 49.176 tekil kaynak, 67,364 sn; 11 çevrimdışı erişim testi geçti. Büyük dört karo 2/4 kaldı; küçük koniler aynı pencereyi kapsıyor. Kanıt `reports/gaia-B-small-live-result.json` (depo dışında). Önkoşul/ClickUp kapanışı ayrı ve açık.
+- Gaia small-tile live evidence: 16/16 ESA responses, 49,176 unique sources, 67.364 s; 128px setting is now the code default and all-16 completion is regression-tested. The original four large tiles were 2/4; ClickUp acceptance and prerequisite 01-01 remain open.
 - ePSF prototipi: 6 test ana oturumda geçti; gerçek D2 441×33×33/5×5, üç konum self-recovery 0 px. Görüntü/JSON kanıtları [IMPLEMENTATION.md](IMPLEMENTATION.md) içinde. Fiziksel normalizasyon ve üretim entegrasyonu açık.
-- Epoch prototipi: kutup hatası düzeltildi; son 11 epoch + 11 erişim testi ana oturumda geçti. 6 ePSF testiyle toplam 28 test. Barnard tahmin tablosu son yöntem ve kesin kaynak yollarıyla IMPLEMENTATION.md içinde. Üretim entegrasyonu açık.
+- Epoch prototype: 14 tests now cover propagation, pole/RA edge cases, and the task quality filter; 49,176 catalogue entries -> 46,770 selected and propagated at A/B/C. User-target 3px exclusion, upstream query/cache integration and uncertainty propagation remain open.
 - Kullanıcı Jev TypeSafe v1.14 görüntü desteğini incelemeyi ve TypeSafe becerisini projeye kurmayı istedi. Tek npx yöntemiyle `.agents/skills/typesafe-ai/` kuruldu, SKILL.md okundu. Görüntüler/Box resmi belgede halen dreamer-ready; canlı API denemesi yapılmadı. Bilimsel doğruluk veya güven puanı hakkında test edilmemiş iddia yok.
 - Graphify kalıcı grafiği kuruluyor: hedef kapsam yeni kod + proje hafızası; eski araştırma/plan arşivleri kapsam dışında. Dosya notları asıl hafıza, grafik anlık türetilmiş dizindir.
 

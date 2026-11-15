@@ -2,7 +2,7 @@
 
 ## Gaia erişimi — 01-03
 
-[Karar ve çalıştırma notu](../GAIA_FETCH.md). ESA küçük karo alternatifi canlı 16/16 sorguda aynı B penceresini kapsadı; 49.176 tekil kaynak, 67,364 sn. Büyük karolar 2/4 kaldı; küçük sorguyla çözüm bulundu. 11 erişim testi geçti. Kaynak: `b_astrometri/gaia/fetch.py`.
+[Decision and run notes](../GAIA_FETCH.md). Proven live setting is now the default: 128px ESA-first, 16/16 responses for the same B window and 49,176 unique sources. Explicit 256px remains available; 35 Gaia tests pass, including default geometry and partial-output protection.
 
 Tüm seçeneklerin [V]/[NV] tablosu notta var. ABD makinesi denenmedi. Önkoşul 01-01'in temiz kurulum/kilit dosyası kabulü ve ClickUp kapanışı açık; yerel mevcut ortam çalışıyor.
 
@@ -19,7 +19,7 @@ Ajan ayrıca dokuz gerçek FITS'te D2/D3/D6 okudu; D3'te 451 bölgeyi doğrulad�
 
 ## Epoch prototipi — 03-07
 
-Kaynak: `b_astrometri/gaia/epoch.py`. Son **11 epoch testi ana oturumda geçti**: astropy uzay hareketi, pmra cos(dec), farklı referans epokları, paralaks işareti, bağımsız gözlemci geometrisi, RA sarımı ve iki kutup. İncelemenin bulduğu kutup hatası normalize edilmiş Kartezyen gözlemci çıkarımıyla düzeltildi; birinci derece tangent farkları yalnız tanı alanlarıdır. Erişim testleriyle toplam 22 Gaia testi, ayrıca 6 ePSF testi geçti.
+Source: `b_astrometri/gaia/epoch.py`. 14 epoch tests pass, including pole geometry, RA wrap and task-defined calibrator quality selection. The nonmutating selector keeps 46,770/49,176 validated catalogue rows and records overlapping rejection reasons; 2,406 rows are rejected. Reproducible A/B/C batch propagation evidence: `C:/Users/behlu/reports/gaia-B-epoch-quality-smoke.json`. Target exclusion within 3 native pixels, HEALPix/query/cache integration, uncertainty propagation and nonzero radial velocity remain unresolved.
 
 RV açık parametre; sessiz sıfır yok. Distance floor yalnız uzay hareketinde; imzalı paralaks gözlemci teriminde korunur. Kovaryans belirsizliği hesaplanmıyor; çıktı bunu açıkça belirtir. HEALPix/sorgu seçimi ve 02-03 entegrasyonu bekliyor.
 
@@ -49,7 +49,7 @@ Stage 0 yerel kare listesiyle doğrulama: Barnard 358/358 kare, 3 pass (46/55/37
 
 ## ePSF D5 kontrol prototipi — 03-02
 
-`b_astrometri/centroid/d5_check.py` ve testleri sentetik/öz-kurtarma kontrolü sağlar. 36 alt-piksel kaymada `norm=1` ve `norm=25` için konum hatası `<0.001 px`; `×25` modelin aynı görüntüde akı genliğinin `1/25` ölçeklenmesi kontrol edildi. 12 gürültülü sentetik kesitte normal PSF yönelimi devrik varyanttan daha düşük `χ²_ν` verdi. Çift keşif düzeltildikten sonra centroid dizini **21/21** geçti.
+`b_astrometri/centroid/d5_check.py` now tests the exact 100 (dx,dy) phase pairs from 0.0 to 0.9 by 0.1. In addition, 600 noiseless recovery fits using real EPSF templates from detectors 2/3/6 and norm=1/25 had max position errors 0.000226/0.000135/0.000514 px. Evidence: `C:/Users/behlu/reports/d5-real-templates-100phase.json`. This is template self-consistency, not a 200-real-star orientation or physical-flux result.
 
 **Sınır / kabul açık:** bu sonuç gerçek ePSF kalibrasyonunu veya yönelimi kanıtlamaz. 02-07'den 200 gerçek izole yıldız/kesit yok; `PSF_NORM=1` ve `PSF_TRANSPOSE=False` hâlâ `[ASSUMPTION]`. `d5_result.md` ve insan girdisi [HUMAN_ACTIONS.md](HUMAN_ACTIONS.md) H-04'te tutulur. ClickUp 03-02'yi kapatmayın.
 

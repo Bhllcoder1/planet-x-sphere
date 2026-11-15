@@ -4,13 +4,13 @@ Görev: https://app.clickup.com/t/z8qu5ddjvj
 
 ## Güncel durum
 
-**Küçük karo alternatifi başarılı.** 128 yarı-boyutlu 16 koniyle B'nin aynı 1024×1024 penceresi tamamen sorgulandı: **16/16 OK**, 49.176 tekil kaynak, 67,364 saniye, sıfır yeniden deneme/yedek/önbellek isabeti. Dört ana bölgenin her biri dört küçük koniyle kapsandı.
+**Doğrulanmış varsayılan: 128 px yarı-boy.** B’nin aynı 1024×1024 penceresi 16 küçük ESA konisiyle tamamen sorgulandı: **16/16 OK**, 49.176 tekil kaynak, 67,364 saniye, sıfır yeniden deneme/yedek/cache hit. Dört eski ana bölge, her biri dört küçük koniyle kaplanır. Kod varsayılanı da 128’dir; 256 açıkça seçilebilir.
 
-Kanıt: `C:/Users/behlu/reports/gaia-B-small-live-result.json`, birleşik `reports/gaia-B-small-validated.fits`. 11 sütun, ref_epoch=2016.0 ve 16 başarılı karo meta bilgisi kontrol edildi. Büyük dört sorgu hâlâ 2/4; küçük koniler dört ana bölgeyi kapsayan alternatif çözümdür. Konilerin pencere dışındaki ayak izleri farklı olduğundan eski katalogların toplam kaynak sayısıyla doğrudan karşılaştırma yapılmaz.
+Kanıt: `C:/Users/behlu/reports/gaia-B-small-live-result.json`, birleşik `reports/gaia-B-small-validated.fits`. 11 sütun, ref_epoch=2016.0 ve 16 başarılı karo meta bilgisi kontrol edildi. Canlı koşu 128 ayarını açıkça verdi; birim testleri bu ayarın artık varsayılan olduğunu ve 16/16 gerekmesini doğrular. Büyük dört sorgu hâlâ 2/4. Konilerin pencere dışı ayak izleri farklı olduğundan katalog toplamları doğrudan karşılaştırılmaz.
 
 Önceki büyük karo denemesinde iki karo doğrulandı (15.828 ve 16.604 kaynak); üçüncü karo 1×30, 2×45 ve 1×60 sn okuma sınırlarında zaman aşımına uğradı, dördüncü denenmedi. Eksik birleşik çıktı yayımlanmadı. Eski başarısızlık kanıtı `reports/gaia-B-live-result.json`.
 
-ESA VOTable alanında `ID=SOURCE_ID`, `name=source_id` ayrımı gerçek yanıtla doğrulandı; okuyucu sütun adını esas alıyor. Bu hata, dış STREAM bağlantıları, koordinat sınırları, küçük karo geometrisi, önbellek doğruluğu ve eksik çıktının yayımlanmaması dahil **11 çevrimdışı test geçti**.
+ESA VOTable alanında `ID=SOURCE_ID`, `name=source_id` ayrımı gerçek yanıtla doğrulandı. Gaia paketi **35 birim testini** geçti; `test_fetch.py` 16 varsayılan karo ve son karo başarısızlığında yeni/eski çıktının korunmasını denetler.
 
 ## Çalıştırma
 
@@ -18,7 +18,7 @@ Depo kökünden (önbellek ve çıktı depo dışında kalmalı):
 
 ```powershell
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/gaia -p 'test_*.py' -v
-& 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I b_astrometri/gaia/fetch.py --stage0-data 'C:/Users/behlu/spherex-kb/stage0/data/C' --frame B --tile-half 128 --providers esa --cache 'C:/Users/behlu/reports/gaia-fetch-small-cache' --output 'C:/Users/behlu/reports/gaia-B-small-validated.fits' --attempts 1 --timeout 15
+& 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I b_astrometri/gaia/fetch.py --stage0-data 'C:/Users/behlu/spherex-kb/stage0/data/C' --frame B --providers esa --cache 'C:/Users/behlu/reports/gaia-fetch-small-cache' --output 'C:/Users/behlu/reports/gaia-B-small-validated.fits' --attempts 1 --timeout 15
 ```
 
 Varsayılan sağlayıcı sırası ESA → MAST. Başarısız/kesilmiş yanıt önbelleğe alınmaz; yeniden çalıştırma yalnız yeni istemcinin doğrulanmış karolarını kullanır. `--timeout` bağlantı/okuma bekleme sınırıdır, bütün koşunun kesin toplam süre sınırı değildir. G<18 indirme seçimi korunur. Yeni paket yüklenmedi.
@@ -27,7 +27,7 @@ Varsayılan sağlayıcı sırası ESA → MAST. Başarısız/kesilmiş yanıt ö
 
 | Seçenek | Durum | Kanıt / sınır |
 |---|---|---|
-| ESA küçük karo / koni | [V] B penceresi 16/16 küçük karo, 67,364 sn; bu koşuda başarı %100 | Yeni canlı koşu; dört ana bölgenin tümü kapsandı. Süre tek koşudur. |
+| ESA 128 px small tiles | [V] B window 16/16, 49,176 unique sources, 67.364 s | Proven live response; now the default; one run only. |
 | ESA yeniden deneme / async | [V] Tarihsel betikte var; [NV] yeni async karşılaştırma | Stage 0 C raporu eski B denemesinde 2/4 ve HTTP 500/reset kaydediyor. |
 | MAST alternatif ayna | [V] Canlı HTTP 200 ama OK ardından OVERFLOW, 1,32 sn | Aynı küçük koni; bu yanıt tam katalog olarak kabul edilmez. |
 | CDS VizieR | [V] Tarihsel bağlantı zaman aşımı; [NV] güncel erişim | Stage 0 C §2; bu oturumda tekrar denenmedi. |

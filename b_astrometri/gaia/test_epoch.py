@@ -21,6 +21,62 @@ def catalogue():
 
 
 class EpochTests(unittest.TestCase):
+    def test_calibrator_selection_boundaries_and_preserved_ids(self):
+        cat = catalogue()
+        cat["ruwe"], cat["phot_g_mean_mag"] = [1.4, 1.40001], [9., 12.]
+        selected, summary = epoch.select_calibrators(cat)
+        self.assertEqual(list(selected["source_id"]), [1])
+        self.assertEqual((summary["total"], summary["selected"], summary["rejected"]), (2, 1, 1))
+        self.assertEqual(summary["reason_counts"]["ruwe_above_1_4"], 1)
+        self.assertIn("not applied", summary["target_exclusion"])
+        cat["ruwe"], cat["phot_g_mean_mag"] = [1., 1.], [8.99999, 9.]
+        selected, summary = epoch.select_calibrators(cat)
+        self.assertEqual(list(selected["source_id"]), [2])
+        self.assertEqual(summary["reason_counts"]["g_below_9"], 1)
+        epoch.propagate_catalogue(selected, 61000., radial_velocity_kms=0.)
+
+    def test_calibrator_selection_missing_masked_nonfinite_and_immutability(self):
+        base = catalogue()
+        base["ruwe"], base["phot_g_mean_mag"] = [1., 1.], [10., 12.]
+        for name in ("pmra", "pmdec", "parallax", "ruwe", "phot_g_mean_mag"):
+            for value in (np.nan, np.inf, -np.inf, "masked"):
+                with self.subTest(name=name, value=value):
+                    cat = base.copy()
+                    if value == "masked":
+                        cat.replace_column(name, MaskedColumn(cat[name], mask=[True, False]))
+                    else:
+                        cat[name][0] = value
+                    before = cat.copy()
+                    selected, summary = epoch.select_calibrators(cat)
+                    self.assertEqual(list(selected["source_id"]), [2])
+                    self.assertEqual(summary["rejected"], 1)
+                    for col in cat.colnames:
+                        np.testing.assert_array_equal(np.ma.getmaskarray(cat[col]), np.ma.getmaskarray(before[col]))
+                        np.testing.assert_equal(np.ma.getdata(cat[col]), np.ma.getdata(before[col]))
+                    selected["pmra"][0] = 0.
+                    self.assertEqual(cat["pmra"][1], before["pmra"][1])
+        for name in ("source_id", "pmra", "pmdec", "parallax", "ruwe", "phot_g_mean_mag"):
+            cat = base.copy()
+            cat.remove_column(name)
+            with self.subTest(missing=name), self.assertRaises(ValueError):
+                epoch.select_calibrators(cat)
+        cat = base.copy()
+        cat.replace_column("source_id", MaskedColumn(cat["source_id"], mask=[True, False]))
+        selected, summary = epoch.select_calibrators(cat)
+        self.assertEqual(list(selected["source_id"]), [2])
+        self.assertEqual(summary["reason_counts"]["masked_source_id"], 1)
+
+    def test_calibrator_selection_empty_and_overlapping_reasons(self):
+        cat = catalogue()
+        cat["ruwe"], cat["phot_g_mean_mag"] = [2., 1.], [8., 12.]
+        cat["pmra"][0] = np.nan
+        selected, summary = epoch.select_calibrators(cat)
+        self.assertEqual(summary["rejected"], 1)
+        self.assertEqual(sum(summary["reason_counts"].values()), 3)
+        empty, empty_summary = epoch.select_calibrators(cat[:0])
+        self.assertEqual(len(empty), 0)
+        self.assertEqual(empty_summary["rejected"], 0)
+
     def test_space_motion_matches_astropy_at_task_tolerance(self):
         cat = catalogue()
         expected = SkyCoord(ra=cat["ra"] * u.deg, dec=cat["dec"] * u.deg,

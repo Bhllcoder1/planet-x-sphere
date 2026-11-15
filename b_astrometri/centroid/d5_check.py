@@ -15,7 +15,7 @@ from scipy.optimize import least_squares
 def self_recovery_ladder(grid, shifts=None, *, true_flux: float = 123.0) -> dict:
     """Bilinen alt-piksel kaymalarda (dx, dy) kendini kurtarma ve aki olcegi."""
     if shifts is None:
-        steps = [0.0, 0.1, 0.3, 0.5, 0.7, 0.9]
+        steps = [i / 10 for i in range(10)]
         shifts = [(dx, dy) for dx in steps for dy in steps]
     center = grid.positions[len(grid.positions) // 2]
     yy, xx = np.mgrid[-4:5, -4:5] + center[:, None, None][::-1]

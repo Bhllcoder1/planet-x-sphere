@@ -6,18 +6,18 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 
 - Depo: `C:/Users/behlu/planet-x-sphere`; dal: `b/01-03-gaia-fetch`; `main` başlangıç tabanı `449567a556001f758a74dc1c8d5f622569c57b51`.
 - Proje dışı kanıtlar ve FITS: `C:/Users/behlu/reports/`; Stage 0 Python: `C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe`.
-- GitHub feature branch head is `72fefd2`; PR #1 is open/draft at that head. D5 code/tests/results are tracked in `4edf9d4`; 200 real stars remain pending H-04.
+- GitHub feature branch `b/01-03-gaia-fetch`; PR #1 is open/draft. The exact head is verified from GitHub before each push.
 - ClickUp kişisel token ile salt-okunur `GET /user` HTTP 401 verdi; token yazdırılmadı, ClickUp'a değişiklik/yorum yapılmadı. 2026-11-14 tarihli yerel snapshot'ta Behlül'e atanan 46 görev `to do` görünüyordu; snapshot geçmiş veridir, canlı durum değildir.
 
 ## Kod kanıtı ve sınırlar
 
 | İş | Doğrulanan yerel sonuç | Açık sınır / ClickUp durumu |
 |---|---|---|
-| 01-03 Gaia | `b_astrometri/gaia/fetch.py`; 11 test; küçük ESA konileri 16/16, 49.176 tekil kaynak | Dört büyük karonun ikisi kaldı; görev kabulü/önkoşul ayrıca doğrulanmalı. |
+| 01-03 Gaia | `b_astrometri/gaia/fetch.py`; 35 Gaia tests; 128 px default live setting 16/16, 49,176 sources; all 16 required by regression | Original 256 px four queries were 2/4. 01-01 prerequisite and ClickUp acceptance remain unverified. |
 | 03-01 ePSF | `b_astrometri/centroid/epsf.py`; test paketi ve yerel D2 smoke | Fiziksel akı normalizasyonu/yönelimi doğrulanmadı; H-01 girdileri bekliyor. |
-| 03-07 epoch | `b_astrometri/gaia/epoch.py`; 11 epoch testi, kutup geometrisi vektörel düzeltildi | 02-03 entegrasyonu, sorgu seçimi ve kovaryans belirsizliği açık; Barnard RV=0 varsayımlı. |
+| 03-07 epoch | `epoch.py`; 14 epoch tests; quality filter 49,176 -> 46,770 sources, 2,406 rejected; A/B/C propagation smoke preserves IDs and finite coordinates; JSON evidence outside repo | Target 3px exclusion, 02-03 production query/cache, uncertainty and RV remain open/assumed. |
 | 03-04 elips / 03-14 koordinat denetimi | Centroid paketinde testli prototipler | ClickUp önkoşulları ve kabulü doğrulanmadı. |
-| 03-02 D5 | 36 sentetik alt-piksel kaymada norm 1/25 konum hatası <0.001 px; sabit görüntüde 25x akı ölçeği; 12 sentetik kesitte yönelim ayrımı | 200 gerçek yıldız/02-07 yok; `PSF_NORM=1`, `PSF_TRANSPOSE=False` varsayım. H-04. Görev açık. |
+| 03-02 D5 | 100 synthetic phase pairs; 600 noiseless recovery fits on real EPSF templates D2/D3/D6, max error <=0.000514 px; 25x amplitude behavior test | Zero real stars tested; 200-star orientation and physical flux calibration still need H-04. |
 | 03-05 kanat uyumu | NaN/OVERFLOW maskeleme, `saturated_fit`, >%50 maskede `unmeasurable`, hata elipsi alanları; 2 sentetik test | Gerçek görüntü doğrulaması yok; 02-08/03-03 girdileri için H-05. Prototip, görev kabulü değil. |
 | 04-03 zorlanmış fotometri | Sabit pikselde (F,b), sigma_flux, chi2_nu, maske/uyarı bayrakları ve ters-varyans coadd; sentetik testler | RA/Dec-WCS kare akışı ve CSV/parquet API'si yok; gerçek ePSF/WCS/maskeler ve D13 enjeksiyonu H-08 bekliyor. Prototip, görev kabulü değil. |
 | 04-06 hareketli bağlama | `b_astrometri/movers/linker.py`; 2 sentetik test; `detection_refs` frame_id/det_id korur | Gerçek asteroid doğrulaması yok; Stage 0 D için ortak WCS/FITS/katalog H-10 bekliyor. Hız ızgarası henüz yok. Görev açık. |
@@ -43,7 +43,7 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 
 ## Son doğrulama
 
-Verification: centroid 24/24, motion 15/15, movers 4/4, Gaia 30/30, and 3 unique T1/T4 tests passed in the last full sweep (76 unique tests total). Real evidence: T1 real-window injection/np.roll; T4 7,569 pixels across nine FITS. `git diff --check` was clean. Graphify: 52 files (29 code, 23 documents), 356 nodes, 684 edges, 18 communities; no missing/dangling endpoints; five same-endpoint merges in the simple graph. Token cost unavailable.
+Latest focused verification: centroid 32/32, Gaia 35/35, D5 3/3; `git diff --check` clean. D5 real-template smoke ran 600 noiseless fits, maximum error 0.000514 px. Earlier whole-repo suites below were not rerun in this pass. Graphify: 52 files, 365 nodes, 701 edges, 18 communities; no dangling endpoints.
 
 ```powershell
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/centroid -p 'test_*.py' -v

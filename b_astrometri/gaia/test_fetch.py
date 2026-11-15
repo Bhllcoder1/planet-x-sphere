@@ -93,7 +93,7 @@ class FetchTests(unittest.TestCase):
     def test_empty_catalogue_valid(self):
         output = self.root / "empty.fits"
         result = fetch.fetch_frame(self.header, 1016, 1016, self.root / "cache", output,
-            session=Session([document(())] * 4), attempts=1)
+            session=Session([document(())] * 4), attempts=1, tile_half=256)
         self.assertEqual(result["rows"], 0)
         self.assertEqual(Table.read(output).colnames, list(fetch.COLUMNS))
 
@@ -108,15 +108,15 @@ class FetchTests(unittest.TestCase):
         output = self.root / "merged.fits"
         session = Session([document((1, 2)), document((2, 3)), document((4,)), document((5,))])
         result = fetch.fetch_frame(self.header, 1016, 1016, self.root / "cache", output,
-                                  session=session, attempts=1)
+                                  session=session, attempts=1, tile_half=256)
         self.assertEqual(len(result["tiles"]), 4)
         self.assertEqual(result["rows"], 5)
         self.assertEqual(Table.read(output).meta["NTILES"], 4)
         self.assertEqual(len(session.calls), 4)
         self.assertEqual(session.calls[0][1]["timeout"], (10, 45))
 
-    def test_small_tiles_cover_same_window_and_all_are_required(self):
-        tiles = list(fetch.frame_tiles(self.header, 0, 0, tile_half=128))
+    def test_default_small_tiles_cover_same_window_and_all_are_required(self):
+        tiles = list(fetch.frame_tiles(self.header, 0, 0))
         centers = {(t["qx"], t["qy"]) for t in tiles}
         expected = {(x, y) for x in (128, 384, 640, 896) for y in (128, 384, 640, 896)}
         self.assertEqual(centers, expected)
@@ -126,13 +126,45 @@ class FetchTests(unittest.TestCase):
         self.assertEqual(min(y - 128 for x, y in centers), 0)
         self.assertEqual(max(y + 128 for x, y in centers), 1024)
         self.assertAlmostEqual(tiles[0]["radius"], 128 * 1.4143 * (6.2 / 3600) + 0.01)
+        session = Session([document((i,)) for i in range(16)])
         result = fetch.fetch_frame(self.header, 0, 0, self.root / "cache",
-            self.root / "small.fits", tile_half=128, attempts=1,
-            session=Session([document((i,)) for i in range(16)]))
+            self.root / "small.fits", attempts=1, session=session)
         self.assertEqual(len(result["tiles"]), 16)
         self.assertEqual(result["rows"], 16)
+        self.assertEqual(result["tile_half"], 128)
+        self.assertEqual(len(session.calls), 16)
+        self.assertTrue(all(endpoint == fetch.PROVIDERS["esa"][0]
+                            for endpoint, kwargs in session.calls))
         with self.assertRaises(ValueError):
             list(fetch.frame_tiles(self.header, 0, 0, tile_half=64))
+
+    def test_default_requires_final_tile_before_publishing(self):
+        for prior_output in (False, True):
+            with self.subTest(prior_output=prior_output):
+                output = self.root / f"default-{prior_output}.fits"
+                if prior_output:
+                    output.write_bytes(b"previous complete output")
+                session = Session([document((i,)) for i in range(15)]
+                    + [document(trailing="OVERFLOW")] * 2)
+                with self.assertRaisesRegex(RuntimeError, "Tile 896,896 missing"):
+                    fetch.fetch_frame(self.header, 0, 0,
+                        self.root / f"cache-{prior_output}", output, session=session)
+                self.assertEqual(len(session.calls), 17)  # 15 ESA successes, final ESA+MAST failures.
+                if prior_output:
+                    self.assertEqual(output.read_bytes(), b"previous complete output")
+                else:
+                    self.assertFalse(output.exists())
+
+    def test_cli_defaults_to_small_tiles(self):
+        header = self.root / "header.txt"
+        header.write_text(self.header.tostring(sep="\n"), encoding="utf-8")
+        argv = ["fetch.py", "--header", str(header), "--x0", "0", "--y0", "0",
+                "--cache", str(self.root / "cache"), "--output", str(self.root / "out.fits")]
+        with patch("sys.argv", argv), patch("sys.stdout", io.StringIO()), \
+                patch.object(fetch, "fetch_frame", return_value={}) as run:
+            fetch.main()
+        self.assertEqual(run.call_args.kwargs["tile_half"], 128)
+        self.assertEqual(run.call_args.kwargs["providers"], ["esa", "mast"])
 
     def test_incomplete_keeps_previous_output(self):
         output = self.root / "previous.fits"
@@ -169,7 +201,8 @@ class FetchTests(unittest.TestCase):
             sleep.assert_called_once_with(1)
         session = Session([document(trailing="OVERFLOW"), document()] * 4)
         result = fetch.fetch_frame(self.header, 0, 0, self.root / "other-cache",
-            self.root / "fallback.fits", providers=("mast", "esa"), attempts=1, session=session)
+            self.root / "fallback.fits", providers=("mast", "esa"), attempts=1,
+            session=session, tile_half=256)
         self.assertTrue(all(r["provider"] == "esa" for r in result["tiles"]))
         self.assertTrue(all(len(r["failures"]) == 1 for r in result["tiles"]))
 

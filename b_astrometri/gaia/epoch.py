@@ -28,6 +28,42 @@ def _sky(ra_deg, dec_deg):
     return ra, dec
 
 
+def select_calibrators(catalogue):
+    """Return a copied quality-selected table and explicit rejection counts.
+
+    Task 03-07 keeps RUWE <= 1.4 and G >= 9, with finite proper motions and
+    parallax. Unknown quality values are rejected, not treated as good values.
+    Counts by reason may overlap. The 3-native-pixel target exclusion is NOT
+    applied: that needs the target/WCS and upstream coordinate contract.
+    Other astrometric fields are still validated by ``space_motion``.
+    """
+    required = ("source_id", "pmra", "pmdec", "parallax", "ruwe", "phot_g_mean_mag")
+    missing = set(required) - set(catalogue.colnames)
+    if missing:
+        raise ValueError(f"Missing Gaia selection columns: {sorted(missing)}")
+    values = {name: np.ma.asarray(catalogue[name], dtype=float).filled(np.nan)
+              for name in required[1:]}
+    invalid_pm = ~np.isfinite(values["pmra"]) | ~np.isfinite(values["pmdec"])
+    reasons = {
+        "masked_source_id": np.ma.getmaskarray(catalogue["source_id"]),
+        "missing_or_nonfinite_pm": invalid_pm,
+        "missing_or_nonfinite_parallax": ~np.isfinite(values["parallax"]),
+        "missing_or_nonfinite_ruwe": ~np.isfinite(values["ruwe"]),
+        "ruwe_above_1_4": values["ruwe"] > 1.4,
+        "missing_or_nonfinite_g": ~np.isfinite(values["phot_g_mean_mag"]),
+        "g_below_9": values["phot_g_mean_mag"] < 9,
+    }
+    rejected = np.logical_or.reduce(list(reasons.values()))
+    selected = catalogue[~rejected].copy(copy_data=True)
+    summary = {"total": len(catalogue), "selected": len(selected),
+               "rejected": int(np.count_nonzero(rejected)),
+               "reason_counts": {name: int(np.count_nonzero(mask))
+                                 for name, mask in reasons.items()},
+               "reason_counts_overlap": True,
+               "target_exclusion": "not applied; target/WCS and 3px contract pending"}
+    return selected, summary
+
+
 def space_motion(ra_deg, dec_deg, pmra_masyr, pmdec_masyr, parallax_mas,
                  ref_epoch, mjd_utc, *, radial_velocity_kms):
     """Return barycentric SkyCoord at frame time, without observer parallax.
