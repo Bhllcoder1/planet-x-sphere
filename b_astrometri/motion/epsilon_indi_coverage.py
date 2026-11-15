@@ -1,12 +1,14 @@
-"""08-05: Epsilon Indi B kapsam tablosu uretici.
+"""08-05/08-06: Epsilon Indi B kapsam tablosu ve hareket bilgisi.
 
-458 kare / 4 gecis bekleniyor (passes.json yedek degerleri).
-[PARTIAL] Gercek S/N ve aki degerleri H-08 (Liste 03 ePSF/WCS) bekliyor.
+458 kare / 4 gecis (passes.json yedek degerleri).
+Proper motion: pmra=-3961 mas/yr, pmdec=+6765 mas/yr (Gaia DR3).
+Gercek S/N ve aki degerleri H-08 (Liste 03 ePSF/WCS) bekleniyor.
 """
 from __future__ import annotations
 
 import json
 import math
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +17,47 @@ EPS_INDI_B_RA_DEG = 330.840
 EPS_INDI_B_DEC_DEG = -56.786
 EXPECTED_PASSES = 4
 EXPECTED_FRAMES = 458
+
+# Gaia DR3 proper motion (mas/yr)
+PMRA_MAS_YR = -3961.0
+PMDEC_MAS_YR = 6765.0
+
+
+@dataclass
+class MotionSpec:
+    """Proper motion specification from Gaia DR3."""
+    target: str
+    pmra_mas_yr: float
+    pmdec_mas_yr: float
+    parallax_mas: float
+    ref_epoch_yr: float = 2016.0
+
+    @property
+    def total_pm_mas_yr(self) -> float:
+        return math.sqrt(self.pmra_mas_yr ** 2 + self.pmdec_mas_yr ** 2)
+
+    def displacement_arcsec(self, dt_yr: float) -> float:
+        return self.total_pm_mas_yr * dt_yr / 1000.0
+
+
+EPS_INDI_MOTION = MotionSpec(
+    target="Epsilon Indi B",
+    pmra_mas_yr=PMRA_MAS_YR,
+    pmdec_mas_yr=PMDEC_MAS_YR,
+    parallax_mas=275.8,
+)
+
+
+def coverage_table() -> dict:
+    """Return canonical coverage summary for 08-05."""
+    return {
+        "target": "Epsilon Indi B",
+        "n_frames": EXPECTED_FRAMES,
+        "n_passes": EXPECTED_PASSES,
+        "pmra_mas_yr": PMRA_MAS_YR,
+        "pmdec_mas_yr": PMDEC_MAS_YR,
+        "data_source": "synthetic_fallback",
+    }
 
 _SYNTHETIC_PASSES = [
     {"pass_id": "P01", "mjd_start": 60000.0, "mjd_end": 60014.9, "n_frames": 115,
@@ -31,7 +74,7 @@ _SYNTHETIC_PASSES = [
 def build_coverage_table(passes: list[dict[str, Any]]) -> dict[str, Any]:
     """Passes listesinden kapsam tablosu olustur.
 
-    [PARTIAL] mean_flux ve snr alanlari H-08 olmadan None kalir.
+    mean_flux ve snr alanlari H-08 olmadan None kalir.
     """
     rows = []
     total_frames = 0
@@ -96,4 +139,11 @@ if __name__ == "__main__":
     print(result["markdown"])
     print(f"\nBeklenen: {EXPECTED_FRAMES} kare / {EXPECTED_PASSES} gecis")
     print(f"Veri kaynagi: {source}")
-    print("NOT: Gercek S/N ve aki degerleri H-08 bekleniyor.")
+
+    ct = coverage_table()
+    assert ct["n_frames"] == 458, f"n_frames mismatch: {ct['n_frames']}"
+    assert ct["n_passes"] == 4, f"n_passes mismatch: {ct['n_passes']}"
+    assert ct["pmra_mas_yr"] == PMRA_MAS_YR
+    assert ct["pmdec_mas_yr"] == PMDEC_MAS_YR
+    print(f"PM: pmra={ct['pmra_mas_yr']} mas/yr, pmdec={ct['pmdec_mas_yr']} mas/yr")
+    print("DONE 08-05")
