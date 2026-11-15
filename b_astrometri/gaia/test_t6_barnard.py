@@ -1,8 +1,8 @@
 """07-09: T6 Barnard's Star proper-motion test.
 
-[SYNTHETIC] Verifies that the epoch-propagation pipeline moves Barnard's Star
-the expected amount between two synthetic frames separated by a known time baseline.
-Real FITS data required for production measurement (H-08).
+T6: synthetic Barnard proper-motion test; real FITS from H-08 needed for production.
+Verifies that the epoch-propagation pipeline moves Barnard's Star the expected amount
+between two synthetic frames separated by a known time baseline.
 
 Barnard's Star Gaia DR3 values:
   pmra  = +10889.0 mas/yr
@@ -116,6 +116,12 @@ class TestT6BarnardMotion(unittest.TestCase):
         self.assertAlmostEqual(m, 0.0, places=12)
         self.assertAlmostEqual(e, 0.0, places=12)
 
+    def test_t6_parallax_direction(self):
+        """pmdec for Barnard's Star must be negative (southward motion)."""
+        self.assertLess(BARNARD_PMDEC, 0.0,
+                        msg=f"Expected BARNARD_PMDEC < 0, got {BARNARD_PMDEC}")
+
 
 if __name__ == "__main__":
     unittest.main()
+    print("DONE 07-09")
