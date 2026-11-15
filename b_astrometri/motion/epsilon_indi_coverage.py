@@ -147,3 +147,12 @@ if __name__ == "__main__":
     assert ct["pmdec_mas_yr"] == PMDEC_MAS_YR
     print(f"PM: pmra={ct['pmra_mas_yr']} mas/yr, pmdec={ct['pmdec_mas_yr']} mas/yr")
     print("DONE 08-05")
+
+    # 08-06: motion spec verification
+    assert result["n_passes"] >= 1, "n_passes must be >= 1"
+    print(f"\nEps Indi B hareket (Gaia DR3):")
+    print(f"  pmRA={EPS_INDI_MOTION.pmra_mas_yr:.1f} mas/yr")
+    print(f"  pmDec={EPS_INDI_MOTION.pmdec_mas_yr:.1f} mas/yr")
+    print(f"  toplam={EPS_INDI_MOTION.total_pm_mas_yr:.1f} mas/yr")
+    print(f"  1-yr={EPS_INDI_MOTION.displacement_arcsec(1.0):.3f} arcsec")
+    print("DONE 08-06")
