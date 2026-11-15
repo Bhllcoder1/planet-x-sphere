@@ -43,19 +43,29 @@ NASA Space Apps hackathonu: SPHEREx taramasından 5 hedef gökyüzü bölgesinin
 - 11-06: c_sunucu/accounts/history.py + api/routes/history.py ✓
 - 11-07/08: c_sunucu/api/routes/profile.py ✓
 
+## Üçüncü dalgada tamamlananlar
+- 01-05: c_sunucu/ops/d9_test.py ✓
+- 07-10: c_sunucu/ops/speed_test.py ✓
+- 10-15: c_sunucu/api/routes/share.py ✓
+- 11-10: c_sunucu/ops/db_backup.py ✓
+- 11-11: c_sunucu/api/routes/export.py ✓
+- 11-13: c_sunucu/api/routes/fits_export.py ✓
+- Tüm yeni router'lar api/main.py'de kayıtlı ✓
+
 ## Sıradaki (henüz tamamlanmadı)
-- 06-11: ops/OFFLINE_BACKUP_PLAN.md + c_sunucu/ops/prefetch.py
-- 07-10: c_sunucu/ops/speed_test.py
-- 10-15: c_sunucu/api/routes/share.py
-- 11-09: Profile/history UI (uç nokta var, HTML gerektirmiyor)
-- 11-10/11: c_sunucu/ops/db_backup.py (var) + c_sunucu/api/routes/export.py
-- 11-13: c_sunucu/api/routes/fits_export.py
-- 01-05: c_sunucu/ops/d9_test.py (VM olmadan yazılacak)
-- 01-06: Gerçek VM gerektirir — sonraya
+- 06-11: ops/OFFLINE_BACKUP_PLAN.md + c_sunucu/ops/prefetch.py (ajan çalışıyordu; dosyalar yoksa yeniden yaz)
+- 11-09: Profil/geçmiş UI (HTML; alan D ile koordine, API hazır)
+- 01-06: D9'u gerçek kiralık VM'de koşmak (VM gerekir)
+- 04-14, 05-14 ("sonra" listesi): GPU shift-and-stack, Aladin Lite paneli
+- Doğrulama yapılmadı: yazılan kodun hiçbiri pytest/çalıştırma ile test edilmedi (yalnızca py_compile); code-reviewer + security-reviewer geçişi ve gerçek test çalıştırması gerekli
+- ClickUp'ta görev durumları henüz "complete" yapılmadı (PUT /task/{id}, token yukarıda)
+- Tüm ajanlar bundan sonra Sonnet 5.5 kullanacak (kullanıcı talimatı)
 
 ## GitHub push durumu
-- Branch: c/00-10-to-11-05-alan-c-ilk-toplu (2 commit, push edildi)
-- PR oluşturulacak: tüm görevler tamamlanınca
+- Branch: c/00-10-to-11-05-alan-c-ilk-toplu — son push: f505895 (4 commit), origin ile senkron
+- 06-11 dosyaları ve bu HANDOFF güncellemesi ayrı commit ile push edilecek
+- PR: tüm görevler bitince açılacak (main'e doğrudan değil)
+- .gitignore'a .env.example ve SECRET_MANAGEMENT.md istisnası eklendi
 
 ## Kritik kararlar (PLAN_spherex_v3.md'den)
 - S3 primer, cutout fallback (503 riski)
