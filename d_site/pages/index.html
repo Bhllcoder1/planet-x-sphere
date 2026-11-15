@@ -60,12 +60,32 @@
           Sub-pixel time-series sky viewer on real NASA SPHEREx L2 spectral images (<code>IMAGE</code>, <code>VARIANCE</code>, <code>ZODI</code>) &amp; Gaia DR3 astrometry.
         </p>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <input id="inp-search" class="search-input" type="text" placeholder="Search target or RA, Dec (e.g. 269.452, 4.693)" style="width:240px;" />
-        <button id="btn-search" type="button">Go</button>
-        <button id="btn-tour" type="button" class="active-toggle">🎯 Siteyi Gezdir (Canlı Tur)</button>
-        <button id="btn-theme" type="button">Theme: Dark</button>
-        <button id="btn-help" type="button">? Shortcuts &amp; Guide</button>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+        <!-- Koordinat Arama Paneli (Temel Gereksinim) -->
+        <div id="coord-search-panel" style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;background:var(--bg-elevated);border:1px solid var(--accent-primary);border-radius:var(--radius-md);padding:8px 12px;">
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <label for="inp-ra" style="font-size:10px;color:var(--text-secondary);font-family:var(--font-mono);">Sağ Yükseliş RA (°)</label>
+            <input id="inp-ra" type="number" step="0.0001" min="0" max="360" placeholder="269.4521" style="width:110px;" class="search-input" />
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <label for="inp-dec" style="font-size:10px;color:var(--text-secondary);font-family:var(--font-mono);">Diklik Dec (°)</label>
+            <input id="inp-dec" type="number" step="0.0001" min="-90" max="90" placeholder="4.6934" style="width:110px;" class="search-input" />
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <label for="inp-radius" style="font-size:10px;color:var(--text-secondary);font-family:var(--font-mono);">Yarıçap (arcmin)</label>
+            <input id="inp-radius" type="number" step="0.5" min="0.5" max="10" value="3" style="width:70px;" class="search-input" />
+          </div>
+          <button id="btn-coord-search" type="button" class="active-toggle" style="padding:5px 14px;">🔭 Göster</button>
+          <span id="coord-search-status" style="font-size:10px;color:var(--text-secondary);align-self:center;font-family:var(--font-mono);max-width:200px;"></span>
+        </div>
+        <!-- İsim arama + yardımcı butonlar -->
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <input id="inp-search" class="search-input" type="text" placeholder="Hedef ara (örn. Barnard)" style="width:180px;" />
+          <button id="btn-search" type="button">Ara</button>
+          <button id="btn-tour" type="button" class="active-toggle">🎯 Tur</button>
+          <button id="btn-theme" type="button">Tema</button>
+          <button id="btn-help" type="button">? Kısayollar</button>
+        </div>
       </div>
     </header>
 
