@@ -65,7 +65,9 @@ Stage 0 yerel kare listesiyle doğrulama: Barnard 358/358 kare, 3 pass (46/55/37
 
 **Sınır / kabul açık:** bunlar `test_epsf.fixture(detector=2)` sentetik sonuçlarıdır; 03-12 şartnamesi ile 07-05 kapsamındaki üretim T2/T3 test kodu veya 03-03 üretim uyum entegrasyonu değildir. Sayısal sentetik ölçütler geçti; ClickUp canlı durumu 401 nedeniyle doğrulanamadı. H-06 03-03 arayüzünü, H-07 kullanıcının “eğri düz mü?” görsel kararını bekletir. 03-13 görevi tamamlandı sayılmaz.
 
-## 07-04 T4 — gerçek WCS dönüş doğrulaması
+## 07-04 T1/T4 — gerçek Stage 0 kanıtı
+
+T1: aynı OBSID'li gerçek 100×100 Stage 0 B penceresi ve gerçek ePSF kesiti kullanılarak 15×15 gerçek piksel damgasına yıldız enjekte edildi. `(x,y)`→`(x+1,y)` ölçümü `Δx=0.998404`, `Δy=0.000487 px`; damgada `np.roll` ölçümü `Δx=1.000000 px`. Her iki sonuç `0.005 px` toleransını geçti. ePSF'nin enjeksiyon ve uyumda aynı olması nedeniyle bu bağımsız PSF doğrulaması değildir. Ayrıntı [T1 raporunda](../../b_astrometri/reports/07-04-t1-real/README.md).
 
 `tests/test_T4.py --real-dir <Stage0 B/cut>` dokuz gerçek FITS kesitinin SIP-3 `IMAGE` WCS başlıklarını doğrular ve her 29×29 piksel merkezini 0 tabanlı piksel→gök→piksel dönüşünden geçirir. 7.569 pikselde en büyük hata `4.47e-11 px`; `1e-4 px` eşiğinin altında. Kesitler depoya eklenmedi. Komut ve kesit bazlı sayılar [T4 doğrulama raporunda](../../b_astrometri/reports/07-04-t4-real/README.md).
 

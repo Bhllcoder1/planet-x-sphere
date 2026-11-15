@@ -48,10 +48,10 @@
     "semantic_hash": "b12d09512c52cbb8cd487263e64972fe"
   },
   "HANDOFF.md": {
-    "mtime": 1794703812.0096939,
-    "seen": 1794703829.8059332,
-    "ast_hash": "657c8abdafc5b39c207c1da8465e507a",
-    "semantic_hash": "657c8abdafc5b39c207c1da8465e507a"
+    "mtime": 1794704298.483882,
+    "seen": 1794704316.3506877,
+    "ast_hash": "463db0dc8713f96ef79573b80b55f0e6",
+    "semantic_hash": "463db0dc8713f96ef79573b80b55f0e6"
   },
   "README.md": {
     "mtime": 1794695460.0272524,
@@ -102,16 +102,16 @@
     "semantic_hash": "48c76d377076c6d21ef6846235847193"
   },
   "docs/second-brain/IMPLEMENTATION.md": {
-    "mtime": 1794703619.2736297,
-    "seen": 1794703787.8224008,
-    "ast_hash": "a38ce213b4e3577e0152e8cf198d032a",
-    "semantic_hash": "a38ce213b4e3577e0152e8cf198d032a"
+    "mtime": 1794704186.8753111,
+    "seen": 1794704285.3987718,
+    "ast_hash": "25eb46c1de0b6d083a6d9a3fecdb3a77",
+    "semantic_hash": "25eb46c1de0b6d083a6d9a3fecdb3a77"
   },
   "docs/second-brain/NOW.md": {
-    "mtime": 1794703624.3433218,
-    "seen": 1794703787.8224008,
-    "ast_hash": "106f553a9da727aea38d06bc3b522b53",
-    "semantic_hash": "106f553a9da727aea38d06bc3b522b53"
+    "mtime": 1794704186.877545,
+    "seen": 1794704285.3987718,
+    "ast_hash": "5560cd25aea28486f3c7de81a76151dd",
+    "semantic_hash": "5560cd25aea28486f3c7de81a76151dd"
   },
   "docs/second-brain/README.md": {
     "mtime": 1794695961.7532291,
@@ -262,5 +262,23 @@
     "seen": 1794703787.8224008,
     "ast_hash": "4b1c3f9b852e0f7df7be25436600767d",
     "semantic_hash": "4b1c3f9b852e0f7df7be25436600767d"
+  },
+  "b_astrometri/motion/lightcurves.py": {
+    "mtime": 1794703932.1399505,
+    "seen": 1794704285.3987718,
+    "ast_hash": "cf365e06795a17eff1acfda0627be303",
+    "semantic_hash": "cf365e06795a17eff1acfda0627be303"
+  },
+  "b_astrometri/motion/test_lightcurves.py": {
+    "mtime": 1794703934.3326604,
+    "seen": 1794704285.3987718,
+    "ast_hash": "d0b6bec6f6647312cd907fb60261a129",
+    "semantic_hash": "d0b6bec6f6647312cd907fb60261a129"
+  },
+  "b_astrometri/reports/07-04-t1-real/README.md": {
+    "mtime": 1794704186.8753111,
+    "seen": 1794704285.3987718,
+    "ast_hash": "50ae79018316289967bb5a9a59fa47b9",
+    "semantic_hash": "50ae79018316289967bb5a9a59fa47b9"
   }
 }
