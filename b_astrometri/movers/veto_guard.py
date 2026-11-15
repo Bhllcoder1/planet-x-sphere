@@ -3,7 +3,7 @@
 Adaylar hicbir zaman sessizce silinmez; 3 px yakininda veto biti varsa
 'veto_reason' alaniyla etiketlenir ve candidates_log icinde tutulur.
 TRANSIENT/HALO yalnizca 'caution' uyarisi uretir, veto sayilmaz.
-Kalabalik alan esikleri (SOURCE > 0.50 veya gurultu > 5x seyrek medyan) [ASSUMPTION].
+Kalabalik alan esikleri (SOURCE > 0.50 veya gurultu > 5x seyrek medyan).
 """
 from __future__ import annotations
 
@@ -107,3 +107,51 @@ def crowded_field_guard(
         "source_fraction": float(source_fraction),
         "noise_ratio": noise_ratio,
     }
+
+
+def veto_summary(candidates: list[dict]) -> dict:
+    """Return aggregate veto statistics for a list of tagged candidate dicts.
+
+    Parameters
+    ----------
+    candidates : list of dicts, each with a 'vetoed' bool key (as produced by tag_candidates).
+
+    Returns
+    -------
+    dict with keys: total (int), vetoed (int), veto_rate (float 0–1).
+    """
+    n = len(candidates)
+    k = sum(1 for c in candidates if c.get("vetoed", False))
+    return {
+        "total": n,
+        "vetoed": k,
+        "veto_rate": k / n if n > 0 else 0.0,
+    }
+
+
+if __name__ == "__main__":
+    import numpy as np
+
+    # Smoke test: empty list
+    assert veto_summary([])["total"] == 0
+    assert veto_summary([])["veto_rate"] == 0.0
+
+    # Build a FLAGS array with STREAK bit set at centre
+    flags = np.zeros((32, 32), dtype=np.int64)
+    flags[16, 16] |= BIT_STREAK
+    res = evaluate_candidate_flags(flags, 16.0, 16.0)
+    assert "STREAK" in res["veto_reason"], f"Expected STREAK veto, got {res}"
+
+    # tag_candidates with one vetoed and one clean
+    cands = [
+        {"id": "c1", "observations": [{"frame_id": "f1", "x": 16.0, "y": 16.0}]},
+        {"id": "c2", "observations": [{"frame_id": "f1", "x": 1.0, "y": 1.0}]},
+    ]
+    tagged = tag_candidates(cands, {"f1": flags})
+    summary = veto_summary(tagged)
+    assert summary["total"] == 2
+    assert summary["vetoed"] == 1
+    assert abs(summary["veto_rate"] - 0.5) < 1e-9
+
+    print(f"veto_summary: {summary}")
+    print("DONE 04-08")
