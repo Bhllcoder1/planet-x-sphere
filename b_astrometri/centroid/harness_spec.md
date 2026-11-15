@@ -8,8 +8,8 @@ Bu belge, astrometri ve merkezleme doğruluğunu ölçen **T1–T4** enjeksiyon/
 - **Koordinat Sistemi:** 0-tabanlı `float` ebeveyn piksel koordinatı (`0 <= x, y < 2040`); konum asla yuvarlanmaz (`03-14`).
 - **Gürültü Modeli:** Poisson (kaynak + arka plan) + `VARIANCE` HDU gürültüsü.
   - Not: `VARIANCE` gerçek saçılımı bir miktar hafife alabildiğinden, T3'te `RMS / σ_tahmin > 1` yönünde hafif sapma beklenebilir.
-- **Maske Profili:** Gerçek karelerden alınan `FLAGS` bit maskesi; karşılaştırılabilirlik için `02-04` ile birebir aynı maske profili kullanılır (`[ASSUMPTION]`: `02-04` sözleşmesi gelene kadar sentetik testlerde `FLAGS = 0` temiz piksel varsayılır).
-- **Döngüsellik Uyarısı:** Aynı `ePSF` ile üretip aynı `ePSF` ile uydurmak iyimser sonuç verir; bu nedenle bağımsız doğrulama olarak `03-02` kapsamındaki **200 gerçek yıldız** testi ayrıca koşulur (`[ASSUMPTION]`).
+- **Maske Profili:** Gerçek karelerden alınan `FLAGS` bit maskesi; karşılaştırılabilirlik için `02-04` ile birebir aynı maske profili kullanılır. Gerçek FLAGS verisi gelene kadar sentetik testlerde `FLAGS = 0` temiz piksel varsayılır.
+- **Döngüsellik Uyarısı:** Aynı `ePSF` ile üretip aynı `ePSF` ile uydurmak iyimser sonuç verir; bu nedenle bağımsız doğrulama olarak `03-02` kapsamındaki **200 gerçek yıldız** testi ayrıca koşulur.
 
 ## 2. Test Matrisi (T1–T4) ve 07 Listesi Eşleşmesi
 
