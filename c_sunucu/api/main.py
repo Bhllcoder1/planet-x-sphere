@@ -21,7 +21,17 @@ from fastapi.responses import JSONResponse
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from api.routes import frames, health, targets
+from api.routes import (
+    auth,
+    export,
+    fits_export,
+    frames,
+    health,
+    history,
+    profile,
+    share,
+    targets,
+)
 
 # ---------------------------------------------------------------------------
 # Ayarlar
@@ -187,6 +197,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(health.router)
     application.include_router(targets.router)
     application.include_router(frames.router)
+    application.include_router(auth.router)
+    application.include_router(history.router)
+    application.include_router(profile.router)
+    application.include_router(share.router)
+    application.include_router(export.router)
+    application.include_router(fits_export.router)
 
     # Özel hata işleyicileri
     _register_error_handlers(application)
