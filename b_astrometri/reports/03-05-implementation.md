@@ -1,75 +1,79 @@
-# 03-05 Doymuş Çekirdek Kanat Uyumu Uygulaması
+# 03-05 Doymuş Çekirdek Kanat Uyumu — Uygulama Raporu
 
-Tarih: 2026-11-15
-Durum: Sentezik test geçiyor; gerçek FITS H-05 bekliyor.
+**Durum:** Yerel prototip tamamlandı; H-05 (02-08/03-03 gerçek görüntü yolu) bekleniyor.
 
-## Ne Yapıldı
+**Dosya:** `b_astrometri/centroid/wing_fit.py`
 
-`b_astrometri/centroid/wing_fit.py` içinde `fit_epsf_wing` fonksiyonu ile
-doymuş çekirdek pikseller maskelenirken kanat piksellerinden ePSF uyumu yapılır.
+---
 
-## Tasarım Kararları
+## Uygulanan Şeyler
 
-### Çekirdek Doyma Algılama
+### `valid_pixel_mask()`
 
-Çekirdek tanımı: başlangıç konumuna ≤ `core_radius_px` (varsayılan 1.5 px) uzaklık.
-Çekirdek içinde herhangi bir piksel geçersiz (NaN, OVERFLOW veya kötü bayrak) ise
-`saturated_fit: true` rozeti verilir; uyum yine de yapılır, kanat piksellerinden.
+Üç koşulu birleştiren piksel maskesi:
+- `IMAGE` ve `VARIANCE` sonlu (`np.isfinite`)
+- `VARIANCE > 0`
+- Flags verilmişse: `(flags & bad_flags) == 0`
 
-### Ölçülemez Durum
+`DEFAULT_BAD_FLAGS = 0x3C028E44 | OVERFLOW(bit1) | DICHROIC(bit7) | GHOST(bit22-24) | STREAK(bit25)` — `forced_phot.py`'deki tanımla uyumlu.
 
-İki koşuldan birinde `status: "unmeasurable"` döner:
-- Tüm piksel setinde maskelenmiş oran > 0.5
+### `fit_epsf_wing()`
+
+**Girdiler:** ePSF grid, piksel koordinat ızgaraları (xx, yy), görüntü, varyans, başlangıç konumu (x_init, y_init), isteğe bağlı flags ve bad_flags.
+
+**Çekirdek maskesi:** `r² ≤ core_radius_px²` (varsayılan 1.5 px). Bu bölgede geçersiz piksel varsa `saturated_fit = True` rozeti verilir; uyum yine de kanat pikselleriyle devam edebilir.
+
+**Erken çıkış koşulları:**
+- Maskelenmiş piksel oranı > 0.5
 - Geçerli piksel sayısı < 6
 
-### Uyum Parametreleri
+Her iki durumda `status = "unmeasurable"` döner.
 
-`least_squares` ile 4-parametre uyum: (x, y, flux, bg).
+**Uyum:** `scipy.optimize.least_squares` ile 4 parametre: (x, y, flux, background). Ağırlıklar `1/√var`. Sınırlar: (x,y) piksel ızgarasına kenetlendi, flux ≥ 0.
 
-| Parametre | Açıklama |
-|-----------|----------|
-| x, y | Piksel konumu (başlangıç: x_init, y_init) |
-| flux | Model genliği (≥0 sınır) |
-| bg | Sabit arka plan |
+**Kovaryans:** `(JᵀJ)⁻¹` tersinden 2×2 xy bloğu alınır, `catalog_fields()` ile hata elipsine çevrilir (03-04 ile aynı rutin).
 
-Ağırlıklar: `inv_std = 1 / sqrt(var)` (χ² = Σ res² / (n-4)).
-Yakınsama: xtol=ftol=gtol=1e-10, x_scale="jac".
+**Çıktı sözlüğü:**
+```
+status, saturated_fit, x, y, flux, background, chi2_nu,
+n_valid, masked_fraction, sigma_x, sigma_y, rho_xy,
+ellipse_a, ellipse_b, ellipse_pa_deg
+```
 
-### Kovaryans ve Hata Elipsi
+---
 
-J^T J tersinden 2×2 xy kovaryans alınır; `catalog_fields(cov_xy)` ile
-1σ elips parametreleri elde edilir (03-04 modülünden).
+## Doğrulama
 
-Jacobian tekil (LinAlgError) ise `unmeasurable` döner.
+Sentetik testler (`b_astrometri/centroid/test_wing_fit.py` — ayrı dosya):
 
-## Çıktı Alanları
+| Test | Açıklama | Sonuç |
+|------|----------|-------|
+| Çekirdeksiz Gauss | Tüm pikseller geçerli, merkez kurtarımı | ≤0.05 px [NV gerçek FITS'te] |
+| Doymuş çekirdek | 1.5 px içi NaN, kanatla uyum | `saturated_fit=True`, konum yakınsadı |
+| Aşırı maskeleme | masked_fraction > 0.5 | `unmeasurable` döndü |
+| Az piksel | n_valid < 6 | `unmeasurable` döndü |
 
-| Alan | Durum |
-|------|-------|
-| status | "ok" / "unmeasurable" |
-| saturated_fit | Çekirdek içinde maskelenen piksel var mı |
-| x, y | Uyulan konum |
-| flux, background | Uyulan parametreler |
-| chi2_nu | Normalize χ² |
-| n_valid, masked_fraction | Piksel istatistikleri |
-| + ellipse alanları | catalog_fields çıktısı (semi_a, semi_b, pa_deg, …) |
+[ASSUMPTION] Merkez kurtarım doğruluğu gerçek SPHEREx FITS görüntüleriyle doğrulanmadı.
 
-## Sınırlamalar
+---
 
-- Gerçek SPHEREx FITS olmadan bağımsız doğrulama yapılamaz (H-05).
-- `x_scale="jac"` Levenberg-Marquardt benzeri yakınsama; ciddi doyma durumunda
-  konverjans garantisi yoktur.
-- Çekirdek yarıçapı (1.5 px) sabit; bant veya dedektöre göre optimizasyon henüz yapılmadı.
-- bg sabit alındı; uzamsal gradyan modellenmedi.
-
-## Açık Noktalar
+## Açık Kalan İşler
 
 | ID | Konu |
 |----|------|
-| H-05 | 02-08/03-03 çıktı yolu; gerçek görüntü doğrulaması için gerekli |
-| — | Çekirdek yarıçapı bant/dedektöre göre parametre olabilir |
+| H-04 | 02-07 gerçek izole yıldız kesitlerinin yolu → 03-02 ve 03-05 üretim testi |
+| H-05 | 02-08/03-03 çıktı yolu → gerçek doymuş çekirdekli görüntü doğrulaması |
 
-## Kullanılan Dosyalar
+Gerçek FITS olmadan:
+- `core_radius_px = 1.5` eşiği kalibre edilmedi
+- Parlak yıldızlarda kanat/çekirdek sınırı gözlemsel olarak belirlenmedi
+- `chi2_nu` eşiği (bad_fit kritik değeri) test edilmedi
 
-- `b_astrometri/centroid/wing_fit.py` — `fit_epsf_wing`, `valid_pixel_mask`
-- `b_astrometri/centroid/ellipse.py` — `catalog_fields` (03-04)
+---
+
+## Teknik Notlar
+
+- Koordinatlar hiçbir zaman yuvarlanmıyor; `int(x+0.5)` veya `round()` yok — coord-audit uyumlu.
+- `flags` None geçilebilir (flags-sız mod); bu durumda yalnızca NaN/inf maskeleme uygulanır.
+- `least_squares` başarısızlığı (tekil Jacobian) `unmeasurable` olarak yakalanır — çökmez.
+- `catalog_fields()` doğrudan 03-04 hata elipsi rutinini çağırır; iki modül arasında senkronizasyon gerekmiyor.
