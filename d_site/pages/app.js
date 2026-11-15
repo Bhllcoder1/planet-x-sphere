@@ -1377,9 +1377,18 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
     renderMultiEpochPlot();
   });
 
-  // FOV seçici — boyutu displayState'e kaydet (backend gerektiğinde kullanılır)
+  // FOV seçici — zoom'u ayarlayarak farklı görüş alanı simüle et
   doc.getElementById("sel-fov")?.addEventListener("change", (e) => {
-    displayState.fovSize = Number(e.target.value);
+    const fov = Number(e.target.value);
+    displayState.fovSize = fov;
+    // Küçük pencere → yüksek zoom; büyük pencere → düşük zoom
+    const zoomMap = { 31: 16, 63: 8, 127: 4 };
+    const newZoom = zoomMap[fov] || 16;
+    displayState.zoom = newZoom;
+    const selZoom = doc.getElementById("sel-zoom");
+    if (selZoom) selZoom.value = String(newZoom);
+    renderFrame();
+    pushUrlState();
   });
 
   // WISE overlay — Aladin panelini WISE W1 ile aç
