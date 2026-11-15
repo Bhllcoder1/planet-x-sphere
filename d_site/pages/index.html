@@ -251,17 +251,18 @@
             <h3 style="margin:0;font-size:var(--text-base);">🔭 Aladin Lite — Gökyüzü Bağlamı (CDS)</h3>
             <div style="display:flex;gap:6px;">
               <select id="sel-aladin-survey" style="font-size:var(--text-xs);background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-subtle);border-radius:4px;padding:3px 6px;">
-                <option value="P/DSS2/color">DSS2 Renkli</option>
-                <option value="P/DSS2/red">DSS2 Kırmızı</option>
-                <option value="P/WISE/W1">WISE W1 (3.4µm)</option>
-                <option value="P/WISE/W2">WISE W2 (4.6µm)</option>
-                <option value="P/2MASS/H">2MASS H</option>
+                <option value="dss2-color">DSS2 Renkli</option>
+                <option value="dss2-red">DSS2 Kırmızı</option>
+                <option value="wise-w1">WISE W1 (3.4µm)</option>
+                <option value="wise-w2">WISE W2 (4.6µm)</option>
+                <option value="2mass-h">2MASS H</option>
               </select>
               <button id="btn-aladin-toggle" type="button">Aç</button>
             </div>
           </div>
           <div id="aladin-container" style="display:none;margin-top:8px;">
             <div id="aladin-lite-div" style="width:100%;height:280px;border-radius:4px;overflow:hidden;"></div>
+            <p style="margin:6px 0 0;font-size:10px;color:var(--text-muted);">Aladin Lite uygulamayla birlikte gelir; gökyüzü karoları IRSA, ESAC ve diğer arşiv aynalarından çevrimiçi yüklenir. Bağlam görüntüsüdür, ölçüm katmanı değildir.</p>
           </div>
         </div>
 
@@ -337,7 +338,6 @@
   </div>
 
   <script src="./real_spherex_data.js"></script>
-  <script defer src="https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js" charset="utf-8"></script>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

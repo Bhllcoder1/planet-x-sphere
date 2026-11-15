@@ -10,6 +10,29 @@ import { evaluateModeNRule, computePixelGridLines, getZoomGuaranteeLabel } from 
 import { buildCentroidOverlayDescriptor, buildGaiaOverlayDescriptors } from "../viewer/overlays.js";
 import { DEFAULT_DISPLAY_STATE, getBackgroundBadge, applyStretchValue, maximizeDynamicRangePreset } from "../viewer/stretch_controls.js";
 import { attachKeyboardShortcuts } from "../design/accessibility_and_onboarding.js";
+import Aladin from "../vendor/aladin-lite-3.8.2.js";
+
+window.A = Aladin;
+
+const ALADIN_SURVEYS = {
+  "dss2-color": { name: "DSS2 Color", url: "https://casda.csiro.au/hips/DSS2/color" },
+  "dss2-red": { name: "DSS2 Red", url: "https://hips.china-vo.org/m/DSS2Merged" },
+  "wise-w1": { name: "AllWISE W1 (3.4 µm)", url: "https://irsa.ipac.caltech.edu/data/hips/CDS/AllWISE/W1" },
+  "wise-w2": { name: "AllWISE W2 (4.6 µm)", url: "https://irsa.ipac.caltech.edu/data/hips/CDS/AllWISE/W2" },
+  "2mass-h": { name: "2MASS H", url: "https://irsa.ipac.caltech.edu/data/hips/CDS/2MASS/H" },
+};
+
+function getAladinSurvey(id) {
+  const survey = ALADIN_SURVEYS[id] || ALADIN_SURVEYS["dss2-color"];
+  return Aladin.HiPS(survey.url, { name: survey.name, url: survey.url, cooFrame: "equatorial" });
+}
+
+function showAladinError(container, text) {
+  const message = container.ownerDocument.createElement("p");
+  message.style.cssText = "font-size:11px;color:var(--text-muted);padding:8px;";
+  message.textContent = text;
+  container.replaceChildren(message);
+}
 
 const TARGET_DATA_KEY_MAP = {
   barnard: "barnards_star",
@@ -1401,95 +1424,40 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
       const container = doc.getElementById("aladin-container");
       if (container) container.style.display = "block";
       const surveyEl = doc.getElementById("sel-aladin-survey");
-      if (surveyEl) surveyEl.value = "P/WISE/W1";
-      initOrUpdateAladin(activeTarget.raDeg, activeTarget.decDeg, "P/WISE/W1");
+      if (surveyEl) surveyEl.value = "wise-w1";
+      initOrUpdateAladin(activeTarget.raDeg, activeTarget.decDeg, "wise-w1");
       doc.getElementById("btn-aladin-toggle").textContent = "Kapat";
     }
   });
 
   // Aladin Lite toggle
   let aladinInst = null;
-  let aladinPending = null; // {ra, dec, survey} bekleyen çağrı
-
   function _doInitAladin(ra, dec, s) {
     if (!aladinInst) {
       try {
         aladinInst = window.A.aladin("#aladin-lite-div", {
-          survey: s, fov: 0.1,
+          survey: getAladinSurvey(s), fov: 0.1,
           target: `${ra} ${dec}`,
           showReticle: true,
           showZoomControl: true,
         });
       } catch (e) {
         const container = doc.getElementById("aladin-container");
-        if (container) container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin başlatılamadı: ${e.message}</p>`;
+        if (container) showAladinError(container, `Aladin başlatılamadı: ${e.message}`);
       }
     } else {
       aladinInst.gotoRaDec(ra, dec);
-      aladinInst.setImageSurvey(s);
+      aladinInst.setImageSurvey(getAladinSurvey(s));
     }
   }
 
   function initOrUpdateAladin(ra, dec, survey) {
     const container = doc.getElementById("aladin-container");
     if (!container) return;
-    const s = survey || doc.getElementById("sel-aladin-survey")?.value || "P/DSS2/color";
-
-    // window.A varsa ve A.init Promise ise — v3 async pattern
-    if (window.A && window.A.init && typeof window.A.init.then === "function") {
-      window.A.init.then(() => _doInitAladin(ra, dec, s)).catch(() => {
-        container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin başlatılamadı.</p>`;
-      });
-      return;
-    }
-
-    // window.A varsa ama A.init yoksa — v2/eski sync API
-    if (window.A) {
-      _doInitAladin(ra, dec, s);
-      return;
-    }
-
-    // window.A henüz yüklenmemiş — scripti dinamik yükle veya bekle
-    container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin yükleniyor…</p>`;
-    aladinPending = { ra, dec, s };
-
-    // Script zaten DOM'da var mı kontrol et (defer ile eklenmiş olabilir)
-    const existing = doc.querySelector('script[src*="aladin"]');
-    if (existing) {
-      // Yüklenmesini bekle — polling ile
-      let tries = 0;
-      const poll = setInterval(() => {
-        tries++;
-        if (window.A) {
-          clearInterval(poll);
-          if (aladinPending) {
-            const { ra: pr, dec: pd, s: ps } = aladinPending;
-            aladinPending = null;
-            initOrUpdateAladin(pr, pd, ps);
-          }
-        } else if (tries > 60) {
-          clearInterval(poll);
-          container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin yüklenemedi (CDN erişilemiyor).</p>`;
-        }
-      }, 500);
-      return;
-    }
-
-    // Script hiç eklenmemişse dinamik olarak yükle
-    const script = doc.createElement("script");
-    script.src = "https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js";
-    script.charset = "utf-8";
-    script.onload = () => {
-      if (aladinPending) {
-        const { ra: pr, dec: pd, s: ps } = aladinPending;
-        aladinPending = null;
-        initOrUpdateAladin(pr, pd, ps);
-      }
-    };
-    script.onerror = () => {
-      container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin CDN erişilemiyor.</p>`;
-    };
-    doc.head.appendChild(script);
+    const s = survey || doc.getElementById("sel-aladin-survey")?.value || "dss2-color";
+    window.A.init.then(() => _doInitAladin(ra, dec, s)).catch(() => {
+      showAladinError(container, "Aladin açılamadı. Tarayıcı WebGL2 desteğini kontrol edin.");
+    });
   }
 
   doc.getElementById("btn-aladin-toggle")?.addEventListener("click", (e) => {
@@ -1507,7 +1475,7 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
   });
 
   doc.getElementById("sel-aladin-survey")?.addEventListener("change", (e) => {
-    if (aladinInst) aladinInst.setImageSurvey(e.target.value);
+    if (aladinInst) aladinInst.setImageSurvey(getAladinSurvey(e.target.value));
   });
 
   // Export CSV (11-02)
