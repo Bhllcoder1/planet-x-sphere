@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "task_id": "11-18",
+    "default_lang": "en",
+    "supported_langs": ["en", "tr"],
+    "unmeasured_fallback": "not measured",
+    "honesty_rule": "Archive busy is NEVER labelled as no coverage (W18)."
+  },
+  "common": {
+    "en": {
+      "app_title": "SPHEREx Blink — Sub-Pixel Time-Series Sky Viewer",
+      "app_purpose": "Display NASA SPHEREx images of a sky patch as a video-like time series with sub-pixel astrometry so anyone can spot moving and variable objects.",
+      "exact_pixel_guarantee": "Each native pixel is drawn exactly z × z screen pixels; a 1-pixel shift is exactly z screen pixels; positions are never rounded.",
+      "overview_not_exact": "overview, not exact (< 1 screen px per native px)",
+      "nan_legend": "no data (NaN)",
+      "mode_s_banner": "S: resampled, view only, no astrometry",
+      "smooth_shift_banner": "SMOOTH-SHIFT: interpolated view only — NEVER used for measurement",
+      "crowded_field_banner": "Unusable for astrometry / Crowded field (fit-mask > 50%)",
+      "not_measured": "not measured"
+    },
+    "tr": {
+      "app_title": "SPHEREx Blink — Alt-Piksel Zaman Serisi Gökyüzü Görüntüleyici",
+      "app_purpose": "NASA SPHEREx görüntülerini piksel hassasiyetiyle video gibi oynatarak hareketli cisimleri ve değişen yıldızları yakalayın.",
+      "exact_pixel_guarantee": "Her doğal piksel tam olarak z × z ekran pikseli çizilir; 1 piksellik kayma tam z ekran pikselidir; konumlar asla yuvarlanmaz.",
+      "overview_not_exact": "genel bakış, kesin değil (doğal piksel başına < 1 ekran pikseli)",
+      "nan_legend": "veri yok (NaN)",
+      "mode_s_banner": "S: yeniden örneklenmiş, yalnız görüntüleme, astrometri yok",
+      "smooth_shift_banner": "YUMUŞAK KAYMA: yalnız enterpolasyonlu görüntüleme — ölçümde ASLA kullanılmaz",
+      "crowded_field_banner": "Astrometri için kullanılamaz / Kalabalık alan (fit-mask > %50)",
+      "not_measured": "ölçülmedi"
+    }
+  },
+  "screens": {
+    "main_viewer": {
+      "empty": {
+        "title": "Select a Competition Target or Enter Coordinates",
+        "message": "Choose one of the 5 NASA Space Apps test targets above or enter RA/Dec in decimal or sexagesimal format to load SPHEREx frames.",
+        "action_label": "Load Barnard's Star (358 frames)"
+      },
+      "loading": {
+        "title": "Loading SPHEREx Frame Windows…",
+        "message": "Progressive stream active: blink playback starts as soon as the first frames arrive ({ready} of {total} ready).",
+        "action_label": "Start Blink on Ready Frames"
+      },
+      "error": {
+        "title": "Frame Window Read Failed",
+        "message": "Could not fetch the requested S3 byte-range window. Measurement data remains untouched.",
+        "action_label": "Retry S3 Range Read"
+      },
+      "no_coverage": {
+        "title": "No SPHEREx Coverage in Current Release",
+        "message": "The archive query succeeded and returned 0 science frames covering this position in release DR1/QR3.",
+        "action_label": "View Target Result Card"
+      },
+      "archive_busy": {
+        "title": "IRSA Archive Busy — Retry Queued",
+        "message": "The IRSA TAP/S3 archive timed out or returned HTTP 502/503. This does NOT mean no coverage; an async retry job is queued.",
+        "action_label": "Check Async Job Status"
+      }
+    },
+    "profile_history": {
+      "empty": {
+        "title": "No Search History Yet",
+        "message": "Every target inspection and coordinate query you run is automatically saved here with its exact URL state and 160×160 overview thumbnail.",
+        "action_label": "Inspect First Target"
+      },
+      "loading": {
+        "title": "Loading Saved Searches & Examined Objects…",
+        "message": "Fetching your session history and overview thumbnails (not measured).",
+        "action_label": "Cancel"
+      },
+      "error": {
+        "title": "Could Not Load History Database",
+        "message": "The local SQLite session history could not be read at this moment.",
+        "action_label": "Reload Profile"
+      },
+      "no_coverage": {
+        "title": "Recorded Outcome: No Coverage (0 Frames)",
+        "message": "This historical search completed cleanly with 0 frames in the archive for that sky position.",
+        "action_label": "Restore Search Parameters"
+      },
+      "archive_busy": {
+        "title": "Recorded Outcome: Archive Was Busy",
+        "message": "This search encountered an archive timeout (HTTP 502/503) when originally queried; coverage remains not measured.",
+        "action_label": "Re-run Query Now"
+      }
+    },
+    "results_export": {
+      "empty": {
+        "title": "No Source Selected for Readout / Export",
+        "message": "Click any star or moving candidate in the viewer to inspect its forced ePSF photometry, motion vector, spectrum, and export CSV/PNG.",
+        "action_label": "Select Target Center"
+      },
+      "loading": {
+        "title": "Computing Forced Photometry & Provenance Block…",
+        "message": "Evaluating float centroids, covariance ellipses, and unit conversions (MJy/sr to mJy).",
+        "action_label": "Wait for Readout"
+      },
+      "error": {
+        "title": "Export Generation Error",
+        "message": "Failed to build the requested export artifact. Raw L2 measurement files are intact.",
+        "action_label": "Retry Export"
+      },
+      "no_coverage": {
+        "title": "Honest Outcome: Target Not Covered in Release",
+        "message": "0 frames available in DR1/QR3 for this target. Per project honesty rules (08-14), this target is reported as-is and never substituted.",
+        "action_label": "Download Honest Outcome Report (CSV)"
+      },
+      "archive_busy": {
+        "title": "Coverage Not Measured — Archive Busy",
+        "message": "TAP query did not complete before timeout; S/N and frame count are marked 'not measured' [NV] until async TAP finishes.",
+        "action_label": "Queue Async TAP Retry"
+      }
+    }
+  }
+}

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[11-17] SPHEREx Blink Wireframes (4 Screens × Desktop & Mobile = 8 Layouts)</title>
+  <link rel="stylesheet" href="./tokens.css" />
+  <style>
+    .wf-grid { display: grid; gap: 24px; margin: 24px 0; }
+    .wf-pair { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; background: var(--bg-surface); padding: 16px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+    .wf-box { border: 1px dashed var(--border-subtle); padding: 12px; border-radius: var(--radius-sm); background: var(--bg-primary); }
+    .wf-mobile { max-width: 360px; padding-left: 16px; padding-right: 16px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); font-size: var(--text-xs); background: var(--bg-elevated); border: 1px solid var(--border-subtle); }
+    @media (max-width: 900px) { .wf-pair { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="app-container">
+    <h1>[11-17] SPHEREx Blink UI/UX Wireframes — 8 Verified Layouts</h1>
+    <p>Covers all 4 screens (Main Viewer, Login, Profile/History, Results/Export Panel) across Desktop (1280px) and Mobile (360px with 16px gutters).</p>
+
+    <div class="wf-grid">
+      <!-- SCREEN 1: MAIN VIEWER -->
+      <section class="wf-pair" id="wf-screen-1">
+        <div class="wf-box" data-layout="main-desktop">
+          <h2>1A. Main Screen & Blink Viewer (Desktop 1280px)</h2>
+          <p><span class="badge">W1: 5 Preset Targets</span> <span class="badge">W4: Blink Player</span> <span class="badge">W6: Mode N / θ_res Badge</span> <span class="badge">W7: Integer Zoom z=8..32</span></p>
+          <div style="display:grid;grid-template-columns:3fr 2fr;gap:12px;">
+            <div style="border:1px solid var(--border-subtle);padding:12px;">
+              <strong>512×512 Native Canvas (Mode N / R-k)</strong>
+              <p style="font-size:var(--text-xs);color:var(--text-muted);">Each native pixel is drawn exactly z × z screen pixels; a 1-pixel shift is exactly z screen pixels; positions are never rounded.</p>
+              <div>[Play/Pause] [Step ◀ ▶] [Speed 200ms] [Frame 12 / 358] [Epoch: + + + - .]</div>
+              <div>Metadata Strip: 2025-08-29 UTC | MJD 60916.72 | D2 | λ 1.85±0.02 μm | Pass 0 | DR1 l2b-v27-2026-231</div>
+            </div>
+            <div style="border:1px solid var(--border-subtle);padding:12px;">
+              <strong>Controls & Live Readout</strong>
+              <p>Background: [raw | <b>zodi (default)</b> | flat] <span class="badge">ZODI-subtracted</span></p>
+              <p>Clip: [percent 0.5/99.5 (sequence)] Stretch: [asinh a=0.1] [Invert]</p>
+              <p>Overlays: [x] Gaia DR3 (MJD-AVG) [x] Centroids (1σ/2σ) [ ] Flags (Centroid / Mover)</p>
+            </div>
+          </div>
+        </div>
+        <div class="wf-box wf-mobile" data-layout="main-mobile">
+          <h2>1B. Main Viewer (Mobile 360px, 16px Gutter)</h2>
+          <p>Single-column stack, touch targets ≥ 44×44 px, zero horizontal scroll.</p>
+          <div>[Target Picker Dropdown: Barnard's Star]</div>
+          <div style="border:1px solid var(--border-subtle);padding:8px;margin:8px 0;">[Square Canvas + Mode N Badge]</div>
+          <div>[▶ Play] [◀] [▶] [Zoom 16×] [Flags]</div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: LOGIN -->
+      <section class="wf-pair" id="wf-screen-2">
+        <div class="wf-box" data-layout="login-desktop">
+          <h2>2A. Login Screen (Desktop 1280px — W25/W26)</h2>
+          <p>Predefined seed accounts only (up to ~10). <strong>No sign-up link, no "forgot password" link</strong> (manual reset by team).</p>
+          <form onsubmit="return false;" style="max-width:340px;">
+            <label>Username <input type="text" placeholder="akif" style="width:100%;" /></label><br/><br/>
+            <label>Password <input type="password" placeholder="••••••••" style="width:100%;" /></label><br/><br/>
+            <button type="submit">Sign In (HttpOnly + SameSite Session)</button>
+          </form>
+        </div>
+        <div class="wf-box wf-mobile" data-layout="login-mobile">
+          <h2>2B. Login Screen (Mobile 360px)</h2>
+          <p>Full-width 44px inputs with 16px side gutters; neutral rate-limited error banner.</p>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: PROFILE & HISTORY -->
+      <section class="wf-pair" id="wf-screen-3">
+        <div class="wf-box" data-layout="profile-desktop">
+          <h2>3A. Profile & Search History with 160×160 Thumbnails (Desktop — W27..W30, 11-23)</h2>
+          <p>Shows total searches, distinct examined objects, and saved search rows with <strong>160×160 overview thumbnails</strong> (labelled <em>"overview copy, not measurement"</em>).</p>
+          <div style="display:flex;gap:12px;align-items:center;border:1px solid var(--border-subtle);padding:8px;">
+            <div style="width:80px;height:80px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:11px;">160×160 PNG<br/>(overview)</div>
+            <div>
+              <strong>Barnard's Star (RA 269.452075°, Dec +4.693391°)</strong><br/>
+              <small>Mode N | D2 | z=16 | zodi | percent 0.5/99.5 | asinh a=0.1 | Outcome: found (358 frames)</small><br/>
+              <button type="button">Restore Exact View & URL</button>
+            </div>
+          </div>
+        </div>
+        <div class="wf-box wf-mobile" data-layout="profile-mobile">
+          <h2>3B. Profile & History (Mobile 360px)</h2>
+          <p>Compact card list with filter box, thumbnail badge, and 1-tap restore.</p>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: RESULTS & EXPORT PANEL -->
+      <section class="wf-pair" id="wf-screen-4">
+        <div class="wf-box" data-layout="export-desktop">
+          <h2>4A. Results, Spectrum & Export Panel (Desktop — W14, W15, W31..W35)</h2>
+          <p>Cross-pass motion table (Δpx, Δarcsec, σ vs Gaia DR3), λ-binned forced-photometry light curve/spectrum (mandatory for RW Aur & R Dra), and provenance-stamped exports:</p>
+          <div>
+            <button type="button">Save PNG (Grid + Markers + Badges Burned In)</button>
+            <button type="button">Download Measurement CSV (with Provenance Header)</button>
+            <button type="button">Download Multi-HDU Cutout FITS</button>
+          </div>
+        </div>
+        <div class="wf-box wf-mobile" data-layout="export-mobile">
+          <h2>4B. Results & Export Panel (Mobile 360px)</h2>
+          <p>Collapsible tabs for Motion Table, Spectrum Plot, and Full-Width Export Buttons.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
