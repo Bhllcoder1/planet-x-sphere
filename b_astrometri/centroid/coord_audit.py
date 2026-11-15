@@ -52,3 +52,28 @@ def audit_directory(root: str | Path) -> dict[str, list[str]]:
         if issues:
             report[str(py_file)] = issues
     return report
+
+
+def audit_summary(root: str | Path) -> dict:
+    """Run audit and return a summary dict with total_violations and clean status."""
+    report = audit_directory(root)
+    total = sum(len(v) for v in report.values())
+    return {
+        "clean": total == 0,
+        "total_violations": total,
+        "files_with_violations": len(report),
+        "violations": report,
+    }
+
+
+if __name__ == "__main__":
+    import sys
+    target = sys.argv[1] if len(sys.argv) > 1 else "b_astrometri"
+    summary = audit_summary(target)
+    status = "TEMIZ" if summary["clean"] else f"IHLAL: {summary['total_violations']} sorun"
+    print(f"Coord audit [{target}]: {status}")
+    for f, issues in summary["violations"].items():
+        for issue in issues:
+            print(f"  {issue}")
+    assert summary["clean"], f"coord_audit: {summary['total_violations']} ihlal bulundu"
+    print("03-14 coord_audit: OK")
