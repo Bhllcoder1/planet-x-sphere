@@ -192,6 +192,18 @@ def fetch_frame(header, x0, y0, cache, output, *, providers=("esa", "mast"), att
             "rows": len(combined), "output": str(output)}
 
 
+def fetch_summary(result: dict) -> dict:
+    """Summarise a fetch_frame result dict."""
+    if not result or result.get("status") not in ("ok", "complete"):
+        return {"status": result.get("status", "unknown"), "n_sources": 0, "fetched": False}
+    return {
+        "status": result.get("status"),
+        "fetched": True,
+        "n_sources": result.get("n_sources", 0),
+        "n_tiles": result.get("n_tiles", 0),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     source = parser.add_mutually_exclusive_group(required=True)
