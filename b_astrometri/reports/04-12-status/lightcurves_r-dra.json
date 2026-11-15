@@ -1,0 +1,9 @@
+{
+  "target": "R Dra",
+  "status": "unknown",
+  "coverage_status": "unknown",
+  "photometry_status": "not_run",
+  "reason": "Stage 0 A records incomplete IRSA TAP attempts (>60 min; read timeouts, HTTP 502, connection resets). Coverage is unknown, not zero; no photometry was run.",
+  "bin_width_um": 0.05,
+  "bins": []
+}
