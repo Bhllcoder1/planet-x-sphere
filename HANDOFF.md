@@ -6,7 +6,7 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 
 - Depo: `C:/Users/behlu/planet-x-sphere`; dal: `b/01-03-gaia-fetch`; `main` başlangıç tabanı `449567a556001f758a74dc1c8d5f622569c57b51`.
 - Proje dışı kanıtlar ve FITS: `C:/Users/behlu/reports/`; Stage 0 Python: `C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe`.
-- GitHub dalında 03-02 sentetik D5 ve 03-05 doymuş çekirdek prototipi commitlidir. Bu oturumda test keşif düzeltmesi, D5 sonuç/H-04 referansı, Second Brain ve Graphify çıktıları yenileniyor.
+- GitHub feature branch head is `72fefd2`; PR #1 is open/draft at that head. D5 code/tests/results are tracked in `4edf9d4`; 200 real stars remain pending H-04.
 - ClickUp kişisel token ile salt-okunur `GET /user` HTTP 401 verdi; token yazdırılmadı, ClickUp'a değişiklik/yorum yapılmadı. 2026-11-14 tarihli yerel snapshot'ta Behlül'e atanan 46 görev `to do` görünüyordu; snapshot geçmiş veridir, canlı durum değildir.
 
 ## Kod kanıtı ve sınırlar
@@ -43,7 +43,7 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 
 ## Son doğrulama
 
-Son test turunda: centroid **24/24**, motion **15/15**, movers **4/4**, Gaia **30/30**, ayrıca 07-04 T1/T4 birim testleri **3/3** benzersiz test geçti (T1 dosyası EPSF testlerini de içe aktardığından ilgili komut 10 test bildirir). Toplam benzersiz test **76**. 07-04 gerçek veri kontrolleri de ayrıca geçti: T1 gerçek pencere enjeksiyonu/np.roll, T4 dokuz FITS'te 7.569 piksel. `git diff --check` temiz. Graphify corpus **51 dosya** (29 kod, 22 belge), **354 düğüm**, **680 kenar**, **18 topluluk**; eksik/başıboş uç yok, 5 aynı-uç kenar sade grafikte birleşiyor. Token maliyeti araçlarda sunulmadığı için bilinmiyor.
+Verification: centroid 24/24, motion 15/15, movers 4/4, Gaia 30/30, and 3 unique T1/T4 tests passed in the last full sweep (76 unique tests total). Real evidence: T1 real-window injection/np.roll; T4 7,569 pixels across nine FITS. `git diff --check` was clean. Graphify: 52 files (29 code, 23 documents), 356 nodes, 684 edges, 18 communities; no missing/dangling endpoints; five same-endpoint merges in the simple graph. Token cost unavailable.
 
 ```powershell
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/centroid -p 'test_*.py' -v

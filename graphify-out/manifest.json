@@ -48,10 +48,10 @@
     "semantic_hash": "b12d09512c52cbb8cd487263e64972fe"
   },
   "HANDOFF.md": {
-    "mtime": 1794704776.2533822,
-    "seen": 1794704787.2075026,
-    "ast_hash": "e387398d57da71ff2049b5c8678f2cb7",
-    "semantic_hash": "e387398d57da71ff2049b5c8678f2cb7"
+    "mtime": 1794705305.8694375,
+    "seen": 1794705325.0320604,
+    "ast_hash": "2c846557cb6b2ad66f8a9426bf1f11b1",
+    "semantic_hash": "2c846557cb6b2ad66f8a9426bf1f11b1"
   },
   "README.md": {
     "mtime": 1794695460.0272524,
@@ -108,10 +108,10 @@
     "semantic_hash": "a898fdade2ba6163f2aa95321d6ae18b"
   },
   "docs/second-brain/NOW.md": {
-    "mtime": 1794704636.4327717,
-    "seen": 1794704754.241468,
-    "ast_hash": "29d326663c65594dd2b37b3b56e293ab",
-    "semantic_hash": "29d326663c65594dd2b37b3b56e293ab"
+    "mtime": 1794705290.386345,
+    "seen": 1794705325.0320604,
+    "ast_hash": "cf1877b9980b7c94c00b9dd8249b8526",
+    "semantic_hash": "cf1877b9980b7c94c00b9dd8249b8526"
   },
   "docs/second-brain/README.md": {
     "mtime": 1794695961.7532291,
@@ -298,5 +298,11 @@
     "seen": 1794704754.241468,
     "ast_hash": "53d86f58f3ee9e801aed8ebf2eb460cf",
     "semantic_hash": "53d86f58f3ee9e801aed8ebf2eb460cf"
+  },
+  "docs/LIMITATIONS.md": {
+    "mtime": 1794705117.076936,
+    "seen": 1794705166.365064,
+    "ast_hash": "95fa8480de36164edbe12f511f25fe4b",
+    "semantic_hash": "95fa8480de36164edbe12f511f25fe4b"
   }
 }

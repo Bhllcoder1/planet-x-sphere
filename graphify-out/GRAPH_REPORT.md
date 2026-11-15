@@ -1,10 +1,10 @@
 # Graph Report - planet-x-sphere  (2026-11-15)
 
 ## Corpus Check
-- Corpus is ~23,201 words - fits in a single context window. You may not need a graph.
+- Corpus is ~23,426 words - fits in a single context window. You may not need a graph.
 
 ## Summary
-- 355 nodes · 681 edges · 19 communities (16 shown, 3 thin omitted)
+- 356 nodes · 684 edges · 18 communities (14 shown, 4 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 5 edges (avg confidence: 0.87)
 - Token cost: unavailable; host agent tools did not expose token usage
 
@@ -27,7 +27,6 @@
 - ePSF grid model implementation
 - T1-T4 acceptance and real WCS evidence
 - Unresolved project decisions
-- Community 18
 
 ## God Nodes (most connected - your core abstractions)
 1. `numpy (external import)` - 38 edges
@@ -64,27 +63,27 @@
 - 1-file cycle: `b_astrometri/gaia/test_fetch.py -> b_astrometri/gaia/test_fetch.py`
 - 1-file cycle: `b_astrometri/motion/test_lightcurves.py -> b_astrometri/motion/test_lightcurves.py`
 
-## Communities (19 total, 3 thin omitted)
+## Communities (18 total, 4 thin omitted)
 
 ### Community 0 - "Project workflow, task status and human gates"
 Cohesion: 0.06
 Nodes (42): 04-01 pass grouping prototype and measured gap output, Behl?l astrometry and moving-object science: 46 tasks, Contribution and ownership rules, Human decisions block only dependent tasks, 01-03 Gaia DR3 access decision and validation, Gaia required 11-column schema and G<18 download, ESA large tiles: 2/4 validated; third timed out; no partial output, Provider trials: ESA first, MAST overflow; other mirrors and US machine unverified (+34 more)
 
 ### Community 1 - "ePSF calibration and epoch propagation"
-Cohesion: 0.10
-Nodes (12): catalog_fields(), coverage_probability(), error_ellipse(), fit_joint_pass(), residuals(), _to_radec(), EllipseTests, WingFitTests (+4 more)
+Cohesion: 0.08
+Nodes (20): astropy_coordinates (external import), astropy_io (external import), astropy_nddata (external import), astropy_table (external import), astropy_time (external import), astropy_units (external import), compare_orientation(), _fit_chi2_nu() (+12 more)
 
 ### Community 2 - "Centroid uncertainty and saturated-wing fitting"
-Cohesion: 0.11
-Nodes (17): astropy_coordinates (external import), astropy_table (external import), astropy_time (external import), astropy_units (external import), compare_orientation(), _fit_chi2_nu(), self_recovery_ladder(), D5CheckTests (+9 more)
+Cohesion: 0.09
+Nodes (14): catalog_fields(), coverage_probability(), error_ellipse(), fit_joint_pass(), residuals(), _to_radec(), EllipseTests, _rotated_wcs() (+6 more)
 
 ### Community 3 - "Forced ePSF photometry and lambda-binned light curves"
 Cohesion: 0.11
 Nodes (22): argparse (external import), astropy_io_votable (external import), astropy_wcs (external import), atomic_write(), fetch_frame(), fetch_tile(), frame_tiles(), main() (+14 more)
 
 ### Community 4 - "Gaia catalogue fetch and tile strategy"
-Cohesion: 0.15
-Nodes (11): 04-12 RW Aur and R Dra outputs explicitly UNKNOWN; photometry not run because List 01 coverage failed, _bin_label(), build_lambda_lightcurves(), _lightcurve_svg(), write_lightcurve_outputs(), LightcurveTests, H-12 pending: RW Aur/R Dra coverage, control star, and 04-03 flux/variance/lambda/pass inputs, html (external import) (+3 more)
+Cohesion: 0.12
+Nodes (14): 04-12 RW Aur and R Dra outputs explicitly UNKNOWN; photometry not run because List 01 coverage failed, 07-04 T1 real-window injection: direct delta x 0.998404 px, np.roll 1.000000 px, tolerance 0.005 px, 07-04 T4 verified on 9 real SIP-3 cutouts: 7569 pixels; max round-trip error 4.47e-11 px, _bin_label(), build_lambda_lightcurves(), _lightcurve_svg(), write_lightcurve_outputs(), LightcurveTests (+6 more)
 
 ### Community 5 - "Gaia request transport tests"
 Cohesion: 0.19
@@ -92,23 +91,23 @@ Nodes (3): document(), FetchTests, Session
 
 ### Community 6 - "SPHEREx pass grouping"
 Cohesion: 0.19
-Nodes (6): astropy_io (external import), EPSFTests, fixture(), JointFitTests, _rotated_wcs(), unittest (external import)
+Nodes (7): extract_detector(), extract_frame_id(), extract_mjd(), group_passes(), write_pass_outputs(), PassGroupingTests, typing (external import)
 
 ### Community 7 - "Zero-based floating-point coordinate audit"
-Cohesion: 0.20
-Nodes (6): extract_detector(), extract_frame_id(), extract_mjd(), group_passes(), write_pass_outputs(), PassGroupingTests
-
-### Community 8 - "STREAK GHOST CROSSTALK veto guard"
-Cohesion: 0.20
-Nodes (4): audit_directory(), audit_source(), _is_timing_expr(), CoordAuditTests
-
-### Community 9 - "Pixel-phase bias sweep"
 Cohesion: 0.22
 Nodes (4): combine_forced_flux(), forced_phot_frame(), ForcedPhotTests, sys (external import)
 
-### Community 10 - "ePSF grid model unit tests"
+### Community 8 - "STREAK GHOST CROSSTALK veto guard"
+Cohesion: 0.19
+Nodes (4): audit_directory(), audit_source(), _is_timing_expr(), CoordAuditTests
+
+### Community 9 - "Pixel-phase bias sweep"
 Cohesion: 0.27
 Nodes (5): run_phase_sweep(), write_phase_bias_csv(), PhaseBiasTests, csv (external import), pathlib (external import)
+
+### Community 10 - "ePSF grid model unit tests"
+Cohesion: 0.29
+Nodes (3): EPSFTests, fixture(), JointFitTests
 
 ### Community 13 - "Moving-object candidate linking"
 Cohesion: 0.26
@@ -119,39 +118,31 @@ Cohesion: 0.27
 Nodes (4): filter_static_detections(), _fit_line(), link_movers(), MoverLinkerTests
 
 ### Community 15 - "ePSF grid model implementation"
-Cohesion: 0.20
-Nodes (3): astropy_nddata (external import), EPSFGrid, recovery_check()
-
-### Community 16 - "T1-T4 acceptance and real WCS evidence"
 Cohesion: 0.22
 Nodes (5): Historical Barnard example: 358 frames, 3 passes, 08-01 six-section target result template, Fixed scope: Barnard, Epsilon Indi B, WISE 0855, RW Aur, R Dra, 08-01 target result template, Planet XSphere five-target pixel-precision viewer
 
-### Community 17 - "Unresolved project decisions"
-Cohesion: 0.67
-Nodes (4): 07-04 T1 real-window injection: direct delta x 0.998404 px, np.roll 1.000000 px, tolerance 0.005 px, 07-04 T4 verified on 9 real SIP-3 cutouts: 7569 pixels; max round-trip error 4.47e-11 px, Centroid harness acceptance contract, H-11 pending: 100 real WCS windows and viewer Playwright evidence for 07-04
-
 ## Knowledge Gaps
-- **24 isolated node(s):** `astropy_nddata (external import)`, `astropy_io_votable (external import)`, `unittest_mock (external import)`, `sys (external import)`, `xml_etree (external import)` (+19 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 111 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **23 isolated node(s):** `astropy_nddata (external import)`, `astropy_io_votable (external import)`, `unittest_mock (external import)`, `sys (external import)`, `xml_etree (external import)` (+18 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 110 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `numpy (external import)` connect `Centroid uncertainty and saturated-wing fitting` to `ePSF calibration and epoch propagation`, `SPHEREx pass grouping`, `Pixel-phase bias sweep`, `ePSF grid model unit tests`, `Moving-object candidate linking`, `Target results and viewer scope`, `ePSF grid model implementation`?**
-  _High betweenness centrality (0.267) - this node is a cross-community bridge._
+- **Why does `numpy (external import)` connect `ePSF calibration and epoch propagation` to `Centroid uncertainty and saturated-wing fitting`, `Zero-based floating-point coordinate audit`, `Pixel-phase bias sweep`, `ePSF grid model unit tests`, `Moving-object candidate linking`, `Target results and viewer scope`?**
+  _High betweenness centrality (0.271) - this node is a cross-community bridge._
 - **What connects `astropy_nddata (external import)`, `astropy_io_votable (external import)`, `unittest_mock (external import)` to the rest of the system?**
-  _24 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _23 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Project workflow, task status and human gates` be split into smaller, more focused modules?**
   _Cohesion score 0.05580693815987934 - nodes in this community are weakly interconnected._
-- **Why does `Claude Code Codex session handoff` connect `Project workflow, task status and human gates` to `Centroid uncertainty and saturated-wing fitting`, `Forced ePSF photometry and lambda-binned light curves`, `ePSF grid model implementation`?**
-  _High betweenness centrality (0.179) - this node is a cross-community bridge._
+- **Why does `Claude Code Codex session handoff` connect `Project workflow, task status and human gates` to `ePSF calibration and epoch propagation`, `Forced ePSF photometry and lambda-binned light curves`?**
+  _High betweenness centrality (0.196) - this node is a cross-community bridge._
 - **Should `ePSF calibration and epoch propagation` be split into smaller, more focused modules?**
-  _Cohesion score 0.10158730158730159 - nodes in this community are weakly interconnected._
-- **Why does `math (external import)` connect `ePSF calibration and epoch propagation` to `Forced ePSF photometry and lambda-binned light curves`, `Gaia catalogue fetch and tile strategy`, `SPHEREx pass grouping`, `Zero-based floating-point coordinate audit`, `Pixel-phase bias sweep`, `ePSF grid model unit tests`, `Moving-object candidate linking`, `Target results and viewer scope`?**
+  _Cohesion score 0.08478513356562137 - nodes in this community are weakly interconnected._
+- **Why does `math (external import)` connect `Centroid uncertainty and saturated-wing fitting` to `Forced ePSF photometry and lambda-binned light curves`, `Gaia catalogue fetch and tile strategy`, `SPHEREx pass grouping`, `Zero-based floating-point coordinate audit`, `Pixel-phase bias sweep`, `Moving-object candidate linking`, `Target results and viewer scope`?**
   _High betweenness centrality (0.169) - this node is a cross-community bridge._
 - **Should `Centroid uncertainty and saturated-wing fitting` be split into smaller, more focused modules?**
-  _Cohesion score 0.10873440285204991 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09268292682926829 - nodes in this community are weakly interconnected._
 
 ## Memory scope and audit limits
 

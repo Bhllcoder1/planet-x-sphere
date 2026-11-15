@@ -26,13 +26,13 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 - `[V]` 04-01 yerel pass gruplaması 4/4 testte geçti; Barnard 358 kare/3 pass, ε Indi B 458/4 ve gap listeleri yazıldı. Çıktı kanıtı depo dışı `C:/Users/behlu/reports/04-01-passes/`.
 - `[NV]` 04-01 tam kabulü açık: Liste 02 manifesti yok, yerel frame JSON'larında `SPS_EPA` alanı yok ve release tekilleştirmesi modülde değil. H-03 girdisi bekleniyor.
 - `[V]` Çalışma ağacında 03-02 için D5 kod/test/sonuç dosyaları oluştu; sentetik akı ölçeği ve yönelim denemeleri geçiyor. D5 komutu 10 test çalıştırdı (3 D5 + doğrudan içe alınan EPSF testleri).
-- `[NV]` D5 için 02-07'den 200 gerçek yıldız/kesit yok; sonuç sentetik prototip. Üç D5 dosyası şu an untracked ve etkin Claude süreciyle eşzamanlı, bu yüzden dal commit'ine eklenmedi. H-04, 02-07 örneklemini bekliyor.
-- `[V]` GitHub REST API'sinde bu dal için daha önceki PR araması açık veya kapalı PR bulmadı; PR henüz açılmadı.
+- `[NV]` D5 real-data acceptance still needs 200 isolated 02-07 stars (H-04); synthetic prototype files are tracked in commit `4edf9d4`.
+- `[V]` GitHub PR #1 is open and draft; on 2026-11-15 its head matched `72fefd2`. No review, merge, or ClickUp closure has happened.
 - [HUMAN_ACTIONS.md](HUMAN_ACTIONS.md) içindeki H-01 çözülmeden 02-03/02-12'ye bağlı üretim entegrasyonuna geçme.
 
 ## Sonraki adımlar
 
-1. Özellik dalındaki değişiklikleri taslak PR ile incelemeye sun; birleştirme/ClickUp kapanışı yapma.
+1. PR #1 remains a draft; wait for human review before merge. Do not close ClickUp tasks without live acceptance.
 2. H-02 ile ClickUp erişimini yenile; güncel atama/durum/önkoşulları canlı API'den oku.
 3. H-01 ve H-03 yanıtlarına göre bağlı üretim işlerini sürdür; hazır olmayan önkoşulları tamamlanmış sayma.
 
