@@ -37,6 +37,16 @@ Active area: B (confirmed by user). ClickUp access is restored using the pk_ val
 1. PR #1 remains a draft; wait for human review before merge. Do not close ClickUp tasks without live acceptance.
 2. Continue live ClickUp task updates using the local token; do not ask the user to renew a working token.
 3. H-01 ve H-03 yanıtlarına göre bağlı üretim işlerini sürdür; hazır olmayan önkoşulları tamamlanmış sayma.
+4. Graphify `finalize()` → `.graphify_labels.json` + `GRAPH_REPORT.md` (kalan önkoşulsuz iş).
+
+## 2026-11-15 oturum sonu (bu oturum)
+
+- [V] TASKS.md: "Yerel durum" sütunu eklendi; tüm 46 görev için yerel/kısmi/açık durum işaretlendi.
+- [V] 09-06 taslağı: `b_astrometri/reports/09-06-sinirliliklar.md` yazıldı (09-04/08-14 önkoşul beklemiyor).
+- [V] fetch.py piksel ölçeği: `proj_plane_pixel_scales(wcs)` ile WCS'ten okunuyor; 6.2″/px sabit kodu kaldırıldı; fallback korundu.
+- [V] fetch.py timeout: `stream=True + deadline loop` eklendi; toplam transfer süresini `timeout` saniyeyle sınırlar.
+- [V] test_fetch.py: Response mock'una `iter_content` ve `close` eklendi; radius assertion 6.15″/px WCS değeriyle güncellendi.
+- [V] Tüm testler: centroid 28/28, gaia 35/35, movers 12/12, motion 32/32 — 107 test OK.
 
 ## Oturum kaydı
 
@@ -84,3 +94,7 @@ Active area: B (confirmed by user). ClickUp access is restored using the pk_ val
 -04-15:rolling_window+frame role list,inside/outside references through04-02.8 focused tests.
 -03-06:full2x2covariance,framechi2,JSON output,block sparse numericalJacobian;4 focused tests.1000trialcoverage not yet finished.
 -RealBarnard/Gaia/2026 acceptance is pending task-specific reports; no new real detection/measurement invented.
+
+## Ordered integration batch (user requested no new tests)
+
+03-14 coordinates.py provides an explicit corrected-cutout-WCS to native cutout/parent float bridge using A pixel conventions.04-03 now connects this to sky-coordinate photometry and per-frame CSV.04-06 velocity-lattice and robust-linking work proceeds in parallel after the shared coordinate contract. These are source-reviewed changes; no new tests are added/run and runtime results must remain unverified. Live ClickUp03-14/04-03/04-06 are in progress.

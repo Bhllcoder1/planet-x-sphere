@@ -6,11 +6,11 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 
 - Depo: `C:/Users/behlu/planet-x-sphere`
 - Dal: `b/01-03-gaia-fetch` (PR #1 açık/draft)
-- **Son push:** `ae21fc4` → `github.com/Bhllcoder1/planet-x-sphere`
+- Latest feature-branch/PR head must be read from GitHub; commit IDs in historical notes may be older.
 - Stage 0 Python: `C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe`
 - Depo dışı kanıtlar/FITS: `C:/Users/behlu/reports/`
 
-## Test komutu (hepsi temiz olmalı)
+## Verification commands (not run in current batch)
 
 ```powershell
 $py='C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe'
@@ -27,7 +27,7 @@ $py='C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe'
 | Görev | Dosya | Durum |
 |---|---|---|
 | 00-05 çalışma protokolü | `docs/WORK_PROTOCOL.md` | ClickUp kapalı değil |
-| 08-01 sonuç şablonu | `b_astrometri/reports/hedefler_sablon.md` | ClickUp kapalı değil |
+| 08-01 result template | `b_astrometri/reports/hedefler_sablon.md` | ClickUp complete; live status verified |
 | 01-03 Gaia istemcisi | `b_astrometri/gaia/fetch.py` + 13 test | 4xx fix dahil; ClickUp kapalı değil |
 | 03-07 epoch | `b_astrometri/gaia/epoch.py` + 11 test | Kutup hatası vektörel yöntemle düzeltildi |
 | 03-15 WiseView epoch testi | `b_astrometri/gaia/test_epoch_wiseview.py` + 6 test | Barnard 2010 MJD doğrulandı |
@@ -61,11 +61,11 @@ $py='C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe'
 
 ## Önkoşulsuz yapılabilecekler (bir sonraki oturumda)
 
-1. `fetch.py` piksel ölçeği varsayımı (6.2″/px → WCS'ten oku)
-2. `fetch.py` toplam süre sınırı (stream=True + deadline)
+1. ~~`fetch.py` piksel ölçeği varsayımı (6.2″/px → WCS'ten oku)~~ ✓ 2026-11-15
+2. ~~`fetch.py` toplam süre sınırı (stream=True + deadline)~~ ✓ 2026-11-15
 3. Graphify `finalize()` → `.graphify_labels.json` + `GRAPH_REPORT.md`
-4. 09-06 sınırlılıklar sayfası taslağı (09-04/08-14 beklemiyor; taslak yazılabilir)
-5. `docs/second-brain/TASKS.md` güncelleme: yerel tamamlananları işaretle
+4. ~~09-06 sınırlılıklar sayfası taslağı~~ ✓ `b_astrometri/reports/09-06-sinirliliklar.md`
+5. ~~`docs/second-brain/TASKS.md` güncelleme: yerel tamamlananları işaretle~~ ✓ 2026-11-15
 
 ## Önemli notlar
 
@@ -77,3 +77,12 @@ $py='C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe'
 ## Parallel implementation results
 
 04-02 exact-TAN stacks and channel-safe differences:9 focused tests; f32/noise/JSON writer and D10 metrics.04-07 OUTLIER promotion:7 focused tests, movers12/12.04-15 rolling-window inside/outside views and +/-/. roles:8 focused tests.03-06 full covariances, per-frame chi2, strict JSON output and block-sparse Jacobian:4 tests. Real target acceptance remains pending in each task report under b_astrometri/reports/. Resampled variance is explicitly nominal; interpolation covariance is not propagated. The1000trial03-06 coverage runner is being prepared; never claim its results until finished.
+
+## Current ordered integration batch
+
+- Work order:03-14 shared coordinate bridge ->04-03 sky-coordinate forced photometry and CSV ->04-06 velocity lattice and robust linking.
+- No new tests added or run, by explicit user instruction. Static source review only; do not claim runtime verification.
+- Other-session changes to Gaia fetch/tests and09-06 report may coexist in this shared worktree; do not stage or overwrite them blindly.
+- Existing03-06 thousand-trial experiment remains a prior background process, evidence outside repo at reports/03-06-coverage.json; read complete flag before using results.
+
+Ordered batch delivered:03-14 coordinates.py and04-03 forced_phot+CSV pushed in3b02704.04-06 now uses a pair-supported sparse velocity lattice, bounded search and consensus refinement; complete-grid coverage is not claimed. All three task slices were source-reviewed only; user requested no new tests. Real-data/acceptance gates remain open.

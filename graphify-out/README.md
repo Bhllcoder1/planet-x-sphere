@@ -5,3 +5,5 @@ Generated from the targeted project corpus on 2026-11-15: 64 files (36 code, 28 
 `graph.json`, `graph.html`, and `GRAPH_REPORT.md` are the shareable outputs. `health.json` and `manifest.json` record graph integrity. Local extraction caches and interpreter paths are excluded from Git. Generated evidence under `b_astrometri/reports/` is selectively excluded from semantic indexing; result notes and qualifications are included in the project memory.
 
 Semantic extraction token usage was unavailable in the host tools; it is not represented as zero.
+
+Snapshot scope: the coordinate bridge / sky-photometry / velocity-lattice integration batch following f150bab is documented in HANDOFF.md and task reports; it has not yet been reindexed into this derived graph.
