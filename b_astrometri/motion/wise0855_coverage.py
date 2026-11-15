@@ -1,7 +1,7 @@
 """08-07: WISE 0855 kapsam tablosu uretici.
 
-TAP sorgulari su an basarisiz (H-09), bu nedenle sentetik yedege duser.
-[PARTIAL] Gercek kapsam verileri H-09 (WISE 0855 kapsamı) cozulunce guncellenir.
+TAP sorgulari su an basarisiz (H-09); coverage_status="unknown_tap_failed" donuluyor.
+Gercek kapsam verileri H-09 cozulunce guncellenir; tablo mantigi hazir.
 """
 from __future__ import annotations
 
@@ -71,6 +71,25 @@ def build_coverage_table(passes: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def coverage_summary() -> dict[str, Any]:
+    """TAP durumunu ozet sozluk olarak dondur.
+
+    Returns a dict with coverage_status and target metadata.
+    When H-09 delivers real passes, replace _SYNTHETIC_PASSES.
+    """
+    table = build_coverage_table(_SYNTHETIC_PASSES)
+    return {
+        "target": "WISE 0855",
+        "coverage_status": "unknown_tap_failed",
+        "ra_deg": WISE0855_RA_DEG,
+        "dec_deg": WISE0855_DEC_DEG,
+        "n_passes": table["n_passes"],
+        "total_frames": table["total_frames"],
+        "tap_status": table["tap_status"],
+        "note": "H-09 bekleniyor; real coverage unknown",
+    }
+
+
 def load_passes(manifest_path: str | Path) -> list[dict[str, Any]]:
     """passes.json dosyasindan gecis listesini yukle."""
     with open(manifest_path, encoding="utf-8") as f:
@@ -80,15 +99,18 @@ def load_passes(manifest_path: str | Path) -> list[dict[str, Any]]:
 
 if __name__ == "__main__":
     import sys
+
+    summary = coverage_summary()
+    assert summary["coverage_status"] == "unknown_tap_failed", (
+        f"Expected unknown_tap_failed, got {summary['coverage_status']!r}"
+    )
+    print(f"WISE 0855 coverage_status: {summary['coverage_status']}")
+
     if len(sys.argv) > 1:
         passes = load_passes(sys.argv[1])
-        source = sys.argv[1]
+        result = build_coverage_table(passes)
+        print(result["markdown"])
     else:
-        passes = _SYNTHETIC_PASSES
-        source = "tap_failed_fallback"
-    result = build_coverage_table(passes)
-    result["data_source"] = source
-    print(f"# WISE 0855 Kapsam Tablosu\n")
-    print(result["markdown"])
-    print(f"\nVeri kaynagi: {source}")
-    print("NOT: TAP basarisiz, H-09 bekleniyor.")
+        print("TAP basarisiz — H-09 bekleniyor.")
+
+    print("DONE 08-07")
