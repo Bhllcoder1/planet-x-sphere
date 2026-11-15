@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Alan D - Ana Uygulama Denetleyicisi (d_site/pages/app.js)
  * Gerçek NASA SPHEREx L2 S3 FITS kesitleri (IMAGE, VARIANCE, ZODI, TAN-SIP WCS, Table 16 Flags)
  * ve gerçek MAST Gaia DR3 yıldız kataloğu (window.REAL_SPHEREX_DATA) üzerinde tam fonksiyonel çalışır.
@@ -233,6 +233,35 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
   };
 
   let activeTarget = COMPETITION_TARGETS[0];
+
+  // Task 05-10: Read URL state on load
+  function readUrlState() {
+    if (typeof window === "undefined") return;
+    const p = new URLSearchParams(window.location.search);
+    const tid = p.get("target");
+    if (tid) {
+      const t = COMPETITION_TARGETS.find((x) => x.id === tid);
+      if (t) activeTarget = t;
+    }
+    if (p.get("bg")) displayState.bg = p.get("bg");
+    if (p.get("stretch")) displayState.stretch = p.get("stretch");
+    if (p.get("zoom")) displayState.zoom = Number(p.get("zoom"));
+    if (p.get("mode")) displayState.renderMode = p.get("mode");
+  }
+
+  function pushUrlState() {
+    if (typeof window === "undefined" || !window.history?.replaceState) return;
+    const p = new URLSearchParams();
+    p.set("target", activeTarget.id);
+    p.set("bg", displayState.bg);
+    p.set("stretch", displayState.stretch);
+    p.set("zoom", String(displayState.zoom));
+    p.set("mode", displayState.renderMode);
+    window.history.replaceState(null, "", "?" + p.toString());
+  }
+
+  readUrlState();
+
   let selectedGaiaId = null;
   let pinnedPixel = null; // { x, y } if user clicked canvas
   let lastHoverPixel = { x: 15, y: 15 };
@@ -318,6 +347,7 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
     }
     renderTargetCards();
     renderFrame();
+    pushUrlState();
   }
 
   function getNetPixelMatrix(frameObj, bgMode) {
@@ -595,8 +625,8 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
   function renderExternalLinks(frameObj) {
     if (!extLinksEl) return;
     const rf = frameObj.raw_record;
-    const ra = rf?.measured_centroid?.ra_deg ?? activeTarget.ra_deg;
-    const dec = rf?.measured_centroid?.dec_deg ?? activeTarget.dec_deg;
+    const ra = rf?.measured_centroid?.ra_deg ?? activeTarget.raDeg;
+    const dec = rf?.measured_centroid?.dec_deg ?? activeTarget.decDeg;
     const s3Url = rf?.s3_https_url || "https://nasa-irsa-spherex.s3.amazonaws.com/";
     const simbadUrl = `https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=${encodeURIComponent(`${ra} ${dec}`)}&CooFrame=FK5&CooEpoch=2000&CooEqui=2000&Radius=2&Radius.unit=arcmin`;
     const vizierUrl = `https://vizier.cds.unistra.fr/viz-bin/VizieR-4?-source=I/355/gaiadr3&-c=${encodeURIComponent(`${ra} ${dec}`)}&-c.rs=120`;
@@ -935,18 +965,22 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
   doc.getElementById("sel-bg")?.addEventListener("change", (e) => {
     displayState.bg = e.target.value;
     renderFrame();
+    pushUrlState();
   });
   doc.getElementById("sel-stretch")?.addEventListener("change", (e) => {
     displayState.stretch = e.target.value;
     renderFrame();
+    pushUrlState();
   });
   doc.getElementById("sel-mode")?.addEventListener("change", (e) => {
     displayState.renderMode = e.target.value;
     renderFrame();
+    pushUrlState();
   });
   doc.getElementById("sel-zoom")?.addEventListener("change", (e) => {
     displayState.zoom = Number(e.target.value);
     renderFrame();
+    pushUrlState();
   });
   doc.getElementById("sel-flag-profile")?.addEventListener("change", (e) => {
     displayState.flagProfile = e.target.value;
@@ -1239,8 +1273,8 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
           mc.y_cutout ?? f.target_y,
           mc.x_parent ?? 0,
           mc.y_parent ?? 0,
-          mc.ra_deg ?? activeTarget.ra_deg,
-          mc.dec_deg ?? activeTarget.dec_deg,
+          mc.ra_deg ?? activeTarget.raDeg,
+          mc.dec_deg ?? activeTarget.decDeg,
           mc.sigma_x_px ?? 0.015,
           mc.sigma_y_px ?? 0.015,
           rf?.peak_wing_flux_mjy_sr ?? 0,
