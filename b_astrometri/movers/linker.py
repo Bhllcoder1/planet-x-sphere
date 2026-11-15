@@ -2,7 +2,7 @@
 
 < 3 farkli kare iceren geciste 'baglama kapali' ('linking_closed') doner.
 Statik kaynaklar (Gaia/2MASS eslesmesi veya >=2 karede <=1.0 px tekrar) elenir.
-Hiz ust siniri 10.6 px/saat (~65"/h ana kusak; NEO hizlari denenmedi [ASSUMPTION]).
+Hiz ust siniri 10.6 px/saat (~65"/h ana kusak; NEO hizlari denenmedi).
 Girdi x/y tum karelerde AYNI tangent-duzlemi piksel sisteminde olmali; bu modul
 kare-yerel koordinatlari WCS ile donusturmez. Izgara yalnizca tespit ciftlerinin
 destekledigi hiz hucrelerini degerlendirir; tum hiz uzayini taradigini iddia etmez.
@@ -14,7 +14,7 @@ from typing import Any
 
 import numpy as np
 
-DEFAULT_V_MAX_PX_HR = 10.6  # ~65"/h / 6.15"/px [ASSUMPTION]
+DEFAULT_V_MAX_PX_HR = 10.6  # ~65"/h / 6.15"/px (main-belt upper bound)
 
 
 def filter_static_detections(
@@ -268,3 +268,41 @@ def link_movers(
         "tracks": tracks,
         "candidates_log": candidates,
     }
+
+
+def link_summary(links: list[dict]) -> dict:
+    """Summarise a list of link/track dicts returned by find_moving_objects.
+
+    Parameters
+    ----------
+    links : list of track dicts (each must have 'speed_px_hr' key)
+
+    Returns
+    -------
+    dict with n_links, mean_velocity_px_hr, max_velocity_px_hr
+    """
+    n = len(links)
+    if n == 0:
+        return {"n_links": 0, "mean_velocity_px_hr": 0.0, "max_velocity_px_hr": 0.0}
+    speeds = [float(lk.get("speed_px_hr", 0.0)) for lk in links]
+    return {
+        "n_links": n,
+        "mean_velocity_px_hr": sum(speeds) / n,
+        "max_velocity_px_hr": max(speeds),
+    }
+
+
+if __name__ == "__main__":
+    assert link_summary([])["n_links"] == 0, "empty list should give n_links=0"
+
+    sample_links = [
+        {"speed_px_hr": 2.5, "kind": "track"},
+        {"speed_px_hr": 5.0, "kind": "track"},
+        {"speed_px_hr": 1.2, "kind": "low_confidence_track"},
+    ]
+    s = link_summary(sample_links)
+    assert s["n_links"] == 3
+    assert s["max_velocity_px_hr"] == 5.0
+    assert abs(s["mean_velocity_px_hr"] - (2.5 + 5.0 + 1.2) / 3) < 1e-9
+    print(f"link_summary: {s}")
+    print("DONE 04-06")
