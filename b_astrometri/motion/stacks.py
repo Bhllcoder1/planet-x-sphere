@@ -199,6 +199,22 @@ def compare_stack_modes(candidates, *, empty_sky_mask, static_star_mask, source_
     return {"rows": rows, "winner": winner, "physical_snr_validated": False, **_labels()}
 
 
+def stack_summary(product: dict) -> dict:
+    """Summarise a stack product dict returned by inverse_variance_stack or channel_diff.
+
+    Returns n_frames (from coverage max), valid_px (coverage>=2), dtype_ok (float32-safe).
+    """
+    cov = product.get("coverage")
+    if cov is None:
+        return {"n_frames": 0, "valid_px": 0, "dtype_ok": False}
+    n_frames = int(cov.max()) if hasattr(cov, "max") else 0
+    valid_px = int((cov >= 2).sum()) if hasattr(cov, "sum") else 0
+    img = product.get("image")
+    dtype_ok = img is not None and np.asarray(img).dtype in (np.float32, np.float64, float)
+    assert dtype_ok, "stack image must be float-compatible"
+    return {"n_frames": n_frames, "valid_px": valid_px, "dtype_ok": dtype_ok}
+
+
 def write_stack_products(product, directory, *, stem):
     """Write little-endian float32 view planes plus JSON provenance, never native measurement products."""
     directory = Path(directory)
