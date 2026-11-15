@@ -3,17 +3,19 @@ history.py — Arama/görüntüleme geçmişi.
 
 Her görüntüleme olayı: target_id, frame_id, x0, y0, zaman damgası, URL.
 Kullanıcı başına en fazla 100 giriş (eski girişler çıkarılır, FIFO).
-Depolama: L2_CACHE_DIR/history/{user_id}_{tarih}.json
+Depolama: L2_CACHE_DIR/history/{user_id}_{tarih}.json (tek dosya, günlük)
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import pathlib
+import re
 import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
-from typing import Optional
+from urllib.parse import urlencode
 
 import aiofiles
 
@@ -21,6 +23,32 @@ logger = logging.getLogger(__name__)
 
 # Kullanıcı başına maksimum giriş sayısı
 _MAX_ENTRIES: int = 100
+
+# user_id doğrulama deseni: yalnızca alfanümerik, tire ve alt çizgi
+_SAFE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
+
+
+def _sanitize_user_id(user_id: str) -> str:
+    """user_id'nin güvenli olduğunu doğrular; geçersizse ValueError yükseltir.
+
+    Path traversal saldırılarını önlemek için kullanıcı kimliği yalnızca
+    ``[A-Za-z0-9_-]`` karakterlerinden oluşabilir, en fazla 128 karakter.
+
+    Args:
+        user_id: Doğrulanacak kullanıcı kimliği dizesi.
+
+    Returns:
+        Orijinal user_id (geçerliyse).
+
+    Raises:
+        ValueError: user_id geçersiz karakterler veya boyut içeriyorsa.
+    """
+    if not _SAFE_ID_RE.match(user_id):
+        raise ValueError(
+            f"Geçersiz user_id: '{user_id}'. "
+            "Yalnızca harf, rakam, '-' ve '_' kabul edilir; en fazla 128 karakter."
+        )
+    return user_id
 
 
 @dataclass(frozen=True)
@@ -55,8 +83,11 @@ class HistoryEntry:
 class HistoryRepository:
     """Kullanıcı başına geçmiş deposu (JSON dosyaları).
 
-    Her kullanıcı için günlük bir JSON dosyası tutulur.
+    Her kullanıcı için günlük tek bir JSON dosyası tutulur.
     Dosya yolu: cache_dir/history/{user_id}_{YYYY-MM-DD}.json
+
+    Tasarım kararı (sadelik): _read_all yalnızca bugünün dosyasını okur.
+    Önceki günlere ait girişler demo kapsamı dışında tutulur.
     """
 
     def __init__(self, cache_dir: pathlib.Path) -> None:
@@ -80,7 +111,11 @@ class HistoryRepository:
         Args:
             user_id: Girişin sahibi kullanıcının kimliği.
             entry:   Eklenecek HistoryEntry nesnesi.
+
+        Raises:
+            ValueError: user_id geçersiz karakterler içeriyorsa.
         """
+        _sanitize_user_id(user_id)
         entries = await self._read_all(user_id)
         entries.append(entry)
         if len(entries) > _MAX_ENTRIES:
@@ -102,7 +137,11 @@ class HistoryRepository:
 
         Returns:
             En yeni ``limit`` girişin listesi (zaman damgasına göre artan sıra).
+
+        Raises:
+            ValueError: user_id geçersiz karakterler içeriyorsa.
         """
+        _sanitize_user_id(user_id)
         entries = await self._read_all(user_id)
         return entries[-limit:] if limit > 0 else list(entries)
 
@@ -116,7 +155,11 @@ class HistoryRepository:
 
         Returns:
             Silinen giriş sayısı (temizlemeden önceki boyut).
+
+        Raises:
+            ValueError: user_id geçersiz karakterler içeriyorsa.
         """
+        _sanitize_user_id(user_id)
         entries = await self._read_all(user_id)
         count = len(entries)
         await self._write(user_id, [])
@@ -127,11 +170,13 @@ class HistoryRepository:
     # Yardımcı — dosya yolu
     # ------------------------------------------------------------------
 
-    def _user_file(self, user_id: str, date: Optional[str] = None) -> pathlib.Path:
+    def _user_file(self, user_id: str, date: str | None = None) -> pathlib.Path:
         """Kullanıcı geçmiş dosyasının tam yolunu döndürür.
 
+        user_id daha önce ``_sanitize_user_id`` ile doğrulanmış olmalıdır.
+
         Args:
-            user_id: Kullanıcının kimliği.
+            user_id: Doğrulanmış kullanıcı kimliği.
             date:    ``YYYY-MM-DD`` formatında tarih; None ise bugün kullanılır.
 
         Returns:
@@ -146,46 +191,54 @@ class HistoryRepository:
     # ------------------------------------------------------------------
 
     async def _read_all(self, user_id: str) -> list[HistoryEntry]:
-        """Kullanıcının tüm geçmiş dosyalarından girişleri okur.
+        """Bugünün geçmiş dosyasından girişleri okur.
 
-        Birden fazla tarihli dosya varsa hepsini okur, zaman damgasına göre
-        artan sırayla birleştirir.
+        Dosya yoksa boş liste döner. Bozuk JSON sessizce atlanır.
 
         Returns:
-            Zaman damgasına göre sıralı HistoryEntry listesi.
+            Zaman damgasına göre artan sırada HistoryEntry listesi.
         """
-        history_dir = self._cache_dir / "history"
-        if not history_dir.is_dir():
+        loop = asyncio.get_running_loop()
+        path = self._user_file(user_id)
+
+        exists = await loop.run_in_executor(None, path.exists)
+        if not exists:
             return []
 
-        all_entries: list[HistoryEntry] = []
-        pattern = f"{user_id}_*.json"
-        for path in sorted(history_dir.glob(pattern)):
-            try:
-                async with aiofiles.open(path, "r", encoding="utf-8") as f:
-                    raw = await f.read()
-                data = json.loads(raw)
-                if isinstance(data, list):
-                    for item in data:
-                        all_entries.append(HistoryEntry(**item))
-            except (json.JSONDecodeError, KeyError, TypeError, OSError) as exc:
-                logger.warning("Geçmiş dosyası okunamadı (%s): %s", path, exc)
-                continue
+        try:
+            async with aiofiles.open(path, "r", encoding="utf-8") as f:
+                raw = await f.read()
+            data = json.loads(raw)
+            if not isinstance(data, list):
+                return []
+            entries = [HistoryEntry(**item) for item in data]
+        except (json.JSONDecodeError, KeyError, TypeError, OSError) as exc:
+            logger.warning("Geçmiş dosyası okunamadı (%s): %s", path, exc)
+            return []
 
-        all_entries.sort(key=lambda e: e.timestamp)
-        return all_entries
+        entries.sort(key=lambda e: e.timestamp)
+        return entries
 
     async def _write(self, user_id: str, entries: list[HistoryEntry]) -> None:
         """Girişleri bugünün dosyasına atomik olarak yazar.
 
-        Önce geçici bir dosyaya yazar, ardından os.replace() ile yerleştirir.
+        Önce geçici bir ``.tmp`` dosyasına yazar, ardından ``os.replace()``
+        ile hedef konuma taşır. Dizin yoksa oluşturulur.
 
         Args:
             user_id:  Kullanıcının kimliği.
             entries:  Yazılacak HistoryEntry listesi.
+
+        Raises:
+            OSError: Dosya yazma veya taşıma işlemi başarısız olursa.
         """
+        loop = asyncio.get_running_loop()
         path = self._user_file(user_id)
-        path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Dizin oluşturma — bloke edici çağrı executor'a taşınır
+        await loop.run_in_executor(
+            None, lambda: path.parent.mkdir(parents=True, exist_ok=True)
+        )
 
         payload = json.dumps(
             [asdict(e) for e in entries],
@@ -196,7 +249,8 @@ class HistoryRepository:
         try:
             async with aiofiles.open(tmp_path, "w", encoding="utf-8") as f:
                 await f.write(payload)
-            tmp_path.replace(path)
+            # Atomik yeniden adlandırma — bloke edici çağrı executor'a taşınır
+            await loop.run_in_executor(None, tmp_path.replace, path)
         except OSError as exc:
             logger.error("Geçmiş dosyası yazılamadı (%s): %s", path, exc)
             raise
@@ -217,6 +271,10 @@ def build_share_url(
 ) -> str:
     """Görüntüleme penceresini paylaşmak için sorgu dizesi oluşturur.
 
+    Parametre değerleri ``urllib.parse.urlencode`` ile güvenli biçimde
+    yüzde-kodlanır; bu sayede özel karakterler ve enjeksiyon girişimleri
+    engellenir.
+
     Args:
         target_id: SPHEREx hedef tanımlayıcısı.
         frame_id:  SPHEREx kare tanımlayıcısı.
@@ -226,15 +284,18 @@ def build_share_url(
         height:    Pencere yüksekliği (piksel).
 
     Returns:
-        ``?target=...&frame=...&x=...&y=...&w=...&h=...`` biçiminde URL sorgu dizesi.
+        ``?target=...&frame=...&x=...&y=...&w=...&h=...`` biçiminde
+        yüzde-kodlanmış URL sorgu dizesi.
     """
-    return (
-        f"?target={target_id}"
-        f"&frame={frame_id}"
-        f"&x={x0}"
-        f"&y={y0}"
-        f"&w={width}"
-        f"&h={height}"
+    return "?" + urlencode(
+        {
+            "target": target_id,
+            "frame": frame_id,
+            "x": x0,
+            "y": y0,
+            "w": width,
+            "h": height,
+        }
     )
 
 
