@@ -12,8 +12,9 @@ from typing import Any
 
 import numpy as np
 
-BIT_TRANSIENT = 1 << 10
-BIT_HALO = 1 << 19
+# SPHEREx Explanatory Supplement Table 16: TRANSIENT=0, HALO=28.
+BIT_TRANSIENT = 1 << 0
+BIT_HALO = 1 << 28
 BIT_CROSSTALK = 1 << 20
 MASK_GHOST = (1 << 22) | (1 << 23) | (1 << 24)
 BIT_STREAK = 1 << 25

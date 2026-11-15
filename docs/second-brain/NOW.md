@@ -2,7 +2,7 @@
 
 ## Aktif kapsam
 
-Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanışından ayrı izliyoruz. GitHub özellik dalı `b/01-03-gaia-fetch`; `main` doğrudan değiştirilmez. Canlı ClickUp `GET /user` isteği yerel kişisel token ile HTTP 401 döndürdü. 2026-11-14 tarihli snapshot yalnızca tarihsel durum kanıtıdır; görev durumunu güncel sayma.
+Active area: B (confirmed by user). ClickUp access is restored using the pk_ value extracted from the local token file. Live read verified 46 Behlul-assigned tasks. Earlier whole-line parsing caused the 401 error; it was not evidence of an invalid personal token.
 
 İnsan girdisi gereken bağımlılıklar [HUMAN_ACTIONS.md](HUMAN_ACTIONS.md) içinde. H-01 (Akif'in 02-03/02-12 çıktılarının yeri/hazır oluşu) yanıtlanana kadar bağlı üretim entegrasyonu bekler. Bağımsız işlerde yalnız görev önkoşulları sağlananlar yürütülür. Yerel kod/test geçmesi tek başına ClickUp kabulü değildir.
 
@@ -22,7 +22,7 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 - `[NV]` 03-14 kabulü açık: ClickUp önkoşulları 02-03 ve 03-03'ün tamamlandığı doğrulanmadı. Koordinat denetimi prototipi var; görevi kapatmayın.
 - `[V]` 03-12 T1–T4 girdi/çıktı/eşik şartnamesi `b_astrometri/centroid/harness_spec.md` içinde; ClickUp açıklamasına göre bu görev test kodu yazmaz. Test uygulaması 07-04/07-05 kapsamındadır. Canlı ClickUp durumu 401 nedeniyle doğrulanamadı.
 - `[V]` ClickUp snapshot'ı 2026-11-14 22:23 UTC'de yazılmış; o anda Behlül'e atanmış 46 görevin hepsi `to do` idi. Canlı GET /user HTTP 401 olduğu için bu durum bugün için doğrulanmış sayılmaz.
-- `[NV]` ClickUp okuma erişimini yenilemek için H-02 gerekiyor; token değeri sohbet veya depoya aktarılmamalı.
+- `[V]` H-02 resolved: GET /user returned 200 for Behlul Anik. Token stays outside the repository.
 - `[V]` 04-01 yerel pass gruplaması 4/4 testte geçti; Barnard 358 kare/3 pass, ε Indi B 458/4 ve gap listeleri yazıldı. Çıktı kanıtı depo dışı `C:/Users/behlu/reports/04-01-passes/`.
 - `[NV]` 04-01 tam kabulü açık: Liste 02 manifesti yok, yerel frame JSON'larında `SPS_EPA` alanı yok ve release tekilleştirmesi modülde değil. H-03 girdisi bekleniyor.
 - `[V]` 03-02 D5: 100 exact phase pairs (0.0..0.9 by 0.1), x1/x25 self-recovery; 3 focused tests pass. Real template smoke: 600 fits on D2/D3/D6, max error 0.000514 px; zero real stars. Evidence outside repo at `C:/Users/behlu/reports/d5-real-templates-100phase.json`.
@@ -35,7 +35,7 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 ## Sonraki adımlar
 
 1. PR #1 remains a draft; wait for human review before merge. Do not close ClickUp tasks without live acceptance.
-2. H-02 ile ClickUp erişimini yenile; güncel atama/durum/önkoşulları canlı API'den oku.
+2. Continue live ClickUp task updates using the local token; do not ask the user to renew a working token.
 3. H-01 ve H-03 yanıtlarına göre bağlı üretim işlerini sürdür; hazır olmayan önkoşulları tamamlanmış sayma.
 
 ## Oturum kaydı
@@ -68,3 +68,11 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 - 04-03: piksel düzeyindeki sentetik fotometri/coadd prototipi hazır; RA/Dec→WCS kare akışı ve çıktı dosyası gerçek veri entegrasyonu H-08 bekliyor.
 - 04-06: sentetik hareketli iz bağlama kodu hazır; gerçek asteroid için ortak tangent düzlemi WCS/FITS ve üç karelik kaynak kataloğu H-10 bekliyor. İki noktalı hız hipotezleri mevcut; planlanan hız ızgarası henüz yok.
 - Gaia, ePSF ve sentetik kaynak testleri için CVAT/elle etiketleme gereksinimi saptanmadı.
+
+## Current parallel batch
+
+- Live updates: 08-01 complete; 00-05, 01-03, 03-02, 03-07, 03-06, 04-02, 04-07 and 04-15 in progress. Status updates explicitly authorized by user.
+- Four agents own disjoint files: 04-02 stacks, 04-07 OUTLIER candidates, 04-15 rolling window and 03-06 joint-fit outputs. No final scientific acceptance claimed yet.
+- Merged origin/main 449567a into feature branch; A pixel/mask modules are now available. Earlier blanket H-01 missing-code claim needs integration-level review.
+- Corrected veto flag mapping: TRANSIENT bit0, HALO bit28 (OUTLIER remains bit19).
+- Installed reproject0.21.0 in Stage0 venv for task-required exact TAN reprojection.

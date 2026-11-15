@@ -1,0 +1,2 @@
+# 04-02/04-15 exact spherical-polygon reprojection, with existing NumPy/Astropy.
+reproject>=0.21,<0.22

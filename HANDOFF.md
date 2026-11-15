@@ -59,3 +59,8 @@ Aktif Claude Code süreci aynı çalışma ağacını kullanabiliyor; sonraki ot
 
 - [V] ClickUp snapshot 03-12 kapsamı yalnız T1–T4 girdileri/çıktıları/eşikleri tanımlamak; test kodu 07 listesinde. Şartname güncellendi: T1 fiziksel 1 px kayma ile z=1/4/16/64 ekran yakınlaştırması ayrıldı; T2 faz/eksen ve strict SNR>50 açıklandı; T3 oranı SNR dilimi başına raporlanacak; JSON metrik nullability ve satır kabulü belirtildi.
 - [NV] Canlı ClickUp token hâlâ 401; şartname işi ClickUp’ta kapatılmadı. Üretim verisi/kod önkoşulları 03-01/03-03 ve diğer görevler için ayrıca doğrulanmalı.
+
+
+## Active parallel batch
+
+Area B confirmed. ClickUp access restored (pk_ extraction from local file); H-02 resolved. User authorized task-status updates: 08-01 complete; 00-05/01-03/03-02/03-07/03-06/04-02/04-07/04-15 in progress. Merged main commit449567a into feature branch. Four agents implement stacks, rolling view, OUTLIER promotion and joint-fit output in disjoint files. reproject0.21.0 installed. Root corrected TRANSIENT bit0 / HALO bit28; old OUTLIER-as-HALO bug fixed. Real dataset acceptance remains separate from unit tests.

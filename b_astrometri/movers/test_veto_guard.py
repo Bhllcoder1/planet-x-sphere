@@ -15,6 +15,13 @@ from veto_guard import (
 
 
 class VetoGuardTests(unittest.TestCase):
+    def test_archive_flag_numbers_do_not_confuse_outlier_and_hot(self):
+        flags = np.zeros((5, 5), dtype=np.int64)
+        flags[2, 2] = (1 << 19) | (1 << 10)
+        self.assertEqual(evaluate_candidate_flags(flags, 2, 2)["caution"], [])
+        flags[2, 2] = (1 << 0) | (1 << 28)
+        self.assertEqual(evaluate_candidate_flags(flags, 2, 2)["caution"], ["HALO", "TRANSIENT"])
+
     def test_veto_and_caution_within_3px_never_drops_candidates(self):
         flg = np.zeros((20, 20), dtype=np.int64)
         flg[10, 12] = BIT_STREAK | BIT_CROSSTALK
