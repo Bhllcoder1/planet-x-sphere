@@ -37,8 +37,8 @@ class WcsCorrectionBadge:
             "frame_id": self.frame_id,
             "correction_applied": self.correction_applied,
             "n_ref_stars": self.n_reference_stars,
-            "rms_arcsec": round(self.rms_residual_arcsec, 4),
-            "max_offset_arcsec": round(self.max_offset_arcsec, 4),
+            "rms_arcsec": float(self.rms_residual_arcsec),
+            "max_offset_arcsec": float(self.max_offset_arcsec),
             "label": self.label(),
         }
 
@@ -92,11 +92,11 @@ def build_reading_panel(rows: List[ReadingPanelRow]) -> Dict:
             {
                 "frame_id": r.frame_id,
                 "mjd": r.mjd,
-                "x_px": round(r.x_px, 4),
-                "y_px": round(r.y_px, 4),
-                "flux_adu": round(r.flux_adu, 3),
-                "flux_err_adu": round(r.flux_err_adu, 3),
-                "snr": round(r.flux_adu / r.flux_err_adu, 2) if r.flux_err_adu > 0 else 0.0,
+                "x_px": float(r.x_px),
+                "y_px": float(r.y_px),
+                "flux_adu": float(r.flux_adu),
+                "flux_err_adu": float(r.flux_err_adu),
+                "snr": float(r.flux_adu / r.flux_err_adu) if r.flux_err_adu > 0 else 0.0,
                 "flags_hex": hex(r.flags),
                 "wcs_badge": r.wcs_badge.to_dict() if r.wcs_badge else None,
             }
@@ -129,13 +129,13 @@ class MotionMeasurement:
         return {
             "target": self.target,
             "n_passes": self.n_passes,
-            "baseline_days": round((self.mjd_end - self.mjd_start), 1),
-            "vra_mas_yr": round(self.vra_mas_yr, 2),
-            "vdec_mas_yr": round(self.vdec_mas_yr, 2),
-            "sigma_vra": round(self.sigma_vra_mas_yr, 2),
-            "sigma_vdec": round(self.sigma_vdec_mas_yr, 2),
-            "total_speed_mas_yr": round(self.total_speed_mas_yr, 2),
-            "chi2_dof": round(self.chi2_dof, 3),
+            "baseline_days": float(self.mjd_end - self.mjd_start),
+            "vra_mas_yr": float(self.vra_mas_yr),
+            "vdec_mas_yr": float(self.vdec_mas_yr),
+            "sigma_vra": float(self.sigma_vra_mas_yr),
+            "sigma_vdec": float(self.sigma_vdec_mas_yr),
+            "total_speed_mas_yr": float(self.total_speed_mas_yr),
+            "chi2_dof": float(self.chi2_dof),
         }
 
 

@@ -37,7 +37,7 @@ class DetectabilityResult:
         return {
             "target": self.target,
             "n_passes": self.n_passes,
-            "combined_snr": round(self.combined_snr, 3),
+            "combined_snr": float(self.combined_snr),
             "detected_5sigma": self.detection_flag,
             "notes": self.notes,
         }

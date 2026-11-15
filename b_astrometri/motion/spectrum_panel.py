@@ -107,7 +107,7 @@ def render_panel_data(
         chi2 = float(np.sum(((f[valid] - wm) / e[valid]) ** 2) / (valid.sum() - 1))
         if chi2 > spec.variability_threshold:
             result["variable_bins"].append(
-                {"bin_idx": k, "lambda_um": float(dataset.lambda_centers_um[k]), "chi2_dof": round(chi2, 3)}
+                {"bin_idx": k, "lambda_um": float(dataset.lambda_centers_um[k]), "chi2_dof": float(chi2)}
             )
 
     return result

@@ -26,11 +26,11 @@ class ErrorEllipse:
 
     def to_dict(self) -> dict:
         return {
-            "a_1sigma_px": round(self.a, 6),
-            "b_1sigma_px": round(self.b, 6),
-            "pa_deg": round(self.pa_deg, 4),
-            "a_2sigma_px": round(self.a * 2, 6),
-            "b_2sigma_px": round(self.b * 2, 6),
+            "a_1sigma_px": float(self.a),
+            "b_1sigma_px": float(self.b),
+            "pa_deg": float(self.pa_deg),
+            "a_2sigma_px": float(self.a * 2),
+            "b_2sigma_px": float(self.b * 2),
         }
 
 

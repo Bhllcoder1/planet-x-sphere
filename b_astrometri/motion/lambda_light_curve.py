@@ -38,7 +38,7 @@ class LightCurveResult:
 
     def variability_map(self) -> Dict[str, float]:
         return {
-            f"{b.lambda_center_um:.2f}um": round(b.variability_index(), 3)
+            f"{b.lambda_center_um:.2f}um": float(b.variability_index())
             for b in self.bins
         }
 
