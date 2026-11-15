@@ -57,3 +57,76 @@ def catalog_fields(cov) -> dict:
         "a1": e1["a"], "b1": e1["b"], "theta": e1["theta"],
         "a2": e2["a"], "b2": e2["b"],
     }
+
+
+def position_catalog_record(x, y, centroid_covariance, *, frame_id,
+                            coordinate_frame, covariance_unit,
+                            wcs_correction=None, independent_errors=False):
+    """Serialize a centered native-pixel position with separate error budgets.
+
+Centroid covariance is 2x2 in (x,y) order. coordinate_frame is explicitly
+parent_native_pixel or cutout_native_pixel; covariance_unit must be pixel^2.
+wcs_correction, when present, needs covariance, frame_id, coordinate_frame and
+covariance_unit keys. No sky/display conversion is performed. Only an explicit
+independent_errors=True permits adding the two covariance matrices.
+"""
+    x, y = float(x), float(y)
+    if not (math.isfinite(x) and math.isfinite(y)):
+        raise ValueError("Position must contain finite native float coordinates")
+    if not isinstance(frame_id, str) or not frame_id.strip():
+        raise ValueError("An explicit nonempty frame_id is required")
+    if coordinate_frame not in {"parent_native_pixel", "cutout_native_pixel"}:
+        raise ValueError("Declare parent_native_pixel or cutout_native_pixel coordinates")
+    if covariance_unit != "pixel^2":
+        raise ValueError("Covariance must already be in native pixel^2")
+    if not isinstance(independent_errors, bool):
+        raise ValueError("independent_errors must be an explicit boolean")
+
+    def component(covariance):
+        error_ellipse(covariance)  # Validate without assuming upstream covariance.
+        matrix = np.asarray(covariance, dtype=float)
+        matrix = (matrix + matrix.T) / 2
+        full_rank = bool(np.linalg.det(matrix) > 0)
+        ellipses = {}
+        for k in (1, 2):
+            ellipse = error_ellipse(matrix, k)
+            ellipses[f"{k}sigma"] = {
+                "center_x": x, "center_y": y,
+                "a": float(ellipse["a"]), "b": float(ellipse["b"]),
+                "theta": float(ellipse["theta"]), "k": k,
+                "line_style": "solid" if k == 1 else "dashed",
+                "nominal_gaussian_coverage": float(ellipse["coverage"]) if full_rank else None,
+            }
+        return {"covariance": matrix.tolist(), **catalog_fields(matrix),
+                "ellipses": ellipses, "degenerate_covariance": not full_rank}
+
+    centroid = component(centroid_covariance)
+    correction, total = None, None
+    total_status = "not_available_no_wcs_covariance"
+    if wcs_correction is not None:
+        required = {"covariance", "frame_id", "coordinate_frame", "covariance_unit"}
+        missing = required - wcs_correction.keys()
+        if missing:
+            raise ValueError(f"Incomplete WCS correction covariance: {sorted(missing)}")
+        if (wcs_correction["frame_id"] != frame_id
+                or wcs_correction["coordinate_frame"] != coordinate_frame
+                or wcs_correction["covariance_unit"] != covariance_unit):
+            raise ValueError("WCS covariance must share the position's frame, axes and pixel^2 units")
+        correction = component(wcs_correction["covariance"])
+        total_status = "not_combined_independence_not_declared"
+        if independent_errors:
+            summed = np.asarray(centroid["covariance"]) + np.asarray(correction["covariance"])
+            total = component(summed)
+            total_status = "sum_under_caller_declared_independence"
+    elif independent_errors:
+        raise ValueError("Cannot combine independent errors without WCS correction covariance")
+    return {
+        "frame_id": frame_id, "x": x, "y": y, "coordinate_frame": coordinate_frame,
+        "pixel_origin": 0, "position_unit": "pixel", "covariance_unit": covariance_unit,
+        "ellipse_axis_unit": "pixel", "theta_unit": "radian",
+        "theta_reference": "+x toward +y in supplied native pixel frame",
+        "coverage_model": "full-rank 2D Gaussian Mahalanobis contour, not 1D 68 percent",
+        "centroid_uncertainty": centroid, "wcs_correction_uncertainty": correction,
+        "total_uncertainty": total, "total_status": total_status,
+        "independence_declared_by_caller": independent_errors,
+    }

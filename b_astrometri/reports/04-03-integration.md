@@ -16,6 +16,8 @@ Düzeltilmiş WCS seçimi açık girdidir; kod 03-09 düzeltmesini üretmez veya
 ham WCS'i düzeltilmiş gibi seçmez. `coordinates.sky_to_frame_coordinates`
 gök konumunu kesit float pikseline, Alan A parent-piksel kuralı da parent float
 konumuna taşır. Kesit penceresi sınırları dışında ölçüm `outside_cutout` olur.
+RA/Dec girdisi her verilen WCS'in göksel referans çerçevesinde önceden ifade
+edilmiş olmalıdır; bu akış ICRS'e veya başka referans çerçevesine otomatik dönüşüm yapmaz.
 Sadece damga dizi indeksleri tam sayıdır; kaynak konumu yuvarlanmaz. 9×9 yerel
 damganın x/y örnekleri parent koordinatlarına taşınarak ePSF parent konumunda
 değerlendirilir. Yalnız F ve b uydurulur; kötü uyumda akı/hata yazılmaz.

@@ -155,13 +155,14 @@ def combine_forced_flux(measurements: list[dict]) -> dict:
 
 
 def forced_phot(ra, dec, frames):
-    """Measure one fixed ICRS position through explicitly supplied native frames.
+    """Measure a fixed position already expressed in each supplied WCS sky frame.
 
 Each frame needs frame_id, mjd_avg, pass_id, image, variance, flags, image_unit,
 epsf_grid, corrected_cutout_wcs, crpix1a, crpix2a and var_scale. EPSFGrid carries
 the declared release/detector and representative spectral metadata. A supplied
 CWAVE/CBAND pair overrides the region values only with explicit spectral_source.
-Corrected WCS must be the cutout WCS; this function never estimates a correction.
+Corrected WCS must be the cutout WCS; this function never estimates a correction
+or transforms celestial reference frames. Convert RA/Dec upstream when needed.
 """
     from b_astrometri.centroid.coordinates import sky_to_frame_coordinates
 
