@@ -180,7 +180,13 @@ async def get_cutout(
     rows, cols = await _query_irsa(ra, dec, radius_deg, max_frames)
 
     if rows is None:
-        raise HTTPException(502, "IRSA TAP/Gator/SIA servisleri erişilemiyor. Lütfen tekrar deneyin.")
+        return JSONResponse({
+            "frames": [],
+            "count": 0,
+            "irsa_status": "unavailable",
+            "message": "IRSA servisleri şu an erişilemiyor (TAP/Gator/SIA tümü başarısız). Önbellek verisi kullanılıyor.",
+            "query": {"ra": ra, "dec": dec, "radius_arcmin": radius},
+        })
 
     def col(row, *names):
         for name in names:
