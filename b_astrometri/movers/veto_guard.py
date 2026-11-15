@@ -47,7 +47,7 @@ def evaluate_candidate_flags(
     if combined & BIT_HALO:
         caution.append("HALO")
 
-    return {"veto_reason": veto_reason, "caution": caution}
+    return {"veto_reason": sorted(veto_reason), "caution": sorted(caution)}
 
 
 def tag_candidates(
