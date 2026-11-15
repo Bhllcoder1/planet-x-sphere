@@ -6,25 +6,25 @@ Source: live ClickUp API, 2026-11-15. 46 assigned tasks. User authorized status 
 |---|---|---|---|
 | [[00-05] Çalışma protokolü: ekip büyüklüğünden bağımsız görev seçimi](https://app.clickup.com/t/z8qu5ddjv6) | in progress | yerel ✓ | yok |
 | [[01-03] Gaia indirme sorunu: ESA TAP güvenilmez, yedek seçenekleri sırayla dene](https://app.clickup.com/t/z8qu5ddjvj) | in progress | yerel ✓ (piksel ölçeği ve timeout açık) | 01-01 |
-| [[01-12] OUTLIER bayrağı nedeni (R27): aynı alanda hafta ve işleme etiketi karşılaştırması](https://app.clickup.com/t/z8qu5ddjvv) | to do | — | 01-09 |
+| [[01-12] OUTLIER bayrağı nedeni (R27): aynı alanda hafta ve işleme etiketi karşılaştırması](https://app.clickup.com/t/z8qu5ddjvv) | to do | kısmi (TAP başarısız; UNKNOWN çıktısı) | 01-09 |
 | [[03-01] ePSF modeli: EPSF HDU'dan GriddedPSFModel (örnekleme 5, 33x33) ve bölge seçimi](https://app.clickup.com/t/z8qu5ddjwm) | to do | yerel ✓ (sentetik; H-01 bekleniyor) | 02-03, 02-12 |
 | [[03-02] D5: ePSF normalizasyon ve yönelim kontrolü (×1/×25, x/y, dosya içi vs kalibrasyon)](https://app.clickup.com/t/z8qu5ddjwn) | in progress | yerel ✓ (600 fit, max hata ≤0.000514 px; H-04 bekleniyor) | 03-01, 02-07 |
-| [[03-04] Hata elipsi: kovaryanstan 1σ/2σ elips parametreleri ve JSON alanları](https://app.clickup.com/t/z8qu5ddjwq) | to do | — | 03-03 |
-| [[03-05] Doymuş çekirdek kanat uyumu: NaN/OVERFLOW pikselleri maskeleyerek](https://app.clickup.com/t/z8qu5ddjwr) | to do | kısmi (sentetik; H-05 bekleniyor) | 03-03, 02-08 |
-| [[03-06] Geçiş başına ortak uyum (C.7b): tek (α,δ) ile kareler boyunca](https://app.clickup.com/t/z8qu5ddjwt) | in progress | yerel ✓ (4 test; 1000-trial kapsamı henüz bitmedi) | 03-03, 03-09 |
-| [[03-07] Gaia DR3 sorgusu ve epoğa taşıma formülleri (uzay hareketi + paralaks)](https://app.clickup.com/t/z8qu5ddjwu) | in progress | yerel ✓ (35 test; 02-03 entegrasyonu ve 3px dışlama açık) | 02-03 |
-| [[03-12] Enjeksiyon/kurtarma düzeneği tanımı: T1-T4 ve ölçütleri](https://app.clickup.com/t/z8qu5ddjwz) | to do | yerel ✓ (harness_spec.md; test kodu 07-04/07-05 kapsamı) | 03-01, 03-03 |
+| [[03-04] Hata elipsi: kovaryanstan 1σ/2σ elips parametreleri ve JSON alanları](https://app.clickup.com/t/z8qu5ddjwq) | to do | kısmi (prototip; H-04 bekleniyor) | 03-03 |
+| [[03-05] Doymuş çekirdek kanat uyumu: NaN/OVERFLOW pikselleri maskeleyerek](https://app.clickup.com/t/z8qu5ddjwr) | in progress | kısmi (sentetik; H-05 bekleniyor) | 03-03, 02-08 |
+| [[03-06] Geçiş başına ortak uyum (C.7b): tek (α,δ) ile kareler boyunca](https://app.clickup.com/t/z8qu5ddjwt) | in progress | yerel ✓ (4 test; 1000-trial kapsamı bitti; rapor yazıldı) | 03-03, 03-09 |
+| [[03-07] Gaia DR3 sorgusu ve epoğa taşıma formülleri (uzay hareketi + paralaks)](https://app.clickup.com/t/z8qu5ddjwu) | in progress | yerel ✓ (35 test; 02-03 entegrasyonu ve 3px dışlama açık; rapor yazıldı) | 02-03 |
+| [[03-12] Enjeksiyon/kurtarma düzeneği tanımı: T1-T4 ve ölçütleri](https://app.clickup.com/t/z8qu5ddjwz) | in progress | yerel ✓ (harness_spec.md; test kodu 07-04/07-05 kapsamı; rapor yazıldı) | 03-01, 03-03 |
 | [[03-13] Piksel-faz sapma eğrisi: sapma(faz) ölçümü ve tablo](https://app.clickup.com/t/z8qu5ddjx0) | to do | kısmi (sentetik grafik; H-06/H-07 bekleniyor) | 03-12, 03-03 |
 | [[03-14] Koordinat kuralları denetimi: 0 tabanlı, float konum asla yuvarlanmaz](https://app.clickup.com/t/z8qu5ddjx1) | in progress | kısmi (prototip; H-01 bekleniyor) | 02-03, 03-03 |
-| [[03-15] WiseView'in Gaia yer değiştirmesiyle karşılaştırma testi (epoch hatasını bizim kodda önleme)](https://app.clickup.com/t/z8qu5ddjx2) | to do | yerel ✓ (6 test; Barnard 2010 MJD doğrulandı) | 03-07 |
+| [[03-15] WiseView'in Gaia yer değiştirmesiyle karşılaştırma testi (epoch hatasını bizim kodda önleme)](https://app.clickup.com/t/z8qu5ddjx2) | in progress | yerel ✓ (6 test; Barnard 2010 MJD doğrulandı; rapor yazıldı) | 03-07 |
 | [[04-01] Geçiş (pass) gruplama: 30 gün boşluk kuralı ve passes.json](https://app.clickup.com/t/z8qu5ddjx3) | to do | kısmi (sentetik; H-03 bekleniyor) | liste 02 (kare listesi/manifest). |
 | [[04-02] Geçiş yığını ve fark görüntüsü: yalnızca-görüntüleme (S modu), 'astrometri yok' etiketli](https://app.clickup.com/t/z8qu5ddjx4) | in progress | yerel ✓ (9 test; H-03/H-08 bekleniyor) | 04-01; liste 02 (maskeler, manifest). |
 | [[04-03] Zorlanmış (forced) ePSF fotometri modülü: sabit konumda kare başı akı](https://app.clickup.com/t/z8qu5ddjx5) | in progress | kısmi (sentetik piksel; H-08 bekleniyor) | liste 03 (ePSF, WCS düzeltmesi), liste 02 (maskeler). |
 | [[04-04] WISE 0855 saptanabilirlik testi: zorlanmış fotometri ve geçiş başına ters-varyans toplamı](https://app.clickup.com/t/z8qu5ddjx6) | to do | — (H-09 bekleniyor) | 04-03; liste 01 (WISE 0855 kapsamı); liste 03 (ePSF). |
 | [[04-06] Hareketli cisim bulucu: katalog bağlama (hız ızgarası + RANSAC)](https://app.clickup.com/t/z8qu5ddjx8) | in progress | kısmi (sentetik; H-10 bekleniyor) | 04-01; liste 02 (tespit/katalog), liste 03 (WCS düzeltmesi). |
 | [[04-07] OUTLIER kümelerini aday olarak terfi ettirme (hareketli arama maske profili)](https://app.clickup.com/t/z8qu5ddjx9) | in progress | yerel ✓ (7 test, movers 12/12; TRANSIENT/HALO bit düzeltildi) | 04-06 (arayüzü), liste 02 (FLAGS okuma). |
-| [[04-08] STREAK/GHOST/CROSSTALK vetoları (neden kodlu) ve kalabalık-alan koruması](https://app.clickup.com/t/z8qu5ddjxa) | to do | — | 04-06, 04-07. |
-| [[04-10] R24: asteroit konum sapması (1-3 px) araştırması: piksel nicemleme, LEO paralaksı, zamanlama](https://app.clickup.com/t/z8qu5ddjxc) | to do | — | liste 03 (ePSF merkezleme); 04-09 ile birlikte okunur. |
+| [[04-08] STREAK/GHOST/CROSSTALK vetoları (neden kodlu) ve kalabalık-alan koruması](https://app.clickup.com/t/z8qu5ddjxa) | to do | yerel ✓ (veto_guard.py; H-10 bekleniyor) | 04-06, 04-07. |
+| [[04-10] R24: asteroit konum sapması (1-3 px) araştırması: piksel nicemleme, LEO paralaksı, zamanlama](https://app.clickup.com/t/z8qu5ddjxc) | to do | kısmi (analiz raporu yazıldı; H-08 gerçek veri bekleniyor) | liste 03 (ePSF merkezleme); 04-09 ile birlikte okunur. |
 | [[04-12] Değişen yıldızlar: RW Aur ve R Dra için λ-kutulu ışık eğrileri](https://app.clickup.com/t/z8qu5ddjxe) | to do | kısmi (UNKNOWN JSON; H-12 bekleniyor) | 04-03, 04-01; liste 01 (kapsam). |
 | [[04-15] Kayan pencere toplama ve fark görünümü (yalnız görüntüleme, S modu)](https://app.clickup.com/t/z8qu5ddjxh) | in progress | yerel ✓ (8 test; H-03 bekleniyor) | 04-01, 04-02, 02-16 |
 | [[04-16] Sonra: 'kaydır ve topla' (shift-and-add) görünümü: kullanıcı hız girer, kareler izlenen cisme göre toplanır](https://app.clickup.com/t/z8qu5ddjxj) | to do | — | 04-15, 02-16 |
