@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Alan D - Ana Uygulama Denetleyicisi (d_site/pages/app.js)
  * Gerçek NASA SPHEREx L2 S3 FITS kesitleri (IMAGE, VARIANCE, ZODI, TAN-SIP WCS, Table 16 Flags)
  * ve gerçek MAST Gaia DR3 yıldız kataloğu (window.REAL_SPHEREX_DATA) üzerinde tam fonksiyonel çalışır.
@@ -1409,25 +1409,87 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
 
   // Aladin Lite toggle
   let aladinInst = null;
-  function initOrUpdateAladin(ra, dec, survey) {
-    const container = doc.getElementById("aladin-container");
-    if (!container) return;
-    const s = survey || doc.getElementById("sel-aladin-survey")?.value || "P/DSS2/color";
-    if (!window.A) {
-      container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin yükleniyor… İnternet bağlantısı gerekli.</p>`;
-      return;
-    }
+  let aladinPending = null; // {ra, dec, survey} bekleyen çağrı
+
+  function _doInitAladin(ra, dec, s) {
     if (!aladinInst) {
-      aladinInst = window.A.aladin("#aladin-lite-div", {
-        survey: s, fov: 0.1,
-        target: `${ra} ${dec}`,
-        showReticle: true,
-        showZoomControl: true,
-      });
+      try {
+        aladinInst = window.A.aladin("#aladin-lite-div", {
+          survey: s, fov: 0.1,
+          target: `${ra} ${dec}`,
+          showReticle: true,
+          showZoomControl: true,
+        });
+      } catch (e) {
+        const container = doc.getElementById("aladin-container");
+        if (container) container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin başlatılamadı: ${e.message}</p>`;
+      }
     } else {
       aladinInst.gotoRaDec(ra, dec);
       aladinInst.setImageSurvey(s);
     }
+  }
+
+  function initOrUpdateAladin(ra, dec, survey) {
+    const container = doc.getElementById("aladin-container");
+    if (!container) return;
+    const s = survey || doc.getElementById("sel-aladin-survey")?.value || "P/DSS2/color";
+
+    // window.A varsa ve A.init Promise ise — v3 async pattern
+    if (window.A && window.A.init && typeof window.A.init.then === "function") {
+      window.A.init.then(() => _doInitAladin(ra, dec, s)).catch(() => {
+        container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin başlatılamadı.</p>`;
+      });
+      return;
+    }
+
+    // window.A varsa ama A.init yoksa — v2/eski sync API
+    if (window.A) {
+      _doInitAladin(ra, dec, s);
+      return;
+    }
+
+    // window.A henüz yüklenmemiş — scripti dinamik yükle veya bekle
+    container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin yükleniyor…</p>`;
+    aladinPending = { ra, dec, s };
+
+    // Script zaten DOM'da var mı kontrol et (defer ile eklenmiş olabilir)
+    const existing = doc.querySelector('script[src*="aladin"]');
+    if (existing) {
+      // Yüklenmesini bekle — polling ile
+      let tries = 0;
+      const poll = setInterval(() => {
+        tries++;
+        if (window.A) {
+          clearInterval(poll);
+          if (aladinPending) {
+            const { ra: pr, dec: pd, s: ps } = aladinPending;
+            aladinPending = null;
+            initOrUpdateAladin(pr, pd, ps);
+          }
+        } else if (tries > 60) {
+          clearInterval(poll);
+          container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin yüklenemedi (CDN erişilemiyor).</p>`;
+        }
+      }, 500);
+      return;
+    }
+
+    // Script hiç eklenmemişse dinamik olarak yükle
+    const script = doc.createElement("script");
+    script.src = "https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js";
+    script.charset = "utf-8";
+    script.onload = () => {
+      if (aladinPending) {
+        const { ra: pr, dec: pd, s: ps } = aladinPending;
+        aladinPending = null;
+        initOrUpdateAladin(pr, pd, ps);
+      }
+    };
+    script.onerror = () => {
+      container.innerHTML = `<p style="font-size:11px;color:var(--text-muted);padding:8px;">Aladin CDN erişilemiyor.</p>`;
+    };
+    doc.head.appendChild(script);
   }
 
   doc.getElementById("btn-aladin-toggle")?.addEventListener("click", (e) => {
