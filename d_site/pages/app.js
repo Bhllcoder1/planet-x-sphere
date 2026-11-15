@@ -1220,31 +1220,96 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
     }
   });
 
-  // Search box (by target name or RA, Dec)
+  // Koordinat arama (RA / Dec girişi — temel yarışma gereksinimi)
+  async function executeCoordSearch() {
+    const ra = parseFloat(doc.getElementById("inp-ra")?.value);
+    const dec = parseFloat(doc.getElementById("inp-dec")?.value);
+    const radius = parseFloat(doc.getElementById("inp-radius")?.value || "3");
+    const statusEl = doc.getElementById("coord-search-status");
+    const btn = doc.getElementById("btn-coord-search");
+
+    if (!Number.isFinite(ra) || !Number.isFinite(dec)) {
+      if (statusEl) statusEl.textContent = "⚠ Geçerli RA ve Dec girin.";
+      return;
+    }
+    if (ra < 0 || ra > 360 || dec < -90 || dec > 90) {
+      if (statusEl) statusEl.textContent = "⚠ RA: 0–360°, Dec: −90–90°";
+      return;
+    }
+
+    // Sabit hedeflerden birine yakın mı? (2° eşiği)
+    let nearest = null, nearestDist = 1e9;
+    for (const t of COMPETITION_TARGETS) {
+      const d = Math.hypot(t.raDeg - ra, t.decDeg - dec);
+      if (d < nearestDist) { nearestDist = d; nearest = t; }
+    }
+    if (nearestDist < 2.0) {
+      switchTarget(nearest);
+      if (statusEl) statusEl.textContent = `✓ ${nearest.name} yüklendi.`;
+      return;
+    }
+
+    // IRSA TAP — gerçek SPHEREx L2 verisini sorgula
+    if (statusEl) statusEl.textContent = "⏳ IRSA TAP sorgulanıyor…";
+    if (btn) btn.disabled = true;
+    const radiusDeg = (radius / 60).toFixed(5);
+    const adql = `SELECT file_name,ra,dec,mjd_obs,spat_lam,detector FROM spherex.sph_l2 WHERE CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',${ra},${dec},${radiusDeg}))=1 ORDER BY mjd_obs LIMIT 30`;
+    const tapUrl = `https://irsa.ipac.caltech.edu/TAP/sync?QUERY=${encodeURIComponent(adql)}&FORMAT=json`;
+
+    try {
+      const resp = await fetch(tapUrl, { signal: AbortSignal.timeout(12000) });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      const rows = data.data || [];
+      if (rows.length === 0) {
+        if (statusEl) statusEl.textContent = `ℹ Bu koordinatta SPHEREx karesi bulunamadı (henüz kapsam dışı olabilir).`;
+      } else {
+        // TAP satırlarından sahte frame yapısı oluştur (s3 key olmadan)
+        const cols = data.metadata?.map((m) => m.name) || [];
+        const getCol = (row, name) => { const i = cols.indexOf(name); return i >= 0 ? row[i] : null; };
+        const tapFrames = rows.map((row, idx) => ({
+          frame_id: `tap_${idx}`,
+          pass_id: idx,
+          detector: getCol(row, "detector") || "?",
+          cwave_um: getCol(row, "spat_lam") || 0,
+          utc_date: getCol(row, "mjd_obs") ? `MJD ${getCol(row, "mjd_obs")}` : "?",
+          target_x: 15, target_y: 15,
+          raw_record: {
+            s3_key: getCol(row, "file_name") || "",
+            measured_centroid: { ra_deg: parseFloat(getCol(row, "ra") || ra), dec_deg: parseFloat(getCol(row, "dec") || dec), x_cutout: 15, y_cutout: 15 },
+          },
+        }));
+        // TAP sonuçlarını blink'e yükle
+        blink = new BlinkController(tapFrames, { intervalMs: blink.intervalMs });
+        activeFrames = tapFrames;
+        renderFrame();
+        if (statusEl) statusEl.textContent = `✓ ${rows.length} kare bulundu, blink yüklendi.`;
+      }
+    } catch (e) {
+      // CORS veya ağ hatası — en yakın sabit hedefe geri dön
+      const msg = e.name === "TimeoutError" ? "zaman aşımı" : "CORS/ağ hatası";
+      if (statusEl) statusEl.textContent = `⚠ IRSA TAP: ${msg}. Sunucu proxy gerekli. En yakın: ${nearest?.name}.`;
+      if (nearest) switchTarget(nearest);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  doc.getElementById("btn-coord-search")?.addEventListener("click", executeCoordSearch);
+  ["inp-ra","inp-dec","inp-radius"].forEach((id) => {
+    doc.getElementById(id)?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") executeCoordSearch();
+    });
+  });
+
+  // İsim arama kutusu
   function executeSearch() {
     const q = (doc.getElementById("inp-search")?.value || "").trim().toLowerCase();
     if (!q) return;
     const byName = COMPETITION_TARGETS.find(
       (t) => t.name.toLowerCase().includes(q) || t.id.toLowerCase().includes(q)
     );
-    if (byName) {
-      switchTarget(byName);
-      return;
-    }
-    const nums = q.split(/[\s,]+/).map(Number).filter(Number.isFinite);
-    if (nums.length >= 2) {
-      const [ra, dec] = nums;
-      let best = COMPETITION_TARGETS[0];
-      let bestDist = 1e9;
-      for (const t of COMPETITION_TARGETS) {
-        const d = Math.hypot(t.ra_deg - ra, t.dec_deg - dec);
-        if (d < bestDist) {
-          bestDist = d;
-          best = t;
-        }
-      }
-      switchTarget(best);
-    }
+    if (byName) { switchTarget(byName); return; }
   }
   doc.getElementById("btn-search")?.addEventListener("click", executeSearch);
   doc.getElementById("inp-search")?.addEventListener("keydown", (e) => {
