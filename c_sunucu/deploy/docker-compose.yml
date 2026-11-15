@@ -1,0 +1,93 @@
+# =============================================================================
+# docker-compose.yml — Planet-X Sphere Üretim Dağıtımı
+#
+# Hizmetler:
+#   app   — FastAPI/uvicorn API sunucusu
+#   caddy — Otomatik TLS + ters proxy + statik dosya sunucusu
+#
+# Kullanım:
+#   docker compose up -d          # arka planda başlat
+#   docker compose logs -f app    # canlı log izle
+#   docker compose down           # durdur (volume'lar korunur)
+#   docker compose down -v        # durdur + volume'ları sil
+# =============================================================================
+
+version: "3.9"
+
+services:
+  # ---------------------------------------------------------------------------
+  # app — Python API sunucusu
+  # ---------------------------------------------------------------------------
+  app:
+    # Dockerfile'ı proje kökünden derle (c_sunucu/ COPY için gerekli)
+    build:
+      context: ../..          # proje kökü (planet-x-sphere/)
+      dockerfile: c_sunucu/deploy/Dockerfile
+    env_file:
+      - .env                  # AWS_*, DOMAIN, LOG_LEVEL vb.
+    volumes:
+      # Tile önbelleği: S3 indirilen dosyalar burada saklanır
+      - cache_data:/data/cache
+      # Precomputed statik dosyalar: Caddy tarafından doğrudan sunulur
+      - static_data:/data/static
+    restart: unless-stopped
+    # Caddy'nin bağlanabilmesi için portu dışarıya açmıyoruz;
+    # sadece iç ağda erişilebilir
+    expose:
+      - "8000"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ---------------------------------------------------------------------------
+  # caddy — Otomatik TLS (Let's Encrypt), ters proxy, sıkıştırma
+  # ---------------------------------------------------------------------------
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"               # HTTP → HTTPS yönlendirmesi
+      - "443:443"             # HTTPS (TLS)
+      - "443:443/udp"         # HTTP/3 (QUIC) desteği
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro   # Caddy yapılandırması (salt okunur)
+      - caddy_data:/data                       # TLS sertifikaları (kalıcı)
+      - caddy_config:/config                   # Caddy dahili yapılandırma önbelleği
+      - static_data:/data/static:ro            # Statik dosyalar (salt okunur)
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - internal
+    environment:
+      # Caddyfile'da {$CADDY_DOMAIN} olarak kullanılır
+      CADDY_DOMAIN: ${CADDY_DOMAIN:-localhost}
+
+# =============================================================================
+# Volume tanımları
+# =============================================================================
+volumes:
+  cache_data:
+    # S3'ten indirilen tile önbelleği; konteyner yeniden başlatılsa korunur
+    driver: local
+  static_data:
+    # Precomputed PNG/JSON dosyaları; uygulama tarafından doldurulur
+    driver: local
+  caddy_data:
+    # Let's Encrypt sertifikaları; asla silme!
+    driver: local
+  caddy_config:
+    # Caddy yapılandırma önbelleği
+    driver: local
+
+# =============================================================================
+# Ağ: app ve caddy aynı iç ağda; app dışarıya port açmaz
+# =============================================================================
+networks:
+  internal:
+    driver: bridge

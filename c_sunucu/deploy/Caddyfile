@@ -1,0 +1,122 @@
+# =============================================================================
+# Caddyfile — Planet-X Sphere Üretim Caddy Yapılandırması
+#
+# Özellikler:
+#   - Otomatik TLS (Let's Encrypt ACME)
+#   - gzip + zstd sıkıştırma (tüm yanıtlar için)
+#   - /api/*   → app:8000 ters proxy
+#   - /static/* → immutable önbellek başlıkları + precompressed brotli/gzip
+#   - HTTP → HTTPS otomatik yönlendirme (Caddy tarafından dahili olarak yapılır)
+#
+# Ortam değişkeni:
+#   CADDY_DOMAIN  — hedef alan adı; docker-compose.yml'den geçirilir
+#                   Örnek: planet-x.example.com
+#
+# Yerel geliştirme için:
+#   CADDY_DOMAIN=localhost   → Caddy otomatik imzalı sertifika üretir
+# =============================================================================
+
+{$CADDY_DOMAIN} {
+
+    # -------------------------------------------------------------------------
+    # Sıkıştırma — tüm yanıtlar için etkin
+    # Öncelik: zstd (daha iyi oran) → gzip (geniş tarayıcı desteği)
+    # -------------------------------------------------------------------------
+    encode zstd gzip
+
+    # -------------------------------------------------------------------------
+    # Güvenlik başlıkları — tüm yanıtlara eklenir
+    # -------------------------------------------------------------------------
+    header {
+        # Clickjacking koruması
+        X-Frame-Options "SAMEORIGIN"
+        # MIME sniffing koruması
+        X-Content-Type-Options "nosniff"
+        # XSS filtresi (eski tarayıcılar için)
+        X-XSS-Protection "1; mode=block"
+        # Referrer politikası
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # HSTS: 1 yıl, alt alanlar dahil
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Sunucu bilgisini gizle
+        -Server
+    }
+
+    # -------------------------------------------------------------------------
+    # /api/* — FastAPI ters proxy
+    # Tüm /api/ istekleri app konteynerine iletilir
+    # -------------------------------------------------------------------------
+    handle /api/* {
+        reverse_proxy app:8000 {
+            # Upstream sağlık kontrolü zaman aşımları
+            transport http {
+                dial_timeout         5s
+                response_header_timeout 30s
+            }
+
+            # Orijinal istemci IP'sini ilet (rate limiting, loglama için)
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+
+            # Upstream devre dışıysa 502 döndür
+            lb_try_duration 5s
+        }
+    }
+
+    # -------------------------------------------------------------------------
+    # /static/* — Precomputed statik dosyalar (PNG tile'ları, JSON)
+    # immutable önbellek başlıkları: tarayıcı 1 yıl boyunca yeniden istemez
+    # precompressed: .br (brotli) veya .gz dosyası varsa otomatik kullanılır
+    # -------------------------------------------------------------------------
+    handle /static/* {
+        root * /data/static
+
+        file_server {
+            # Caddy .br ve .gz ön-sıkıştırılmış dosyaları otomatik sunar
+            # (örn. tile-123.png.br varsa Accept-Encoding: br isteğinde kullanılır)
+            precompressed br gzip
+        }
+
+        # Immutable önbellek: içerik hash'i URL'de olduğu varsayımıyla
+        # max-age=1 yıl; tarayıcı asla yeniden doğrulamaz
+        header Cache-Control "public, max-age=31536000, immutable"
+
+        # Statik dosya için güvenlik başlığını ayrıca ayarla
+        header X-Content-Type-Options "nosniff"
+    }
+
+    # -------------------------------------------------------------------------
+    # /health — Hızlı sağlık kontrolü (Caddy seviyesinde yanıt)
+    # Docker healthcheck ve yük dengeleyiciler için kullanılır
+    # -------------------------------------------------------------------------
+    handle /health {
+        reverse_proxy app:8000
+    }
+
+    # -------------------------------------------------------------------------
+    # Varsayılan — yukarıdaki handle bloklarına uymayan tüm istekler
+    # app konteynerine iletilir
+    # -------------------------------------------------------------------------
+    handle {
+        reverse_proxy app:8000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # -------------------------------------------------------------------------
+    # Erişim logu — JSON formatında (log aggregation için)
+    # Üretimde bir log toplayıcıya (Loki, Datadog vb.) yönlendir
+    # -------------------------------------------------------------------------
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size     100mb
+            roll_keep     5
+            roll_keep_for 720h    # 30 gün
+        }
+        format json
+        level  INFO
+    }
+}

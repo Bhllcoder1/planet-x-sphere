@@ -1,0 +1,75 @@
+{
+  "_comment": "Bu dosyayı users_seed.json olarak kopyalayın ve password_hash alanlarını gercek bcrypt hash'leriyle doldurun. hash_password() yardimci fonksiyonu kullanilabilir.",
+  "users": [
+    {
+      "id": "11111111-1111-4111-a111-111111111111",
+      "username": "jury1",
+      "display_name": "Jüri Üyesi 1",
+      "role": "jury",
+      "password_hash": "$2b$12$HASH_PLACEHOLDER"
+    },
+    {
+      "id": "22222222-2222-4222-a222-222222222222",
+      "username": "jury2",
+      "display_name": "Jüri Üyesi 2",
+      "role": "jury",
+      "password_hash": "$2b$12$HASH_PLACEHOLDER"
+    },
+    {
+      "id": "33333333-3333-4333-a333-333333333333",
+      "username": "jury3",
+      "display_name": "Jüri Üyesi 3",
+      "role": "jury",
+      "password_hash": "$2b$12$HASH_PLACEHOLDER"
+    },
+    {
+      "id": "44444444-4444-4444-a444-444444444444",
+      "username": "jury4",
+      "display_name": "Jüri Üyesi 4",
+      "role": "jury",
+      "password_hash": "$2b$12$HASH_PLACEHOLDER"
+    },
+    {
+      "id": "55555555-5555-4555-a555-555555555555",
+      "username": "jury5",
+      "display_name": "Jüri Üyesi 5",
+      "role": "jury",
+      "password_hash": "$2b$12$HASH_PLACEHOLDER"
+    },
+    {
+      "id": "66666666-6666-4666-a666-666666666666",
+      "username": "team1",
+      "display_name": "Ekip Üyesi 1",
+      "role": "team",
+      "password_hash": "$2b$12$HASH_PLACEHOLDER"
+    },
+    {
+      "id": "77777777-7777-4777-a777-777777777777",
+      "username": "team2",
+      "display_name": "Ekip Üyesi 2",
+      "role": "team",
+      "password_hash": "$2b$12$HASH_PLACEHOLDER"
+    },
+    {
+      "id": "88888888-8888-4888-a888-888888888888",
+      "username": "team3",
+      "display_name": "Ekip Üyesi 3",
+      "role": "team",
+      "password_hash": "$2b$12$HASH_PLACEHOLDER"
+    },
+    {
+      "id": "99999999-9999-4999-a999-999999999999",
+      "username": "admin1",
+      "display_name": "Alan C Yöneticisi 1",
+      "role": "admin",
+      "password_hash": "$2b$12$HASH_PLACEHOLDER"
+    },
+    {
+      "id": "aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa",
+      "username": "admin2",
+      "display_name": "Alan C Yöneticisi 2",
+      "role": "admin",
+      "password_hash": "$2b$12$HASH_PLACEHOLDER"
+    }
+  ]
+}

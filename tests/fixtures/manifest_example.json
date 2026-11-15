@@ -1,0 +1,23 @@
+{
+  "version": "2",
+  "schema": "https://github.com/Bhllcoder1/planet-x-sphere/contracts/manifest_schema_v2.json",
+  "target": "barnard",
+  "frames": [
+    {
+      "frame_id": "2025W34_2B_0557_2D2",
+      "s3_key": "dr1/level2/2025W34_2B/l2b-v27-2026-229/2/level2_2025W34_2B_0557_2D2_spx_l2b-v27-2026-229.fits",
+      "detector": "D2",
+      "pass": 0,
+      "mjd_avg": 60911.49,
+      "sps_epa": 180.0,
+      "content_length": 61093440,
+      "hdu_offsets": {
+        "IMAGE": {"header_start": 0, "data_start": 2880},
+        "FLAGS": {"header_start": 0, "data_start": 2880},
+        "VARIANCE": {"header_start": 0, "data_start": 2880},
+        "ZODI": {"header_start": 0, "data_start": 2880}
+      },
+      "cache_level": "L1"
+    }
+  ]
+}

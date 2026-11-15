@@ -1,0 +1,449 @@
+openapi: "3.1.0"
+
+info:
+  title: SPHEREx Viewer API
+  version: "0.1.0"
+  description: |
+    REST API for the NASA SPHEREx web viewer.
+
+    Exposes five science targets (Barnard's Star, ε Indi B, WISE 0855,
+    RW Aur, R Dra), their associated detector frames, and pixel-level
+    data products (IMAGE, FLAGS, VARIANCE, ZODI) stored in the
+    `nasa-irsa-spherex` S3 bucket (us-east-1, anonymous access).
+
+    **Consumers**
+    - **Alan D** (front-end) — target list, thumbnails, window patches
+    - **Alan A** (data processing) — raw window data for photometric fits
+    - **Alan C** (server) — implements this contract
+
+servers:
+  - url: http://localhost:8000
+    description: Local development / mock server
+  - url: https://api.spherex-viewer.example/v1
+    description: Production (placeholder)
+
+tags:
+  - name: targets
+    description: Science targets
+  - name: frames
+    description: Detector frame manifests and pixel data
+
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+paths:
+
+  /targets:
+    get:
+      operationId: listTargets
+      tags: [targets]
+      summary: List all science targets
+      description: >
+        Returns the five pre-defined targets in fixed order.
+        No pagination — the set is static and small.
+      responses:
+        "200":
+          description: Array of Target objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Target"
+              example:
+                - id: barnard
+                  name: "Barnard's Star"
+                  ra_j2000: 269.4521
+                  dec_j2000: 4.6933
+                  n_frames: 48
+                  n_passes: 6
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /targets/{target_id}/frames:
+    get:
+      operationId: listFrames
+      tags: [targets, frames]
+      summary: List detector frames for a target
+      description: >
+        Returns the frame manifest for every calibrated exposure that
+        covers the requested target. Frames are sorted by `mjd_avg`
+        ascending (chronological order).
+      parameters:
+        - $ref: "#/components/parameters/target_id"
+        - name: detector
+          in: query
+          required: false
+          description: Filter by detector identifier (e.g. `D1`, `D2`).
+          schema:
+            type: string
+        - name: pass
+          in: query
+          required: false
+          description: Filter by survey pass number (1-based integer).
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Array of Frame objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Frame"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /frames/{frame_id}/window:
+    get:
+      operationId: getWindow
+      tags: [frames]
+      summary: Extract a pixel window from a frame
+      description: >
+        Returns a rectangular pixel patch from a calibrated frame.
+        All four science layers are included by default.
+        Data arrays are row-major (C-order) float32 values, flattened to
+        a 1-D list of length `width × height`.
+      parameters:
+        - $ref: "#/components/parameters/frame_id"
+        - name: x0
+          in: query
+          required: false
+          description: Left edge of the window in detector pixels (0-based).
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: y0
+          in: query
+          required: false
+          description: Bottom edge of the window in detector pixels (0-based).
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: width
+          in: query
+          required: false
+          description: Window width in pixels.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2048
+            default: 100
+        - name: height
+          in: query
+          required: false
+          description: Window height in pixels.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2048
+            default: 100
+        - name: hdus
+          in: query
+          required: false
+          description: >
+            Comma-separated list of science layers to include.
+            Valid values: `image`, `flags`, `variance`, `zodi`.
+            Omit to return all four.
+          schema:
+            type: string
+            default: "image,flags,variance,zodi"
+      responses:
+        "200":
+          description: Window pixel data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Window"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /frames/{frame_id}/thumbnail:
+    get:
+      operationId: getThumbnail
+      tags: [frames]
+      summary: Get a thumbnail PNG for a frame
+      description: >
+        Returns a 64×64 pixel PNG of the frame, base64-encoded.
+        The image is a linear stretch of the science IMAGE layer.
+      parameters:
+        - $ref: "#/components/parameters/frame_id"
+      responses:
+        "200":
+          description: Base64-encoded PNG thumbnail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Thumbnail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /status:
+    get:
+      operationId: getStatus
+      tags: [targets]
+      summary: Server health and cache status
+      description: >
+        Returns a lightweight status object suitable for health-check
+        probes and dashboard widgets.  Always returns HTTP 200; the
+        `healthy` field encodes the actual state.
+      responses:
+        "200":
+          description: Server status snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+
+# ---------------------------------------------------------------------------
+# Components
+# ---------------------------------------------------------------------------
+components:
+
+  # ----- Parameters -----
+  parameters:
+
+    target_id:
+      name: target_id
+      in: path
+      required: true
+      description: >
+        Slug identifier for a science target.
+        Valid values: `barnard`, `eps_indi_b`, `wise0855`, `rw_aur`, `r_dra`.
+      schema:
+        type: string
+        enum: [barnard, eps_indi_b, wise0855, rw_aur, r_dra]
+
+    frame_id:
+      name: frame_id
+      in: path
+      required: true
+      description: >
+        Opaque frame identifier returned by `/targets/{target_id}/frames`.
+        Format: `<target_id>_<detector>_p<pass>_<seq>` (subject to change).
+      schema:
+        type: string
+
+  # ----- Schemas -----
+  schemas:
+
+    Target:
+      type: object
+      description: A pre-defined science target observed by SPHEREx.
+      required: [id, name, ra_j2000, dec_j2000, n_frames, n_passes]
+      properties:
+        id:
+          type: string
+          description: Slug identifier.
+          example: barnard
+        name:
+          type: string
+          description: Human-readable name.
+          example: "Barnard's Star"
+        ra_j2000:
+          type: number
+          format: double
+          description: Right ascension (degrees, J2000).
+          example: 269.4521
+        dec_j2000:
+          type: number
+          format: double
+          description: Declination (degrees, J2000).
+          example: 4.6933
+        n_frames:
+          type: integer
+          description: Total number of calibrated frames covering this target.
+          example: 48
+        n_passes:
+          type: integer
+          description: Number of distinct survey passes included.
+          example: 6
+
+    Frame:
+      type: object
+      description: Metadata for a single calibrated detector exposure.
+      required:
+        [frame_id, target_id, detector, pass, mjd_avg, sps_epa, s3_key]
+      properties:
+        frame_id:
+          type: string
+          description: Opaque unique identifier.
+          example: barnard_D1_p1_0042
+        target_id:
+          type: string
+          description: Parent target slug.
+          example: barnard
+        detector:
+          type: string
+          description: Detector identifier.
+          example: D1
+        pass:
+          type: integer
+          description: Survey pass number (1-based).
+          example: 1
+        mjd_avg:
+          type: number
+          format: double
+          description: >
+            Average Modified Julian Date of the exposure midpoint.
+          example: 60310.123456
+        sps_epa:
+          type: number
+          format: double
+          description: >
+            Ecliptic position angle of the spacecraft at mid-exposure
+            (degrees).
+          example: 42.75
+        s3_key:
+          type: string
+          description: >
+            S3 object key within the `nasa-irsa-spherex` bucket.
+          example: "cal/v01/barnard/spx_barnard_D1_p1_0042_cal.fits"
+
+    Window:
+      type: object
+      description: >
+        Pixel data for a rectangular window extracted from a calibrated
+        frame.  Each array is row-major float32, flattened to 1-D.
+      required: [frame_id, x0, y0, width, height, data]
+      properties:
+        frame_id:
+          type: string
+          example: barnard_D1_p1_0042
+        x0:
+          type: integer
+          description: Left edge of the window (detector pixels, 0-based).
+          example: 0
+        y0:
+          type: integer
+          description: Bottom edge of the window (detector pixels, 0-based).
+          example: 0
+        width:
+          type: integer
+          example: 100
+        height:
+          type: integer
+          example: 100
+        data:
+          type: object
+          description: >
+            Science layer arrays.  Only the requested layers are present.
+          properties:
+            image:
+              type: array
+              description: >
+                Calibrated flux values (MJy/sr).  Length = width × height.
+              items:
+                type: number
+                format: float
+            flags:
+              type: array
+              description: >
+                Per-pixel bitmask flags.  Length = width × height.
+              items:
+                type: number
+                format: float
+            variance:
+              type: array
+              description: >
+                Pixel variance (MJy/sr)².  Length = width × height.
+              items:
+                type: number
+                format: float
+            zodi:
+              type: array
+              description: >
+                Zodiacal light model (MJy/sr).  Length = width × height.
+              items:
+                type: number
+                format: float
+
+    Thumbnail:
+      type: object
+      description: A 64×64 pixel PNG thumbnail, base64-encoded.
+      required: [frame_id, png_base64]
+      properties:
+        frame_id:
+          type: string
+          example: barnard_D1_p1_0042
+        png_base64:
+          type: string
+          format: byte
+          description: >
+            Standard Base64-encoded PNG bytes (RFC 4648 §4).
+            Decode and render directly in an `<img>` element via a
+            data-URI: `data:image/png;base64,<png_base64>`.
+
+    Status:
+      type: object
+      description: Server health and cache snapshot.
+      required: [healthy, version, cache_fill_pct, last_error]
+      properties:
+        healthy:
+          type: boolean
+          description: >
+            `true` when the server can serve requests normally.
+          example: true
+        version:
+          type: string
+          description: Running server version.
+          example: "0.1.0"
+        cache_fill_pct:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 100.0
+          description: >
+            Percentage of the in-memory tile cache that is currently
+            occupied (0–100).
+          example: 23.4
+        last_error:
+          type: string
+          nullable: true
+          description: >
+            ISO-8601 timestamp of the most recent internal error, or
+            `null` when no errors have occurred since startup.
+          example: null
+
+    Error:
+      type: object
+      description: Standard error envelope.
+      required: [detail]
+      properties:
+        detail:
+          type: string
+          description: Human-readable error description.
+          example: "Target 'unknown' not found."
+
+  # ----- Reusable responses -----
+  responses:
+
+    NotFound:
+      description: The requested resource does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            detail: "Frame 'xyz_D99_p0_0000' not found."
+
+    ServiceUnavailable:
+      description: >
+        The server is temporarily unable to handle the request
+        (e.g., S3 connectivity issue, cache saturated).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            detail: "S3 read timeout — retry after a few seconds."
