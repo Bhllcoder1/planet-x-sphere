@@ -157,3 +157,29 @@ def propagate_catalogue(catalogue, mjd_utc, *, radial_velocity_kms, observer_au=
                    "uncertainty": "not propagated; no sigma claimed",
                    "distance_floor_mas": 0.05}
     return result
+
+
+def epoch_summary(result) -> dict:
+    """Summarise a propagate_catalogue result table."""
+    n = len(result)
+    if n == 0:
+        return {"n_stars": 0, "mjd_utc": float("nan"), "ra_range_deg": 0.0, "dec_range_deg": 0.0}
+    return {
+        "n_stars": n,
+        "mjd_utc": float(result.meta.get("mjd_utc", float("nan"))),
+        "ra_range_deg": float(result["ra_deg"].max() - result["ra_deg"].min()),
+        "dec_range_deg": float(result["dec_deg"].max() - result["dec_deg"].min()),
+    }
+
+
+if __name__ == "__main__":
+    from astropy.table import Table as _T
+    cat = _T({"source_id": [1], "ra": [269.4521], "dec": [4.6934],
+              "pmra": [-800.8], "pmdec": [10362.4], "parallax": [547.5],
+              "ref_epoch": [2016.0]})
+    res = propagate_catalogue(cat, 55197.0, radial_velocity_kms=-110.0)
+    summary = epoch_summary(res)
+    print(f"epoch_summary: {summary}")
+    assert summary["n_stars"] == 1
+    assert 269.0 < summary["ra_range_deg"] + res["ra_deg"][0] < 270.0
+    print("03-07 epoch: OK")
