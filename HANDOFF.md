@@ -31,13 +31,13 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 
 ## Son doğrulama
 
-Bu oturumda: centroid **21/21**, motion **4/4**, Gaia **30/30** test geçti; toplam **55**. ERFA bir testte mesafe düzeltme uyarısı bastı, test yine geçti. `git diff --check` temiz. Graphify targeted corpus **36 dosya**, **258 düğüm**, **467 kenar**, **15 topluluk**; kayıp/eksik uç yok, aynı uçlu iki kenar sade grafikte birleşiyor. Token maliyeti host araçlarında sunulmadığı için bilinmiyor.
+Bu oturumda: centroid **24/24**, motion **4/4**, Gaia **30/30** test geçti; toplam **58**. ERFA bir testte mesafe düzeltme uyarısı bastı, test yine geçti. `git diff --check` temiz. Graphify targeted corpus **38 dosya**, **273 düğüm**, **500 kenar**, **15 topluluk**; kayıp/eksik uç yok, 3 aynı-uçlu kenar sade grafikte birleşiyor. Token maliyeti host araçlarında sunulmadığı için bilinmiyor.
 
 ```powershell
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/centroid -p 'test_*.py' -v
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/motion -p 'test_*.py' -v
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/gaia -p 'test_*.py' -v
 ```
-- **Döngü tur 5 (03-13 prototip):** `b_astrometri/centroid/phase_bias.py` + `test_phase_bias.py` (2 test OK; toplam 64 test: centroid 30, motion 4, gaia 30). Alt-piksel faz sapması ve `RMS/sigma_pred` CSV çıktısı doğrulandı; gerçek FITS/PNG `[NV]`.
+- **Döngü tur 5 (03-13 sentetik prototip):** `b_astrometri/centroid/phase_bias.py` + `test_phase_bias.py` (3 test; centroid 24/24). 20 faz × SNR 20/50/100 × 200 denemeden CSV ve iki ayrı grafik `b_astrometri/reports/03-13-synthetic/` altına yazıldı. SNR 100 sentetik ölçütleri geçti; 03-12 T2 harness/03-03 üretim entegrasyonu ve insanın “eğri düz mü?” incelemesi bekliyor (`H-06`, `H-07`). Gerçek FITS kullanılmadı.
 
 Aktif Claude Code süreci aynı çalışma ağacını kullanabiliyor; sonraki oturumda commit/çalışma ağacı kontrolü yapmadan dosya üzerine yazma. İnsan girdisi bekleyen işleri kapatma veya ClickUp durumunu varsayma.
