@@ -2,10 +2,40 @@
 from __future__ import annotations
 
 import math
+from typing import List
 
 import numpy as np
 
 from b_astrometri.motion.stacks import BADGE, difference_stacks, stack_pass
+
+
+def rolling_window_summary(pass_diffs: List[np.ndarray]) -> dict:
+    """Summarise a list of rolling-window difference arrays.
+
+    Parameters
+    ----------
+    pass_diffs : list of 2-D float arrays (one per window position)
+
+    Returns
+    -------
+    dict with keys:
+        n_windows     – number of windows
+        mean_abs_diff – mean of |diff| across all finite pixels in all windows
+        max_abs_diff  – maximum of |diff| across all finite pixels in all windows
+    """
+    n = len(pass_diffs)
+    all_vals = []
+    for arr in pass_diffs:
+        a = np.asarray(arr, dtype=float)
+        finite = a[np.isfinite(a)]
+        all_vals.append(np.abs(finite))
+    if all_vals:
+        combined = np.concatenate(all_vals)
+        mean_v = float(np.mean(combined)) if combined.size else 0.0
+        max_v = float(np.max(combined)) if combined.size else 0.0
+    else:
+        mean_v, max_v = 0.0, 0.0
+    return {"n_windows": n, "mean_abs_diff": mean_v, "max_abs_diff": max_v}
 
 
 def rolling_window(frames, window_start_mjd, *, target_wcs, shape_out,
@@ -80,7 +110,7 @@ def rolling_window(frames, window_start_mjd, *, target_wcs, shape_out,
         role = ("+" if is_inside else "-") if side_status[side] == "ok" and count else "."
         roles.append({"frame_id": fid, "mjd": float(mjd), "role": role,
                       "inside_window": bool(is_inside), "projected_valid_pixels": count})
-    return {"status": status, "mode": "S", "view_only": True,
+    return {"status": status, "mode": "S", "view_only": True,  # noqa: E501
             "measurement_allowed": False, "astrometry_allowed": False, "badge": BADGE,
             "window_start_mjd": start, "window_end_mjd": start + days,
             "window_days": days, "window_interval": "start inclusive, end exclusive",
@@ -91,3 +121,13 @@ def rolling_window(frames, window_start_mjd, *, target_wcs, shape_out,
             "side_status": side_status, "difference": difference, "frame_roles": roles,
             "legend": {"+": "window contribution", "-": "outside reference contribution", ".": "unused"},
             "noise_validation": "nominal diagonal variance; real blank-sky/Gaia/Barnard validation pending"}
+
+
+if __name__ == "__main__":
+    rng = np.random.default_rng(15)
+    diffs = [rng.normal(0, 2.0, (32, 32)).astype(float) for _ in range(4)]
+    summary = rolling_window_summary(diffs)
+    assert summary["n_windows"] >= 1, f"Expected n_windows >= 1, got {summary['n_windows']}"
+    print(f"n_windows={summary['n_windows']}, mean_abs={summary['mean_abs_diff']:.3f}, "
+          f"max_abs={summary['max_abs_diff']:.3f}")
+    print("DONE 04-15")
