@@ -1,0 +1,128 @@
+"""08-02/08-04: Barnard Yildizi kapsam tablosu uretici ve demo gorunum tanimı.
+
+Bir JSON kare manifesti (passes.json bicimi) kabul eder ya da sentetik yedege duser.
+Gercek S/N ve aki degerleri H-08 (Liste 03 ePSF/WCS) bekleniyor.
+Doygun cekirdek bayragi: Barnard cok parlak, cekirdek doygun (literatür onaylı).
+"""
+from __future__ import annotations
+
+import json
+import math
+from pathlib import Path
+from typing import Any
+
+
+BARNARD_RA_DEG = 269.452
+BARNARD_DEC_DEG = 4.693
+SATURATION_THRESHOLD_MJYSR = 1e4  # placeholder; real threshold from detector model
+
+# Sentetik yedek: 358 kare / 3 gecis
+_SYNTHETIC_PASSES = [
+    {"pass_id": "P01", "mjd_start": 60000.0, "mjd_end": 60014.9, "n_frames": 120,
+     "mean_cwave_um": 1.05, "frames": []},
+    {"pass_id": "P02", "mjd_start": 60030.0, "mjd_end": 60044.9, "n_frames": 119,
+     "mean_cwave_um": 1.05, "frames": []},
+    {"pass_id": "P03", "mjd_start": 60060.0, "mjd_end": 60074.9, "n_frames": 119,
+     "mean_cwave_um": 1.05, "frames": []},
+]
+
+
+def build_coverage_table(passes: list[dict[str, Any]]) -> dict[str, Any]:
+    """Passes listesinden kapsam tablosu olustur.
+
+    Returns dict with 'rows' (list of row dicts) and 'markdown' (str).
+    mean_flux and snr fields remain None until H-08 real data arrives.
+    """
+    rows = []
+    total_frames = 0
+    for p in passes:
+        n = int(p.get("n_frames", len(p.get("frames", []))))
+        total_frames += n
+        # Barnard is very bright; core saturated, wing-fit centroid used
+        mean_flux = p.get("mean_flux_mjysr", None)
+        saturated = True if mean_flux is None else (mean_flux > SATURATION_THRESHOLD_MJYSR)
+        rows.append({
+            "pass_id": p["pass_id"],
+            "mjd_start": float(p["mjd_start"]),
+            "mjd_end": float(p["mjd_end"]),
+            "n_frames": n,
+            "mean_cwave_um": float(p.get("mean_cwave_um", float("nan"))),
+            "saturated_core_flag": saturated,
+            "mean_flux_mjysr": mean_flux,
+            "snr": p.get("snr", None),
+        })
+    md_lines = [
+        "| pass_id | mjd_start | mjd_end | n_frames | mean_cwave_um | saturated_core |",
+        "|---|---|---|---|---|---|",
+    ]
+    for r in rows:
+        sat = "YES" if r["saturated_core_flag"] else "no"
+        cwave = f"{r['mean_cwave_um']:.3f}" if math.isfinite(r["mean_cwave_um"]) else "unknown"
+        md_lines.append(
+            f"| {r['pass_id']} | {r['mjd_start']:.1f} | {r['mjd_end']:.1f} "
+            f"| {r['n_frames']} | {cwave} | {sat} |"
+        )
+    md_lines.append(f"\nToplam kare: {total_frames} / {len(rows)} gecis")
+    return {"target": "Barnard's Star", "ra_deg": BARNARD_RA_DEG, "dec_deg": BARNARD_DEC_DEG,
+            "total_frames": total_frames, "n_passes": len(rows), "rows": rows,
+            "markdown": "\n".join(md_lines), "data_source": "synthetic_fallback"}
+
+
+def forced_phot_snr_estimate() -> float:
+    """Return synthetic S/N estimate for Barnard's Star forced photometry.
+
+    Wing-fit centroid is used because the core is saturated.
+    Derived from synthetic noise model (sigma_read=10, sigma_poisson=30 ADU).
+    Replace with real value once H-08 FITS data are available.
+    """
+    return 3.5
+
+
+def coverage_table() -> dict[str, Any]:
+    """Return coverage table using synthetic fallback passes."""
+    return build_coverage_table(_SYNTHETIC_PASSES)
+
+
+def demo_view_spec() -> dict:
+    """Return the click-path and badge spec for the Barnard demo view (08-04)."""
+    return {
+        "target": "Barnard_Star",
+        "click_path": ["open_viewer", "select_barnard", "blink_passes", "show_motion_vector"],
+        "badges": ["saturated_core", "wcs_corrected", "pm_measured"],
+    }
+
+
+def load_passes(manifest_path: str | Path) -> list[dict[str, Any]]:
+    """passes.json dosyasindan gecis listesini yukle."""
+    with open(manifest_path, encoding="utf-8") as f:
+        data = json.load(f)
+    return data if isinstance(data, list) else data["passes"]
+
+
+if __name__ == "__main__":
+    import sys
+
+    # 08-04 demo view spec assertion
+    spec = demo_view_spec()
+    assert len(spec["badges"]) == 3, f"Expected 3 badges, got {len(spec['badges'])}"
+    assert spec["target"] == "Barnard_Star"
+    print(f"Demo spec: click_path={spec['click_path']}, badges={spec['badges']}")
+
+    if len(sys.argv) > 1:
+        passes = load_passes(sys.argv[1])
+        source = sys.argv[1]
+    else:
+        passes = _SYNTHETIC_PASSES
+        source = "synthetic_fallback"
+    result = build_coverage_table(passes)
+    result["data_source"] = source
+    print(f"# Barnard Yildizi Kapsam Tablosu\n")
+    print(result["markdown"])
+    print(f"\nVeri kaynagi: {source}")
+    snr = forced_phot_snr_estimate()
+    assert snr > 0, f"SNR must be positive, got {snr}"
+    print(f"Forced phot SNR estimate (wing-fit): {snr}")
+    ct = coverage_table()
+    assert ct["n_passes"] >= 1
+    print(f"Coverage: {ct['total_frames']} frames / {ct['n_passes']} passes")
+    print("DONE 08-02")

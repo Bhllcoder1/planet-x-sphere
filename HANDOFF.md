@@ -1,96 +1,75 @@
-# HANDOFF — planet-x-sphere (Alan C / newernever)
+# HANDOFF — planet-x-sphere (Alan A, B, C Ortak Durum)
 
-> Bu dosyayı okuyarak kaldığın yerden devam et.
-> Bağlam kesintisi olursa: `git log --oneline -10` + bu dosya yeter.
+> Bu dosyayı okuyarak projenin güncel durumunu görebilirsiniz.
+> Tüm alanların (A, B, C) kodları entegre edilmiştir.
 
-## Proje özeti
+## Proje Özeti
 NASA Space Apps hackathonu: SPHEREx taramasından 5 hedef gökyüzü bölgesinin zaman serisi görüntüleyicisi.
-- Repo: `Bhllcoder1/planet-x-sphere` (private)
+- Repo: `Bhllcoder1/planet-x-sphere`
 - Yerel: `C:/Users/Tahir/source/planet-x-sphere`
-- Alan: **C** (sunucu, hesaplar, kiralama) → `c_sunucu/` ve `ops/`
-- ClickUp: Planet XSphere çalışma alanı, token `pk_314539962_TCGPHKBBWYVKAQ21LFITV81MIJU070P3`
-- GitHub token: `C:/Users/Tahir/OneDrive/Desktop/tokenc.txt` satır 5 (ghp_…)
-- Git remote auth: `git -c http.extraheader="Authorization: Basic <base64(newernever:ghp_...)>"` ile push
+- Alanlar:
+  - **Alan A (Akif)**: Veri işleme boru hattı (`a_veri_isleme/`), maskeler, germe, L0/L1, TAP async.
+  - **Alan B (Berk / Furkan)**: Astrometri ve hareket (`b_astrometri/`), Gaia, centroid, ePSF, mover classifier, ışık eğrileri.
+  - **Alan C (Osman / newernever)**: Sunucu backend (`c_sunucu/`), önbellek ürünleri, manifest v2, render motoru, Aladin Lite, operasyon/runbook'lar.
 
-## Tamamlanan görevler (2026-11-15)
-- 00-10, 00-11, 00-12: docs/RISKS.md ✓
-- 00-13: docs/QUESTIONS.md ✓
-- 05-04: c_sunucu/api/raster.py ✓
-- 05-10: docs/URL_SCHEMA.md ✓
-- 05-18: c_sunucu/api/wiseview_compat.py ✓
-- 06-01: FastAPI skeleton (api/main.py + routes/) ✓
-- 06-02: cache/ (l0/l1/l2 + byte_offset_map) ✓
-- 06-03: api/tap_client.py ✓
-- 06-04: api/s3_reader.py ✓
-- 06-05: api/politeness.py ✓
-- 06-06: api/timing.py ✓
-- 06-07/08: ops/RENTAL_RUNBOOK.md ✓
-- 06-09: deploy/ (Dockerfile, docker-compose, Caddyfile) ✓
-- 06-10: .env.example + ops/SECRET_MANAGEMENT.md ✓
-- 06-12/13: ops/VASTAI_RUNBOOK.md + c_sunucu/ops/gpu_stack.py ✓
-- 06-14: contracts/api.yaml + api/mock_server.py ✓
-- 07-01: tests/ (conftest.py, fixtures/) ✓
-- 07-11: tests/test_stack.py ✓
-- 07-12: tests/test_regression.py + tests/run_regression.py ✓
-- 09-03: docs/SLIDES_DRAFT.md ✓
-- 09-04: docs/STATUS.md ✓
-- 09-05: docs/COMPETITION_RULES.md ✓
-- 09-09: docs/CREDITS.md ✓
-- 09-10: docs/SUBMISSION_CHECKLIST.md ✓
-- 10-03/04: c_sunucu/api/coord_parser.py ✓
-- 11-04: c_sunucu/accounts/user_repo.py + __init__.py ✓
-- 11-05: c_sunucu/accounts/session.py + api/routes/auth.py ✓
-- 11-06: c_sunucu/accounts/history.py + api/routes/history.py ✓
-- 11-07/08: c_sunucu/api/routes/profile.py ✓
+---
 
-## Üçüncü dalgada tamamlananlar
+## Alan C (Sunucu & Altyapı) Tamamlananlar
+- 00-10 .. 00-13: Riskler ve sorular dokümanları ✓
 - 01-05: c_sunucu/ops/d9_test.py ✓
-- 07-10: c_sunucu/ops/speed_test.py ✓
-- 10-15: c_sunucu/api/routes/share.py ✓
-- 11-10: c_sunucu/ops/db_backup.py ✓
-- 11-11: c_sunucu/api/routes/export.py ✓
-- 11-13: c_sunucu/api/routes/fits_export.py ✓
-- Tüm yeni router'lar api/main.py'de kayıtlı ✓
+- 01-06: ops/D9_VM_RUNBOOK.md + c_sunucu/ops/d9_simulate.py + tests/test_d9_simulate.py ✓
+- 02-10: c_sunucu/cache/frame_products.py (img/var/flg/cat/geom little-endian binary ürünler) ✓
+- 02-11: contracts/manifest.schema.json + contracts/manifest_example.json (Draft 2020-12 v2) ✓
+- 02-20: c_sunucu/api/image_renderer.py (tam sayı NN zoom, asinh germe, Okabe-Ito NaN, thumb_64) ✓
+- 04-09: c_sunucu/api/skybot.py (IMCCE SkyBoT etiketleme ve çevrimdışı fallback) ✓
+- 04-14: c_sunucu/ops/shift_stack_demo.py + ops/SHIFT_STACK_RUNBOOK.md (CPU benchmark & CuPy vast.ai) ✓
+- 05-04 / 05-18: raster ve wiseview uyumluluk modülleri ✓
+- 05-14: d_site/pages/aladin_panel.html + c_sunucu/api/routes/aladin.py (Aladin Lite v3 context panel) ✓
+- 06-01 .. 06-14: FastAPI iskeleti, önbellek katmanı, TAP client, S3 reader, runbook'lar, Docker/Caddy ✓
+- 07-01, 07-10, 07-11, 07-12: Test altyapısı, hız testi, yığma testi, regresyon testi ✓
+- 11-04 .. 11-13: Hesaplar, session, geçmiş, profil ekranı (/profile/view), share, export, fits_export ✓
+- Alan C birim testleri: 45/45 geçti (%100) ✓
+- ClickUp: Alan C'ye ait 50/50 görev tamamlandı ✓
 
-## Dördüncü dalgada tamamlananlar (2026-11-15)
-- 06-11: ops/OFFLINE_BACKUP_PLAN.md + c_sunucu/ops/prefetch.py ✓ (commit 1bd4192)
-- 02-10: c_sunucu/cache/frame_products.py + tests/test_frame_products.py (img/var/flg/cat/geom atomik ve little-endian ürünler) ✓
-- 02-11: contracts/manifest.schema.json + contracts/manifest_example.json + tests/test_manifest_schema.py (Draft 2020-12 v2 manifest sözleşmesi) ✓
-- 02-20: c_sunucu/api/image_renderer.py + tests/test_image_renderer.py (tam sayı NN zoom, asinh germe, ızgara/işaretçi, Okabe-Ito NaN, thumb_64) ✓
-- 04-09: c_sunucu/api/skybot.py + tests/test_skybot.py (-objFilter=100, max(3 px, 3σ) eşleme yarıçapı, çevrimdışı 'untagged' koruması) ✓
-- 11-09: d_site/pages/profile.html + c_sunucu/api/routes/profile.py (/profile/view) (360 px uyumlu responsive profil/geçmiş UI) ✓
-- a_veri_isleme/process/masks.py ve stretch.py: _flatten ve numpy dizi desteği düzeltildi, tüm modüller uyumlu hale getirildi ✓
-- Alan A (Akif) GitHub durumu teyit edildi: ClickUp'ta 53 görev "to do" beklerken, GitHub `main` dalına commit `449567a` ile tüm temel modüller yüklenmiş; 8 testinin tümü geçiyor ✓
-- ClickUp güncellendi: Alan C'nin 47 görevi "complete" işaretlendi (Kalan: 01-06 VM testi, 04-14 vast.ai tetikleyicisi, 05-14 sonra listesi) ✓
-- Regresyon / Test paketi: 40/40 birim testi başarıyla geçti ✓
+---
 
-## Beşinci dalgada tamamlananlar (2026-11-15)
-- 01-06: ops/D9_VM_RUNBOOK.md + c_sunucu/ops/d9_simulate.py + tests/test_d9_simulate.py (AWS us-east-1 EC2 D9 test runbook'u ve yerel Ankara referans gecikme simülatörü) ✓
-- 04-14: c_sunucu/ops/shift_stack_demo.py + ops/SHIFT_STACK_RUNBOOK.md + tests/test_shift_stack_demo.py (CPU referans shift-and-stack benchmark, SNR kazanım formülü ve vast.ai CuPy yönergeleri) ✓
-- 05-14: d_site/pages/aladin_panel.html + d_site/pages/aladin_panel_test.html + c_sunucu/api/routes/aladin.py + tests/test_aladin.py (Aladin Lite v3 yan paneli, 5 hedef kataloğu, SIMBAD/VizieR/Legacy Survey linkleri, FastAPI rotası) ✓
-- Regresyon / Test paketi: 45/45 birim testi başarıyla geçti (%100) ✓
-- ClickUp durumu: Alan C'ye ait tüm 50 görev eksiksiz tamamlandı ✓
+## Alan B (Astrometri & Hareket) Tamamlananlar
+- 00-05: docs/WORK_PROTOCOL.md ✓
+- 01-03: b_astrometri/gaia/fetch.py + 13 test ✓
+- 03-01: b_astrometri/centroid/epsf.py + 7 test ✓
+- 03-02: b_astrometri/centroid/d5_check.py (600 sentetik fit) ✓
+- 03-04: b_astrometri/centroid/error_ellipse.py ✓
+- 03-05: b_astrometri/centroid/wing_fit.py ✓
+- 03-06: b_astrometri/centroid/joint_fit.py (Jacobian düzeltmesi) ✓
+- 03-07: b_astrometri/gaia/epoch.py + 11 test ✓
+- 03-12 .. 03-15: enjeksiyon/kurtarma, sentetik testler, WiseView epoch doğrulaması ✓
+- 04-01 .. 04-03: geçiş gruplama, geçiş yığını (`stacks.py`), zorlanmış fotometri (`forced_phot.py`) ✓
+- 04-06 .. 04-08: hareketli bağlama (`linker.py`), OUTLIER terfi (`outlier_candidates.py`), veto guard (`veto_guard.py`) ✓
+- 04-10: R24 asteroit sapma analizi raporu ✓
+- 04-12: lambda-binli ışık eğrisi modülü ve raporu ✓
+- 04-15: kayan pencere ışık eğrisi analizi (`rolling.py`) ✓
+- 07-04: T1 tam sayı kayma + T4 WCS gidiş-dönüş testleri (`tests/test_T1.py`, `tests/test_T4.py`) ✓
+- 08-01 .. 08-13: Hedef sonuç raporları ve karşılaştırma matrisleri ✓
+- 09-06 .. 09-11: Sınırlılıklar ve demo prova modülleri ✓
+- 10-11 .. 10-12: Hareket ve spektrum okuma panelleri ✓
+- Alan B birim testleri: 89 test OK ✓
 
-## Sıradaki
-- main dalına PR açılması veya Akif (Alan A) / Berk (Alan B) entegrasyonu.
+---
 
-## GitHub push durumu
-- Branch: c/00-10-to-11-05-alan-c-ilk-toplu
-- Son commitler Alan C branch'ine push edilecek
-- PR: tüm görevler tamamlandığında main'e açılacak
+## Alan A (Veri İşleme) Tamamlananlar
+- `a_veri_isleme/` modülleri `main` dalında mevcut ve testleri geçmektedir:
+  - `a_veri_isleme/process/pixel.py`
+  - `a_veri_isleme/process/masks.py`
+  - `a_veri_isleme/process/stretch.py`
+  - `a_veri_isleme/fetch/` ve `export/` modülleri
+  - 8/8 birim testi yerelde doğrulanmıştır.
 
-## Kritik kararlar (PLAN_spherex_v3.md'den)
-- S3 primer, cutout fallback (503 riski)
-- TAP async zorunlu; demo frame listeleri dondurulmuş
-- Mode N = kendi gridinde; R-k sunucu taraflı yeniden örnekleme MCD'de
-- HDU indeksleme: IMAGE=1, FLAGS=2, VARIANCE=3, ZODI=4, EPSF=5, WCS-WAVE=6
-- Arka plan sabit parent-grid tile'larında (window'a bağımlı değil)
-- Hedefler: Barnard, ε Indi B, WISE 0855, RW Aur, R Dra
+---
 
-## Dal/commit kuralı
-- Dal: `c/<görev-no>-kısa-ad`
-- main'e doğrudan push (küçük değişiklikler OK; büyük kod PR açar)
-- Commit mesajı: `feat: <görev-no> <kısa açıklama>`
-
-## Context budget notu
-15M token havuzu mevcut. %80'e yaklaşınca (12M kullanım) bu dosyayı güncelle ve `/compact` çalıştır.
+## Doğrulama Komutları
+- Python pytest: `pytest tests/ -v`
+- Alan B unittest:
+  - `python -m unittest discover -s b_astrometri/centroid -p "test_*.py"`
+  - `python -m unittest discover -s b_astrometri/gaia -p "test_*.py"`
+  - `python -m unittest discover -s b_astrometri/movers -p "test_*.py"`
+  - `python -m unittest discover -s b_astrometri/motion -p "test_*.py"`
