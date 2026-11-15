@@ -37,6 +37,12 @@ class Response:
     def raise_for_status(self):
         pass
 
+    def iter_content(self, chunk_size=None):
+        yield self.content
+
+    def close(self):
+        pass
+
 
 class ErrorResponse:
     """Simulates a non-2xx HTTP response that raises HTTPError on raise_for_status."""
@@ -125,7 +131,8 @@ class FetchTests(unittest.TestCase):
         self.assertEqual(max(x + 128 for x, y in centers), 1024)
         self.assertEqual(min(y - 128 for x, y in centers), 0)
         self.assertEqual(max(y + 128 for x, y in centers), 1024)
-        self.assertAlmostEqual(tiles[0]["radius"], 128 * 1.4143 * (6.2 / 3600) + 0.01)
+        # WCS cdelt is 6.15"/px; radius must reflect actual pixel scale, not the old 6.2 fallback.
+        self.assertAlmostEqual(tiles[0]["radius"], 128 * 1.4143 * (6.15 / 3600) + 0.01, places=5)
         session = Session([document((i,)) for i in range(16)])
         result = fetch.fetch_frame(self.header, 0, 0, self.root / "cache",
             self.root / "small.fits", attempts=1, session=session)

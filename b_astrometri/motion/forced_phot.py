@@ -13,7 +13,13 @@ from pathlib import Path
 
 import numpy as np
 
-from a_veri_isleme.process.masks import PROFILE_CENTROID_MASK, MASK_TRANSIENT, MASK_CROSSTALK
+try:
+    from a_veri_isleme.process.masks import PROFILE_CENTROID_MASK, MASK_TRANSIENT, MASK_CROSSTALK
+except ImportError:
+    # SPHEREx Table16 standart bit degerlerine don (a_veri_isleme kurulu degilse)
+    PROFILE_CENTROID_MASK = 0x3C028E44  # comment: OVERFLOW(1)+DICHROIC(7)+GHOST(22-24)+STREAK(25)
+    MASK_TRANSIENT = 1 << 0   # bit 0
+    MASK_CROSSTALK = 1 << 20  # bit 20
 
 # 0x3C028E44 + OVERFLOW(1) + DICHROIC(7) + GHOST(22-24) + STREAK(25)
 DEFAULT_BAD_FLAGS = PROFILE_CENTROID_MASK
@@ -223,7 +229,8 @@ or transforms celestial reference frames. Convert RA/Dec upstream when needed.
         metadata.update(cwave_um=float(cwave), cband_um=float(cband), spectral_source=spectral_source)
         # Only the stamp bounds are integer indices; source/model positions stay float.
         # 33 samples at 5x span ~6.4 native pixels; a 9x9 stamp also constrains b.
-        cx, cy = int(math.floor(x + 0.5)), int(math.floor(y + 0.5))
+        # x/y are already bounds-checked above (always >= 0); int(x+0.5) gives nearest pixel.
+        cx, cy = int(x + 0.5), int(y + 0.5)
         xs, ys = slice(max(0, cx - 4), min(img.shape[1], cx + 5)), slice(max(0, cy - 4), min(img.shape[0], cy + 5))
         yy, xx = np.mgrid[ys, xs]
         xx_parent = xx + (coords["x_parent"] - x)

@@ -15,6 +15,7 @@ from astropy.io import fits
 from astropy.io.votable import parse_single_table
 from astropy.table import Table, unique, vstack
 from astropy.wcs import WCS
+from astropy.wcs.utils import proj_plane_pixel_scales
 
 COLUMNS = (
     "source_id", "ra", "dec", "parallax", "parallax_error", "pmra", "pmdec",
@@ -97,9 +98,18 @@ def fetch_tile(provider, query, cache, *, attempts=2, timeout=45, session=None):
         try:
             response = requester.post(endpoint, data={"REQUEST": "doQuery", "LANG": "ADQL",
                 "FORMAT": "votable", "MAXREC": "2000000", "QUERY": query},
-                timeout=(min(10, timeout), timeout))
+                timeout=(min(10, timeout), timeout), stream=True)
             response.raise_for_status()
-            content = response.content
+            # Read with a hard deadline: timeout=(connect, read) caps per-chunk idle time,
+            # not total transfer; stream=True + deadline loop enforces the wall-clock budget.
+            deadline = started + timeout
+            chunks = []
+            for chunk in response.iter_content(chunk_size=1 << 20):
+                if time.monotonic() > deadline:
+                    response.close()
+                    raise requests.Timeout(f"Total transfer exceeded {timeout}s deadline")
+                chunks.append(chunk)
+            content = b"".join(chunks)
             table = parse_catalogue(content)
             atomic_write(data_path, content)
             atomic_write(meta_path, json.dumps({"identity": identity,
@@ -112,8 +122,6 @@ def fetch_tile(provider, query, cache, *, attempts=2, timeout=45, session=None):
         except requests.HTTPError as error:
             # 4xx errors are permanent (server understood the request but refused/can't serve it).
             # 429 Too Many Requests is transient and may be retried like any other network error.
-            # Note: timeout=(connect, read) limits time between bytes, not total transfer time;
-            # a server streaming data very slowly can still exceed the intended budget.
             status = error.response.status_code if error.response is not None else None
             if status is not None and 400 <= status < 500 and status != 429:
                 raise RuntimeError(
@@ -134,14 +142,22 @@ def frame_tiles(header, x0, y0, tile_half=128):
     if not all(math.isfinite(v) for v in (x0, y0)):
         raise ValueError("Window origin must be finite")
     wcs = WCS(header)
-    # Smaller cones cover the same 1024-square window without recursive queries.
-    radius = tile_half * 1.4143 * (6.2 / 3600) + 0.01
+    # Pixel scale from WCS (degrees/pixel); fall back to 6.2"/px if WCS lacks projection info.
+    try:
+        scales_deg = proj_plane_pixel_scales(wcs)
+        if not all(math.isfinite(s) and s > 0 for s in scales_deg):
+            raise ValueError("non-positive pixel scale")
+        pixel_scale_arcsec = float(max(scales_deg)) * 3600.0
+    except Exception:
+        pixel_scale_arcsec = 6.2
+    radius = tile_half * 1.4143 * (pixel_scale_arcsec / 3600) + 0.01
     for qx in range(tile_half, 1024, 2 * tile_half):
         for qy in range(tile_half, 1024, 2 * tile_half):
             ra, dec = map(float, wcs.all_pix2world(x0 + qx, y0 + qy, 0))
             if not all(math.isfinite(v) for v in (ra, dec)):
                 raise ValueError("WCS returned non-finite sky coordinates")
-            yield {"qx": qx, "qy": qy, "ra": ra, "dec": dec, "radius": radius}
+            yield {"qx": qx, "qy": qy, "ra": ra, "dec": dec, "radius": radius,
+                   "pixel_scale_arcsec": pixel_scale_arcsec}
 
 
 def fetch_frame(header, x0, y0, cache, output, *, providers=("esa", "mast"), attempts=2,

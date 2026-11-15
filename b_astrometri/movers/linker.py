@@ -179,7 +179,11 @@ def link_movers(
             if not (v_min_px_hr <= speed <= v_max_px_hr):
                 continue
             pair_votes += 1
-            cell = (round(vx / grid_step), round(vy / grid_step))
+            # Nearest-integer grid quantization without round() (velocity, not pixel coord).
+            _qx = vx / grid_step
+            _qy = vy / grid_step
+            cell = (int(_qx + 0.5) if _qx >= 0 else -int(-_qx + 0.5),
+                    int(_qy + 0.5) if _qy >= 0 else -int(-_qy + 0.5))
             grid_vx, grid_vy = cell[0] * grid_step, cell[1] * grid_step
             boundary = not v_min_px_hr <= math.hypot(grid_vx, grid_vy) <= v_max_px_hr
             # Boundary seeds retain the exact pair, so do not merge distinct pairs.
