@@ -48,10 +48,10 @@
     "semantic_hash": "b12d09512c52cbb8cd487263e64972fe"
   },
   "HANDOFF.md": {
-    "mtime": 1794716461.0238383,
-    "seen": 1794716592.4891431,
-    "ast_hash": "df6af15e3faeb323f0e26c3151cbcf41",
-    "semantic_hash": "df6af15e3faeb323f0e26c3151cbcf41"
+    "mtime": 1794717518.5344718,
+    "seen": 1794717566.317891,
+    "ast_hash": "09152bd71ea67afd5a4701fb08df3841",
+    "semantic_hash": "09152bd71ea67afd5a4701fb08df3841"
   },
   "README.md": {
     "mtime": 1794695460.0272524,
@@ -96,10 +96,10 @@
     "semantic_hash": "ce250926159f3ad976899598073b060d"
   },
   "docs/second-brain/HUMAN_ACTIONS.md": {
-    "mtime": 1794704618.359152,
-    "seen": 1794704754.241468,
-    "ast_hash": "090e0c4d8b25839a0eb49d412332586e",
-    "semantic_hash": "090e0c4d8b25839a0eb49d412332586e"
+    "mtime": 1794717316.0944355,
+    "seen": 1794717566.317891,
+    "ast_hash": "937ca301f1460676845bf0a1b38ea310",
+    "semantic_hash": "937ca301f1460676845bf0a1b38ea310"
   },
   "docs/second-brain/IMPLEMENTATION.md": {
     "mtime": 1794716461.0238383,
@@ -108,10 +108,10 @@
     "semantic_hash": "00d7d95b82bd7c422233d93f67e38e89"
   },
   "docs/second-brain/NOW.md": {
-    "mtime": 1794716528.5706904,
-    "seen": 1794716592.4891431,
-    "ast_hash": "ac45b5df21cfc822bb67b6085eccf042",
-    "semantic_hash": "ac45b5df21cfc822bb67b6085eccf042"
+    "mtime": 1794717518.5344718,
+    "seen": 1794717566.317891,
+    "ast_hash": "99317435935bfe947a8831bba680fccd",
+    "semantic_hash": "99317435935bfe947a8831bba680fccd"
   },
   "docs/second-brain/README.md": {
     "mtime": 1794695961.7532291,
@@ -126,10 +126,10 @@
     "semantic_hash": "f87341aa75e8de887a135f8b714c19fa"
   },
   "docs/second-brain/TASKS.md": {
-    "mtime": 1794695253.0738995,
-    "seen": 1794698296.237852,
-    "ast_hash": "45390e878db4b9734e978f1f8e0eb233",
-    "semantic_hash": "45390e878db4b9734e978f1f8e0eb233"
+    "mtime": 1794717350.920048,
+    "seen": 1794717566.317891,
+    "ast_hash": "5b4e659b14a448f13eaeba1f478814a1",
+    "semantic_hash": "5b4e659b14a448f13eaeba1f478814a1"
   },
   "b_astrometri/centroid/coord_audit.py": {
     "mtime": 1794698350.2248995,
@@ -246,16 +246,16 @@
     "semantic_hash": "2475a3e24d07caf7f3f0d7cada886673"
   },
   "b_astrometri/movers/test_veto_guard.py": {
-    "mtime": 1794702729.049562,
-    "seen": 1794703787.8224008,
-    "ast_hash": "3dce5a7fc8dfd93976d8632a3b908d83",
-    "semantic_hash": "3dce5a7fc8dfd93976d8632a3b908d83"
+    "mtime": 1794717258.9102685,
+    "seen": 1794717566.317891,
+    "ast_hash": "35542137486fab59995f654b883bcbe8",
+    "semantic_hash": "35542137486fab59995f654b883bcbe8"
   },
   "b_astrometri/movers/veto_guard.py": {
-    "mtime": 1794702768.7431917,
-    "seen": 1794703787.8224008,
-    "ast_hash": "abdb76960aac6fe368ee2cdcde49e440",
-    "semantic_hash": "abdb76960aac6fe368ee2cdcde49e440"
+    "mtime": 1794717258.9089484,
+    "seen": 1794717566.317891,
+    "ast_hash": "c7efab630a7adce38a95916ec3dd0478",
+    "semantic_hash": "c7efab630a7adce38a95916ec3dd0478"
   },
   "b_astrometri/reports/07-04-t4-real/README.md": {
     "mtime": 1794703598.4973228,
@@ -282,16 +282,16 @@
     "semantic_hash": "50ae79018316289967bb5a9a59fa47b9"
   },
   "b_astrometri/centroid/joint_fit.py": {
-    "mtime": 1794704590.8083053,
-    "seen": 1794704754.241468,
-    "ast_hash": "3956b9fe77de3e7b03dd22d92547eccc",
-    "semantic_hash": "3956b9fe77de3e7b03dd22d92547eccc"
+    "mtime": 1794717399.2893183,
+    "seen": 1794717566.317891,
+    "ast_hash": "bdf99c6cebcdb9ff04a3e24fd899379b",
+    "semantic_hash": "bdf99c6cebcdb9ff04a3e24fd899379b"
   },
   "b_astrometri/centroid/test_joint_fit.py": {
-    "mtime": 1794704592.5976236,
-    "seen": 1794704754.241468,
-    "ast_hash": "592f0704b8b9535e42ef15aaf2e8705e",
-    "semantic_hash": "592f0704b8b9535e42ef15aaf2e8705e"
+    "mtime": 1794717309.651126,
+    "seen": 1794717566.317891,
+    "ast_hash": "29a5201bd04bbb5eada12ab9bfc91860",
+    "semantic_hash": "29a5201bd04bbb5eada12ab9bfc91860"
   },
   "b_astrometri/reports/04-12-status/README.md": {
     "mtime": 1794704618.3580775,
@@ -310,5 +310,77 @@
     "seen": 1794716592.4891431,
     "ast_hash": "0ac4fc366582991784996495bc23601e",
     "semantic_hash": "0ac4fc366582991784996495bc23601e"
+  },
+  "b_astrometri/centroid/joint_coverage.py": {
+    "mtime": 1794717490.164108,
+    "seen": 1794717566.317891,
+    "ast_hash": "453b501b169e8ac64fc54e72d19718d6",
+    "semantic_hash": "453b501b169e8ac64fc54e72d19718d6"
+  },
+  "b_astrometri/motion/rolling.py": {
+    "mtime": 1794717446.8518777,
+    "seen": 1794717566.317891,
+    "ast_hash": "da6091c596849cb26dfe4f4f494931a7",
+    "semantic_hash": "da6091c596849cb26dfe4f4f494931a7"
+  },
+  "b_astrometri/motion/stacks.py": {
+    "mtime": 1794717423.9831576,
+    "seen": 1794717566.317891,
+    "ast_hash": "b9515aaa6b3f882da473cc03406fd987",
+    "semantic_hash": "b9515aaa6b3f882da473cc03406fd987"
+  },
+  "b_astrometri/motion/test_rolling.py": {
+    "mtime": 1794717480.5700407,
+    "seen": 1794717566.317891,
+    "ast_hash": "ee844b135f8bdd063a82edc641428957",
+    "semantic_hash": "ee844b135f8bdd063a82edc641428957"
+  },
+  "b_astrometri/motion/test_stacks.py": {
+    "mtime": 1794717423.9831576,
+    "seen": 1794717566.317891,
+    "ast_hash": "7030fc37f9ff266dba4bc8545e6f405e",
+    "semantic_hash": "7030fc37f9ff266dba4bc8545e6f405e"
+  },
+  "b_astrometri/movers/outlier_candidates.py": {
+    "mtime": 1794717376.7166514,
+    "seen": 1794717566.317891,
+    "ast_hash": "4541b5374d925512b66746556ac93dce",
+    "semantic_hash": "4541b5374d925512b66746556ac93dce"
+  },
+  "b_astrometri/movers/test_outlier_candidates.py": {
+    "mtime": 1794717417.0012813,
+    "seen": 1794717566.317891,
+    "ast_hash": "d279a10e109ff574c6d25c792542b674",
+    "semantic_hash": "d279a10e109ff574c6d25c792542b674"
+  },
+  "b_astrometri/motion/requirements.txt": {
+    "mtime": 1794717322.1108484,
+    "seen": 1794717566.317891,
+    "ast_hash": "602ce595ade396808c812a1dbb9aceca",
+    "semantic_hash": "602ce595ade396808c812a1dbb9aceca"
+  },
+  "b_astrometri/reports/03-06-implementation.md": {
+    "mtime": 1794717535.7458246,
+    "seen": 1794717566.317891,
+    "ast_hash": "0cd8660a18a11a1a5560c795ddb2b430",
+    "semantic_hash": "0cd8660a18a11a1a5560c795ddb2b430"
+  },
+  "b_astrometri/reports/04-02-implementation.md": {
+    "mtime": 1794717460.0336642,
+    "seen": 1794717566.317891,
+    "ast_hash": "c54228030d8b0ab6423719868dab9fd7",
+    "semantic_hash": "c54228030d8b0ab6423719868dab9fd7"
+  },
+  "b_astrometri/reports/04-07-implementation.md": {
+    "mtime": 1794717417.0012813,
+    "seen": 1794717566.317891,
+    "ast_hash": "e41a6f65a75781677c84c7da9c364940",
+    "semantic_hash": "e41a6f65a75781677c84c7da9c364940"
+  },
+  "b_astrometri/reports/04-15-implementation.md": {
+    "mtime": 1794717511.5966709,
+    "seen": 1794717566.317891,
+    "ast_hash": "9154471fd4c7c382555c6087e8de9fb9",
+    "semantic_hash": "9154471fd4c7c382555c6087e8de9fb9"
   }
 }

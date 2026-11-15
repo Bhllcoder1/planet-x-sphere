@@ -167,6 +167,38 @@ def validation_metrics(stack, difference, *, empty_sky_mask, static_star_mask):
             "scope": "supplied regions only; resampled covariance and PSF differences not corrected"}
 
 
+def compare_stack_modes(candidates, *, empty_sky_mask, static_star_mask, source_mask):
+    """D10 table for {'detector': (stack,diff), 'channel': (stack,diff)}.
+
+    SNR is a display diagnostic: median source brightness minus empty-sky
+    median, divided by nominal pixel noise. It is not forced photometry.
+    A mode wins only with lower median residual AND at least as high SNR.
+    """
+    if set(candidates) != {"detector", "channel"}:
+        raise ValueError("D10 requires detector and channel candidate products")
+    rows = {}
+    for name, (stack, difference) in candidates.items():
+        metrics = validation_metrics(stack, difference, empty_sky_mask=empty_sky_mask,
+                                     static_star_mask=static_star_mask)
+        mask = np.asarray(source_mask)
+        if mask.dtype.kind != "b" or mask.shape != stack["image"].shape:
+            raise ValueError("Source region mask must match stack shape")
+        source = mask & np.isfinite(stack["image"]) & np.isfinite(stack["noise"]) & (stack["noise"] > 0)
+        sky = empty_sky_mask & np.isfinite(stack["image"])
+        if not source.any() or not sky.any():
+            raise ValueError("D10 requires finite source and empty-sky samples")
+        background = np.median(stack["image"][sky])
+        metrics["display_source_snr"] = float(np.median(np.abs(stack["image"][source] - background)
+                                                       / stack["noise"][source]))
+        rows[name] = metrics
+    winner = "inconclusive"
+    for name, other in (("detector", "channel"), ("channel", "detector")):
+        if (rows[name]["static_residual_median_sigma"] < rows[other]["static_residual_median_sigma"]
+                and rows[name]["display_source_snr"] >= rows[other]["display_source_snr"]):
+            winner = name
+    return {"rows": rows, "winner": winner, "physical_snr_validated": False, **_labels()}
+
+
 def write_stack_products(product, directory, *, stem):
     """Write little-endian float32 view planes plus JSON provenance, never native measurement products."""
     directory = Path(directory)

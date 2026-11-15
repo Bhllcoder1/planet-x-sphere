@@ -11,7 +11,7 @@ from astropy.wcs import WCS
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from stacks import (DEFAULT_BAD_FLAGS, difference_stacks, inverse_variance_stack,
+from stacks import (DEFAULT_BAD_FLAGS, compare_stack_modes, difference_stacks, inverse_variance_stack,
                     stack_pass, validation_metrics, write_stack_products)
 
 
@@ -146,6 +146,22 @@ class StackTests(unittest.TestCase):
             self.assertEqual(metadata["shape"], [4, 4])
             with self.assertRaises(ValueError):
                 write_stack_products(product, directory, stem="../unsafe")
+
+    def test_d10_requires_better_residual_and_no_snr_loss(self):
+        yy, xx = np.mgrid[:8, :8]
+        source = np.zeros((8, 8))
+        source[3:5, 3:5] = 10
+        stack = stack_pass([frame(i, source) for i in (1, 2)],
+                           target_wcs=wcs_grid(), shape_out=source.shape)
+        other = stack_pass([frame(i, source, pass_id=2) for i in (3, 4)],
+                           target_wcs=wcs_grid(), shape_out=source.shape)
+        good = difference_stacks(stack, other, channel_width_um=.02)
+        bad = dict(good, image=good["image"] + 4)
+        result = compare_stack_modes({"detector": (stack, bad), "channel": (stack, good)},
+            empty_sky_mask=source == 0, static_star_mask=source > 0, source_mask=source > 0)
+        self.assertEqual(result["winner"], "channel")
+        self.assertFalse(result["physical_snr_validated"])
+        self.assertEqual(result["rows"]["detector"]["static_residual_median_sigma"], 4)
 
 
 if __name__ == "__main__":

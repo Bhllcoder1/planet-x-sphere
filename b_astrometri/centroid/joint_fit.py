@@ -14,6 +14,7 @@ from typing import Any
 
 import numpy as np
 from scipy.optimize import least_squares
+from scipy.sparse import lil_matrix
 
 from ellipse import catalog_fields
 from wing_fit import DEFAULT_BAD_FLAGS, valid_pixel_mask
@@ -108,20 +109,27 @@ def fit_joint_pass(
             parts.append((pred - u["iv"]) * u["inv_std"])
         return np.concatenate(parts)
 
+    n_pix = sum(len(u["iv"]) for u in usable)
+    sparsity = lil_matrix((n_pix, len(p0)), dtype=int)
+    sparsity[:, :2] = 1
+    offset = 0
+    for k, u in enumerate(usable):
+        n = len(u["iv"])
+        sparsity[offset:offset + n, 2 + 2 * k:4 + 2 * k] = 1
+        offset += n
     res = least_squares(
-        residuals, p0, bounds=(lb, ub), x_scale="jac",
+        residuals, p0, bounds=(lb, ub), x_scale="jac", jac_sparsity=sparsity.tocsr(),
         xtol=1e-10, ftol=1e-10, gtol=1e-10,
     )
     if not res.success:
         return {"status": "unmeasurable", "reason": "optimizer_failed",
                 "n_input": len(frames), "n_used": len(usable),
                 "n_excluded": len(excluded), "excluded": excluded}
-    n_pix = sum(len(u["iv"]) for u in usable)
     dof = max(n_pix - len(p0), 1)
     chi2_nu = float(np.sum(res.fun ** 2) / dof)
 
     try:
-        cov_all = np.linalg.inv(res.jac.T @ res.jac)
+        cov_all = np.linalg.inv((res.jac.T @ res.jac).toarray())
     except np.linalg.LinAlgError:
         return {
             "status": "unmeasurable",

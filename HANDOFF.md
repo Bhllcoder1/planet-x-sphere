@@ -73,3 +73,7 @@ $py='C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe'
 - Graphify çıktısı `graphify-out/` depoda değil, yerel türetilmiş — commit etme.
 - TypeSafe Jev skill: `.agents/skills/typesafe-ai/` kurulu; kodda LLM yok, cookbook uygulanabilir değil. Canlı API denemesi yapılmadı.
 - Yerel `reports/` ve FITS dosyaları depoya eklenmez (CONTRIBUTING.md kural 5).
+
+## Parallel implementation results
+
+04-02 exact-TAN stacks and channel-safe differences:9 focused tests; f32/noise/JSON writer and D10 metrics.04-07 OUTLIER promotion:7 focused tests, movers12/12.04-15 rolling-window inside/outside views and +/-/. roles:8 focused tests.03-06 full covariances, per-frame chi2, strict JSON output and block-sparse Jacobian:4 tests. Real target acceptance remains pending in each task report under b_astrometri/reports/. Resampled variance is explicitly nominal; interpolation covariance is not propagated. The1000trial03-06 coverage runner is being prepared; never claim its results until finished.

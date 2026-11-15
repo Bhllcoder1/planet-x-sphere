@@ -76,3 +76,11 @@ Active area: B (confirmed by user). ClickUp access is restored using the pk_ val
 - Merged origin/main 449567a into feature branch; A pixel/mask modules are now available. Earlier blanket H-01 missing-code claim needs integration-level review.
 - Corrected veto flag mapping: TRANSIENT bit0, HALO bit28 (OUTLIER remains bit19).
 - Installed reproject0.21.0 in Stage0 venv for task-required exact TAN reprojection.
+
+## Parallel code delivered
+
+-04-02:stack_pass,difference_stacks,validation_metrics,compare_stack_modes,write_stack_products; exactTAN reprojection and same-channel restrictions.9 focused tests.
+-04-07:promote_outliers+score_linked_candidates+JSON; SOURCE/OUTLIER retained; raw8connected compact<=40pixel components.7 focused tests; movers12/12.
+-04-15:rolling_window+frame role list,inside/outside references through04-02.8 focused tests.
+-03-06:full2x2covariance,framechi2,JSON output,block sparse numericalJacobian;4 focused tests.1000trialcoverage not yet finished.
+-RealBarnard/Gaia/2026 acceptance is pending task-specific reports; no new real detection/measurement invented.

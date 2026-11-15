@@ -31,10 +31,13 @@ tespitleri, reddetme nedenlerini ve istatistikleri JSON'a yazar.
 & C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe -I -m unittest discover -s b_astrometri/movers -p test_outlier_candidates.py -v
 ```
 
-Testler: 8-bağlantı; 40 dahil / 42 hariç; fit-mask; SOURCE korunması;
+Testler: 8-bağlantı; 40 dahil / 41 hariç; fit-mask; SOURCE korunması;
 katalog eşleşmesi; mükerrer tespitin önlenmesi; ölçülen sentetik referans oranı;
 OUTLIER'sız üç sentetik karede gerçek 04-06 bağlayıcısının çalışması; ek skor;
 FLAGS/girdi doğrulaması ve JSON yazımı.
+
+Bu komutla **7/7 test geçti**. Linker ve veto testleriyle birlikte movers dizini
+**12/12 testte geçti**. Gerçek veri kabul testleri bunlara dahil değildir.
 
 ## Gerçek veri kabulü açık
 

@@ -22,7 +22,8 @@ class OutlierTests(unittest.TestCase):
         flags = np.zeros((30, 30), dtype=np.uint32)
         flags[1, 1] = flags[2, 2] = MASK_OUTLIER
         flags[5:10, 1:9] = MASK_OUTLIER  # exactly 40
-        flags[15:22, 1:7] = MASK_OUTLIER  # 42
+        flags[15:22, 1:7] = MASK_OUTLIER
+        flags[21, 6] = 0  # 41: first size above inclusive threshold
         flags[25, 25] = MASK_OUTLIER | BASE_FIT_MASK
         result = self.promote(flags)
         self.assertEqual(result["statistics"]["n_components"], 4)
@@ -48,6 +49,14 @@ class OutlierTests(unittest.TestCase):
                                   catalog_positions=[(4, 3)])
         self.assertEqual(result["outlier_candidates"], [])
         self.assertEqual(result["component_log"][0]["reason"], "catalog_match")
+
+    def test_source_without_outlier_preserves_ordinary_detection(self):
+        flags = np.full((8, 8), MASK_SOURCE, dtype=np.uint32)
+        detection = {"frame_id": "f", "mjd": 61000, "det_id": "source_only",
+                     "x": 4.0, "y": 3.0}
+        result = self.promote(flags, [detection])
+        self.assertEqual(result["detections"], [detection])
+        self.assertEqual(result["outlier_candidates"], [])
 
     def test_measures_static_reference_promotion_without_claiming_real_rate(self):
         flags = np.zeros((12, 12), dtype=np.uint32)
