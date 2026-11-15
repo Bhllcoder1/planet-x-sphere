@@ -242,4 +242,24 @@ runTest("10-14", "5 Competition targets, Mode S stack/diff rules, 15 UI states, 
   assert.equal(ONBOARDING_STEPS.length, 3);
 });
 
+// 9. Real NASA S3 L2 FITS Cutouts + MAST Gaia DR3 End-to-End Verification
+runTest("REAL-DATA", "Real NASA SPHEREx L2 S3 FITS cutouts + MAST Gaia DR3 catalog end-to-end check", () => {
+  const realData = JSON.parse(fs.readFileSync(path.join(__dirname, "../d_site/pages/real_spherex_data.json"), "utf-8"));
+  const barnard = realData.targets.barnards_star;
+  assert.equal(barnard.frames.length, 5);
+  assert.equal(barnard.gaia_catalog_count, 120);
+  assert.equal(barnard.frames[0].provenance_type, "S3_FITS_L2_DIRECT");
+  assert.equal(barnard.frames[0].image_mjy_sr.length, 31);
+  assert.equal(barnard.frames[0].image_mjy_sr[0].length, 31);
+  assert.equal(barnard.frames[0].nan_pixel_count, 4); // 2x2 saturated core on Detector 2
+  assert.ok(barnard.frames[0].gaia_in_cutout.length >= 50);
+
+  for (const tid of ["barnards_star", "epsilon_indi_b", "wise_0855_0714", "rw_aurigae", "r_draconis"]) {
+    const t = realData.targets[tid];
+    assert.ok(t, `Missing target ${tid}`);
+    assert.ok(t.gaia_catalog_count >= 25, `Expected >=25 real Gaia DR3 stars for ${tid}`);
+    assert.ok(t.frames.length >= 4, `Expected >=4 epochs for ${tid}`);
+  }
+});
+
 console.log(JSON.stringify({ suite: "test_viewer_js.mjs", total: results.length, passed: results.length, results }, null, 2));
