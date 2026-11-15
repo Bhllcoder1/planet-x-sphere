@@ -1,6 +1,6 @@
 """
 Real/fake moving object classifier (small model) with rule-score comparison.
-[STUB] 04-18 (candidate catalog) needed. Provides feature extraction + logistic baseline.
+[PARTIAL] real training data from 04-18 needed; feature extraction and logistic score complete.
 """
 from __future__ import annotations
 import math
@@ -83,7 +83,7 @@ def rule_score(features: MoverFeatures) -> float:
 
 
 def logistic_score(features: MoverFeatures) -> float:
-    """Simple logistic classifier (weights from synthetic training [STUB])."""
+    """Simple logistic classifier (weights from synthetic training [PARTIAL])."""
     # Feature vector: [n_det, snr, 1/chi2, 1-veto, 1]
     x = np.array([
         features.n_detections / 10.0,
@@ -118,7 +118,7 @@ def classify_candidate(
         rule_score=rs,
         model_score=ms,
         is_real=combined >= threshold,
-        notes=f"[STUB] combined={combined:.3f}; 04-18 training data needed",
+        notes=f"[PARTIAL] combined={combined:.3f}; real training data from 04-18 needed; feature extraction and logistic score complete.",
     )
 
 
@@ -134,4 +134,28 @@ if __name__ == "__main__":
     result = classify_candidate("test_mover_001", x, y, t, flux, snr, veto_score=0.1)
     print(f"rule_score={result.rule_score:.3f}, model_score={result.model_score:.3f}, is_real={result.is_real}")
     print(result.notes)
-    print("04-19 classifier: OK")
+
+    # Real vs fake comparison test
+    rng2 = np.random.default_rng(42)
+    n_r, n_f = 8, 2
+    t_r = np.sort(rng2.uniform(0, 30, n_r))
+    x_r = 50.0 + 0.3 * t_r + rng2.normal(0, 0.05, n_r)
+    y_r = 50.0 + 0.1 * t_r + rng2.normal(0, 0.05, n_r)
+    real_cand = classify_candidate(
+        "real_cand", x_r, y_r, t_r,
+        np.full(n_r, 90.0), np.full(n_r, 7.0), veto_score=0.0,
+    )
+    t_f = np.sort(rng2.uniform(0, 30, n_f))
+    x_f = rng2.uniform(0, 100, n_f)
+    y_f = rng2.uniform(0, 100, n_f)
+    fake_cand = classify_candidate(
+        "fake_cand", x_f, y_f, t_f,
+        np.full(n_f, 20.0), np.full(n_f, 1.0), veto_score=0.9,
+    )
+    real_combined = (real_cand.rule_score + real_cand.model_score) / 2.0
+    fake_combined = (fake_cand.rule_score + fake_cand.model_score) / 2.0
+    assert real_combined > fake_combined, (
+        f"real combined score {real_combined:.3f} should exceed fake {fake_combined:.3f}"
+    )
+    print(f"real_combined={real_combined:.3f} > fake_combined={fake_combined:.3f} OK")
+    print("DONE 04-19")
