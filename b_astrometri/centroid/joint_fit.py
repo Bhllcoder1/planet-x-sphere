@@ -186,3 +186,22 @@ def write_pass_position(result: dict[str, Any], output_path: str | Path) -> None
     """Write a strict JSON task product; NaN/Infinity cannot become catalogue values."""
     payload = json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False)
     Path(output_path).write_text(payload + "\n", encoding="utf-8")
+
+
+def joint_fit_summary(result: dict) -> dict:
+    """Summarise a fit_joint_pass result dict."""
+    if not result or result.get("status") not in ("ok", "converged"):
+        return {"status": result.get("status", "unknown"), "n_frames": 0, "converged": False}
+    return {
+        "status": result.get("status"),
+        "n_frames": result.get("n_frames", 0),
+        "n_excluded": result.get("n_excluded", 0),
+        "converged": result.get("status") in ("ok", "converged"),
+    }
+
+
+if __name__ == "__main__":
+    summary = joint_fit_summary({"status": "no_data"})
+    print(f"joint_fit_summary (no_data): {summary}")
+    assert not summary["converged"]
+    print("03-06 joint_fit: OK")
