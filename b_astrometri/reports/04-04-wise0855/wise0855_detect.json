@@ -1,0 +1,28 @@
+{
+  "task": "04-04",
+  "target": "WISE 0855",
+  "decision": "unknown",
+  "coverage_status": "unknown",
+  "photometry_status": "not_run",
+  "pass_results": [],
+  "reason": "The available coverage attempts failed or timed out. This does not establish zero coverage, so forced photometry and per-pass SNR were not run.",
+  "evidence": [
+    {
+      "source": "docs/stage0/s0_A.md",
+      "line": 383,
+      "finding": "IRSA TAP sync/async and TOP-5 attempts failed after timeouts, HTTP 502, or connection resets; frame count remains UNKNOWN."
+    },
+    {
+      "source": "docs/stage0/s0_A.md",
+      "line": 404,
+      "finding": "Async TAP job remained queued and polling returned HTTP 502."
+    },
+    {
+      "source": "docs/stage0/s0_A.md",
+      "line": 405,
+      "finding": "SIA fallback timed out; one QR3-only probe returned no rows, which does not establish absence in DR1/QR2 or TAP."
+    }
+  ],
+  "next_action": "Obtain or rerun the canonical List 01 WISE 0855 coverage query. Continue only if it returns frame/pass coverage; do not interpret query failure as zero coverage.",
+  "clickup_status": "not_live_verified"
+}

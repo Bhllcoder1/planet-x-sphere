@@ -58,4 +58,8 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 - 03-02: 03-01 ve 02-07 gerçek yıldız seçimini bekler. Kabulde konum kadar akı da doğrulanmalı (×1/×25 ölçeği).
 - 03-07: 02-03 koordinat sözleşmesine bağlanır; saf epoch/paralaks testleri bağımsız hazırlanabilir.
 - 04-03: ePSF, maskeler ve WCS düzeltmesiyle gerçek veri bütünleştirmesi gerekir.
+- 03-13: Sentetik 03-12 benzeri faz taraması ve iki grafik hazır; gerçek T2 harness/03-03 merkezi uyumu H-06, grafiklerin görsel kabulü H-07 bekliyor.
+- 04-04: WISE 0855 kapsamı `unknown`; TAP/SIA sorgu başarısızlığı sıfır kare demek değildir. Kanonik Liste 01 kare/geçiş çıktısı H-09 gelene kadar zorlanmış fotometriyi başlatma.
+- 04-03: piksel düzeyindeki sentetik fotometri/coadd prototipi hazır; RA/Dec→WCS kare akışı ve çıktı dosyası gerçek veri entegrasyonu H-08 bekliyor.
+- 04-06: sentetik hareketli iz bağlama kodu hazır; gerçek asteroid için ortak tangent düzlemi WCS/FITS ve üç karelik kaynak kataloğu H-10 bekliyor. İki noktalı hız hipotezleri mevcut; planlanan hız ızgarası henüz yok.
 - Gaia, ePSF ve sentetik kaynak testleri için CVAT/elle etiketleme gereksinimi saptanmadı.

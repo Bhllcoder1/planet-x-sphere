@@ -143,6 +143,10 @@ def link_movers(
                 "score": score,
                 "veto_reason": [],
                 "detection_ids": [d["det_id"] for d in inliers],
+                "detection_refs": [
+                    {"frame_id": d["frame_id"], "det_id": d["det_id"]}
+                    for d in inliers
+                ],
             })
 
     candidates.sort(key=lambda c: (-c["n_detections"], c["rms_px"]))

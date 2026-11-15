@@ -48,6 +48,10 @@ class MoverLinkerTests(unittest.TestCase):
         self.assertAlmostEqual(tr["vx_px_hr"], vx_true, places=1)
         self.assertAlmostEqual(tr["vy_px_hr"], vy_true, places=1)
         self.assertEqual(tr["veto_reason"], [])
+        self.assertEqual(
+            {d["frame_id"] for d in tr["detection_refs"]},
+            {"f0", "f1", "f2", "f3"},
+        )
         self.assertGreaterEqual(len(res["candidates_log"]), 1)
 
 

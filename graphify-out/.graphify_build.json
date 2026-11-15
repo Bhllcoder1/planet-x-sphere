@@ -14,8 +14,9 @@
     "contracts/**",
     ".agents/**",
     "skills-lock.json",
-    "b_astrometri/reports/03-13-synthetic/**"
+    "b_astrometri/reports/03-13-synthetic/**",
+    "b_astrometri/reports/04-04-wise0855/**"
   ],
   "gitignore": true,
-  "scope_note": "Targeted project memory + astrometry source; generated scientific evidence artifacts under b_astrometri/reports are intentionally excluded from semantic indexing."
+  "scope_note": "Targeted project memory + astrometry source; generated evidence artifacts under b_astrometri/reports are intentionally excluded from semantic indexing."
 }

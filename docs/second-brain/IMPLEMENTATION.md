@@ -70,3 +70,15 @@ Stage 0 yerel kare listesiyle doğrulama: Barnard 358/358 kare, 3 pass (46/55/37
 `b_astrometri/motion/forced_phot.py` sabit piksel konumunda `(F, b)` ağırlıklı doğrusal uyumunu, `sigma_flux`, `chi2_nu`, hatalı-uyum eşiğini (`>5`), maske/uyarı bayraklarını ve ters-varyanslı kare birleştirmeyi sağlar. Sentetik enjeksiyon-kurtarma, doymuş NaN çekirdek, hata eşiği, meta veri önceliği, bayrak/variance doğrulaması ve geçersiz coadd örnekleri için testler var.
 
 **Sınır / kabul açık:** canlı görev durumu ClickUp 401 nedeniyle doğrulanmadı. Görev tarifindeki RA/Dec→WCS dönüşümü, `forced_phot(ra, dec, frames)` kare akışı ve parquet/CSV satır çıktısı bu prototipte yok; gerçek ePSF/WCS/maskeler ve D13 enjeksiyon verisi de çalıştırılmadı. H-08 girdileri gelene kadar 04-03'ü tamamlandı saymayın.
+
+## WISE 0855 tespit edilebilirlik kapsam kapısı — 04-04
+
+`b_astrometri/reports/04-04-wise0855/wise0855_detect.json` sonucu **unknown**. Stage 0 kanıtı (`docs/stage0/s0_A.md` satır 383/404/405) TAP zaman aşımı/502 ve tamamlanmayan SIA yedeği kaydediyor; QR3-only boş probe DR1/QR2/TAP'te kapsam yokluğunu kanıtlamaz. Bu nedenle fotometri ve geçiş başına SNR çalıştırılmadı; başka hedefe geçilmedi.
+
+**Sınır / kabul açık:** 04-04'ün ilk kapsam kapısı kanonik Liste 01 sonucunu bekliyor (H-09). “Bilinmiyor” veriden “kapsam yok” çıkarmak değildir; gerçek kare/geçiş listesi gelmeden ölçüm yoktur.
+
+## Hareketli cisim bağlama prototipi — 04-06
+
+`b_astrometri/movers/linker.py` Gaia/2MASS eşleşmelerini ve farklı karelerde 1 px içinde tekrarlanan kaynakları eler; iki noktalı hız hipotezleriyle kareler arası doğrusal iz adayları arar. Üçten az karede `linking_closed` döner. Çıktıdaki `detection_refs` her tespitin frame_id ve det_id'sini korur. İki sentetik test statik eleme, hız kurtarma, artık ve kısa-geçiş davranışını kapsar.
+
+**Sınır / kabul açık:** burada hız-ızgarası yerine tespit çiftlerinden hipotez örnekleniyor. Stage 0 D'de Bellerophon üç karede aday görünse de koordinatlar farklı kare-yerel piksel sistemlerinde; Stage 0 D FITS/WCS dosyaları bu bilgisayarda yok. Ortak tangent düzlemi koordinatları olmadan gerçek asteroidin `<1 px` izi doğrulanamaz. H-10 bekleniyor; 04-06 tamamlandı sayılmamalı.
