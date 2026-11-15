@@ -41,6 +41,9 @@
     .modal-backdrop.open { display: grid; }
     .modal-box { background: var(--bg-surface); border: 1px solid var(--accent-primary); border-radius: var(--radius-md); max-width: 620px; width: 100%; padding: 20px; }
     .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+    .tour-highlight { outline: 3px solid var(--oi-yellow) !important; box-shadow: 0 0 24px rgba(240, 228, 66, 0.45) !important; transition: outline 0.2s, box-shadow 0.2s; position: relative; z-index: 50; }
+    .tour-banner { display: none; position: fixed; bottom: 20px; right: 20px; max-width: 420px; background: var(--bg-elevated); border: 2px solid var(--oi-yellow); border-radius: var(--radius-md); padding: 14px 16px; z-index: 999; box-shadow: 0 10px 30px rgba(0,0,0,0.65); }
+    .tour-banner.active { display: block; }
     @media (max-width: 960px) { .workspace-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -60,6 +63,7 @@
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <input id="inp-search" class="search-input" type="text" placeholder="Search target or RA, Dec (e.g. 269.452, 4.693)" style="width:240px;" />
         <button id="btn-search" type="button">Go</button>
+        <button id="btn-tour" type="button" class="active-toggle">🎯 Siteyi Gezdir (Canlı Tur)</button>
         <button id="btn-theme" type="button">Theme: Dark</button>
         <button id="btn-help" type="button">? Shortcuts &amp; Guide</button>
       </div>
@@ -267,6 +271,19 @@
           <li><strong>Click Canvas</strong> : Pin / unpin pixel in the sub-pixel inspector</li>
         </ul>
       </div>
+    </div>
+  </div>
+
+  <!-- Interactive Guided Tour Floating Card -->
+  <div id="tour-banner" class="tour-banner" role="region" aria-label="Interactive Site Tour">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <strong id="tour-step-title" style="color:var(--oi-yellow);font-size:var(--text-sm);">Adım 1 / 7</strong>
+      <button id="btn-tour-close" type="button" style="padding:2px 6px;font-size:11px;">✕ Kapat</button>
+    </div>
+    <p id="tour-step-desc" style="margin:0 0 10px;font-size:var(--text-xs);line-height:1.5;color:var(--text-primary);"></p>
+    <div style="display:flex;justify-content:space-between;gap:8px;">
+      <button id="btn-tour-prev" type="button">◀ Önceki</button>
+      <button id="btn-tour-next" type="button" class="active-toggle">Sonraki Adım ▶</button>
     </div>
   </div>
 

@@ -1083,6 +1083,109 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
   doc.getElementById("btn-help")?.addEventListener("click", () => helpModal?.classList.add("open"));
   doc.getElementById("btn-close-help")?.addEventListener("click", () => helpModal?.classList.remove("open"));
 
+  // Interactive 7-Step Turkish Guided Tour
+  const TOUR_STEPS = [
+    {
+      selector: "#target-cards",
+      title: "1/7 · 5 Yarışma Hedefi (Target Cards)",
+      desc: "Burada yarışmanın 5 sabit astronomik hedefi yer alır. Barnard's Star doğrudan NASA S3 arşivinden çekilen 5 gerçek L2 FITS kesitine sahiptir; diğer hedefler gerçek STScI MAST Gaia DR3 yıldız kataloglarıyla oluşturulmuştur. Kartlara tıklayarak hedefler arasında geçiş yapabilirsiniz.",
+      action: () => switchTarget(COMPETITION_TARGETS[0]),
+    },
+    {
+      selector: "#sky-canvas",
+      title: "2/7 · 31×31 Alt-Piksel Gökyüzü Kanvası (Mode N)",
+      desc: "Her SPHEREx pikseli (~6.15 yay-saniye) tam sayı yakınlaştırma (16×) ile keskin blok olarak çizilir; Drizzle veya yapay yumuşatma yoktur. Ortadaki mavi (#0072B2) pikseller Barnard's Star'ın gerçek 2×2 doygun (NaN) çekirdeğidir. Mavi artı (+) ePSF kanat ağırlıklı merkezi, sarı elmas tahmin edilen efemerisi, yeşil halkalar ise gerçek Gaia DR3 yıldızlarını gösterir.",
+      action: () => startAutoPlay(),
+    },
+    {
+      selector: "#epoch-bar",
+      title: "3/7 · Blink Oynatıcı & Epoch Durum Çubuğu",
+      desc: "Şu anda otomatik Blink oynuyor! Yıldızın Ağustos 2025 (F1) ile Mart 2026 (F4/F5) arasındaki ~10.3\"/yıl öz hareketini (proper motion) doğrudan görebilirsiniz. F1..F5 kutularına tıklayarak istediğiniz geçişe (Pass) anında atlayabilirsiniz.",
+      action: () => {},
+    },
+    {
+      selector: "#sel-bg",
+      title: "4/7 · ZODI Çıkarma, Stretch & Table 16 Bayrakları",
+      desc: "Sağ üst panelden görüntüleme kopyası üzerinde gerçek FITS ZODI (zodyak ışığı) modelini çıkarabilir, asinh/linear/zscale germe (stretch) uygulayabilir ve SPHEREx Table 16 bitmask bayraklarını (Centroid / Mover profili) açıp kapatabilirsiniz. Ham ölçüm verisi asla değiştirilmez.",
+      action: () => {
+        stopAutoPlay();
+        blink.goToFrame(0);
+        renderFrame();
+      },
+    },
+    {
+      selector: "#readout-panel",
+      title: "5/7 · Canlı Alt-Piksel İmleç Okuyucu & TAN-SIP WCS",
+      desc: "Fareyi kanvas üzerinde gezdirdiğinizde (veya bir piksele tıklayıp sabitlediğinizde) o pikselin 31×31 kesit koordinatı, 2040×2040 ana dedektör koordinatı, 3. derece TAN-SIP WCS ile hesaplanan ICRS (RA, Dec) gökyüzü konumu, MJy/sr ± σ parlaklığı ve aktif Table 16 bayrakları burada canlı listelenir.",
+      action: () => {
+        pinnedPixel = { x: 15.48, y: 14.55 };
+        renderFrame();
+      },
+    },
+    {
+      selector: "#plot-container",
+      title: "6/7 · Çoklu-Epoch Spektrofotometri & CSV/PNG Dışa Aktarım",
+      desc: "Bu SVG grafikte hedefin farklı dalga boyu (0.82 µm – 1.55 µm) ve MJD zamanlarındaki tepe kanat akısını (MJy/sr) görürsünüz; grafikteki noktalara tıklayarak o kareye geçebilirsiniz. Üstteki butonlarla Provenance damgalı CSV tablosunu veya açıklamalı PNG görüntüsünü indirebilirsiniz.",
+      action: () => {},
+    },
+    {
+      selector: "#gaia-table",
+      title: "7/7 · Kesit İçindeki Gerçek Gaia DR3 Yıldız Tablosu & Arşiv Linkleri",
+      desc: "Bu tabloda 31×31 kesit içine düşen 59 gerçek Gaia DR3 yıldızı (source_id, G kadiri, pmRA/pmDec, RUWE) listelenir. Tablodan bir yıldıza tıkladığınızda kanvas üzerinde sarı halkayla vurgulanır. Sol alttaki butonlarla doğrudan ham NASA S3 FITS dosyasını, SIMBAD, VizieR ve Legacy Survey DR10 sayfalarını açabilirsiniz!",
+      action: () => {
+        const firstGaia = activeFrames[0]?.raw_record?.gaia_in_cutout?.[0];
+        if (firstGaia) {
+          selectedGaiaId = firstGaia.source_id;
+          pinnedPixel = { x: firstGaia.x_cutout, y: firstGaia.y_cutout };
+          renderFrame();
+        }
+      },
+    },
+  ];
+
+  let currentTourIdx = -1;
+  const tourBanner = doc.getElementById("tour-banner");
+  const tourTitle = doc.getElementById("tour-step-title");
+  const tourDesc = doc.getElementById("tour-step-desc");
+
+  function clearTourHighlights() {
+    doc.querySelectorAll?.(".tour-highlight")?.forEach((el) => el.classList.remove("tour-highlight"));
+  }
+
+  function showTourStep(idx) {
+    clearTourHighlights();
+    if (idx < 0 || idx >= TOUR_STEPS.length) {
+      currentTourIdx = -1;
+      tourBanner?.classList.remove("active");
+      stopAutoPlay();
+      return;
+    }
+    currentTourIdx = idx;
+    const step = TOUR_STEPS[idx];
+    tourBanner?.classList.add("active");
+    if (tourTitle) tourTitle.textContent = step.title;
+    if (tourDesc) tourDesc.textContent = step.desc;
+    step.action?.();
+    const targetEl = doc.querySelector?.(step.selector);
+    if (targetEl) {
+      targetEl.classList.add("tour-highlight");
+      targetEl.scrollIntoView?.({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  doc.getElementById("btn-tour")?.addEventListener("click", () => showTourStep(0));
+  doc.getElementById("btn-tour-close")?.addEventListener("click", () => showTourStep(-1));
+  doc.getElementById("btn-tour-prev")?.addEventListener("click", () => {
+    if (currentTourIdx > 0) showTourStep(currentTourIdx - 1);
+  });
+  doc.getElementById("btn-tour-next")?.addEventListener("click", () => {
+    if (currentTourIdx + 1 < TOUR_STEPS.length) {
+      showTourStep(currentTourIdx + 1);
+    } else {
+      showTourStep(-1);
+    }
+  });
+
   // Search box (by target name or RA, Dec)
   function executeSearch() {
     const q = (doc.getElementById("inp-search")?.value || "").trim().toLowerCase();
@@ -1190,6 +1293,9 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
 
   renderTargetCards();
   renderFrame();
+  if (typeof window !== "undefined" && window.location?.search?.includes("tour=1")) {
+    setTimeout(() => showTourStep(0), 250);
+  }
   return { blink, displayState, renderFrame, switchTarget };
 }
 
