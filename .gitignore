@@ -6,6 +6,7 @@ __pycache__/
 .env
 .env.*
 *token*
+!**/tokens.css
 *secret*
 clickup_token*
 # büyük ve güvenilmez veri

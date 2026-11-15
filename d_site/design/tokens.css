@@ -1,0 +1,136 @@
+/*
+ * Alan D - Görev 11-16: Tasarım Belirteçleri (Design Tokens)
+ * - Koyu (varsayılan) ve Açık tema
+ * - WCAG AA Kontrast Oranları:
+ *   * Koyu tema: #F8FAFC / #0B0F17 = 18.1:1 (>= 4.5:1 AA geçti)
+ *   * Koyu ikincil metin: #94A3B8 / #131B2E = 6.2:1 (>= 4.5:1 AA geçti)
+ *   * Açık tema: #0F172A / #F8FAFC = 17.4:1 (>= 4.5:1 AA geçti)
+ *   * Açık ikincil metin: #334155 / #FFFFFF = 10.9:1 (>= 4.5:1 AA geçti)
+ * - Okabe-Ito renk körü güvenli katman paleti (W23)
+ * - 360px mobil genişlikte 16px kenar boşluğu (gutter) ve >= 44px dokunma hedefi
+ */
+
+:root,
+[data-theme="dark"] {
+  /* Yüzey ve Arka Plan Renkleri */
+  --bg-primary: #0b0f17;
+  --bg-surface: #131b2e;
+  --bg-elevated: #1c2742;
+  --border-subtle: #2e3d60;
+  --border-focus: #56b4e9;
+
+  /* Metin Renkleri (WCAG AA >= 4.5:1 doğrulandı) */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  /* Vurgu ve Durum Renkleri */
+  --accent-primary: #56b4e9;
+  --accent-hover: #7cc6f0;
+  --status-verified: #009e73;
+  --status-warning: #e69f00;
+  --status-danger: #d55e00;
+
+  /* Okabe-Ito Renk Körü Güvenli Katman Paleti [V: SITE_SPEC W23, DISPLAY_LAYER_DESIGN.md] */
+  --oi-orange: #e69f00;       /* D1 / Uyarı / Hareket vektörü x10 */
+  --oi-sky-blue: #56b4e9;     /* D2 / Gaia DR3 halkaları */
+  --oi-bluish-green: #009e73; /* D3 / Centroid + 1sigma/2sigma elips */
+  --oi-yellow: #f0e442;       /* D4 / Seçili kaynak / Odak */
+  --oi-blue: #0072b2;         /* D5 / NaN piksel rengi rgb(0, 114, 178) */
+  --oi-vermilion: #d55e00;    /* D6 / Bayrak (Flag) katmanı / Mod S uyarısı */
+  --oi-red-purple: #cc79a7;   /* Öz hareket izi (Proper-motion trail) */
+
+  /* Tipografi Ölçeği */
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, monospace;
+  --text-xs: 0.75rem;   /* 12px */
+  --text-sm: 0.875rem;  /* 14px */
+  --text-base: 1rem;    /* 16px */
+  --text-lg: 1.125rem;  /* 18px */
+  --text-xl: 1.375rem;  /* 22px */
+  --text-2xl: 1.75rem;  /* 28px */
+
+  /* Boşluk, Kenar ve Yarıçap Ölçeği */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --mobile-gutter: 16px; /* W23: 16 px side gutters */
+  --touch-min: 44px;     /* W23: >= 44 px dokunma hedefi */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Hareket Süreleri */
+  --motion-fast: 90ms ease-out;
+  --motion-base: 160ms ease-in-out;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f1f5f9;
+  --border-subtle: #cbd5e1;
+  --border-focus: #0072b2;
+
+  --text-primary: #0f172a;
+  --text-secondary: #1e293b;
+  --text-muted: #334155;
+
+  --accent-primary: #0072b2;
+  --accent-hover: #005a8e;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+.app-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding-left: var(--mobile-gutter);
+  padding-right: var(--mobile-gutter);
+}
+
+button,
+input,
+select,
+.touch-target {
+  min-height: var(--touch-min);
+  min-width: var(--touch-min);
+  font-family: inherit;
+  font-size: var(--text-sm);
+}
+
+:focus-visible {
+  outline: 3px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* İskelet Ekran (Görev 11-20: Yerleşim kayması CLS = 0 için sabit boyut) */
+.viewer-skeleton {
+  width: 512px;
+  height: 512px;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-elevated) 50%, var(--bg-surface) 75%);
+  background-size: 200% 100%;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
