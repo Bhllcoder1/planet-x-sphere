@@ -13,8 +13,9 @@
     "tests/**",
     "contracts/**",
     ".agents/**",
-    "skills-lock.json"
+    "skills-lock.json",
+    "b_astrometri/reports/03-13-synthetic/**"
   ],
   "gitignore": true,
-  "scope_note": "Targeted Behlul project memory + tracked astrometry work; archived research/plans/stage0 raw reports and other teams implementation excluded."
+  "scope_note": "Targeted project memory + astrometry source; generated scientific evidence artifacts under b_astrometri/reports are intentionally excluded from semantic indexing."
 }

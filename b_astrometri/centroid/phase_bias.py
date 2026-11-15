@@ -64,12 +64,14 @@ def run_phase_sweep(
             bias_y = float(np.mean(dy_a))
             ros_x = float(rms_x / sig_x_m) if sig_x_m > 0 else math.nan
             ros_y = float(rms_y / sig_y_m) if sig_y_m > 0 else math.nan
-            passed = (
-                abs(bias_x) < 0.02
-                and abs(bias_y) < 0.02
-                and 0.8 <= ros_x <= 1.25
-                and 0.8 <= ros_y <= 1.25
-            )
+            passed = None
+            if snr > 50.0:
+                passed = (
+                    abs(bias_x) < 0.02
+                    and abs(bias_y) < 0.02
+                    and 0.8 <= ros_x <= 1.25
+                    and 0.8 <= ros_y <= 1.25
+                )
             rows.append({
                 "snr": float(snr),
                 "phase": float(phase),
@@ -82,7 +84,7 @@ def run_phase_sweep(
                 "sigma_pred_y_px": sig_y_m,
                 "rms_over_sigma_x": ros_x,
                 "rms_over_sigma_y": ros_y,
-                "passed_t2_t3": bool(passed),
+                "passed_t2_t3": passed,
             })
     return rows
 

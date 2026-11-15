@@ -19,6 +19,7 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 | 03-04 elips / 03-14 koordinat denetimi | Centroid paketinde testli prototipler | ClickUp önkoşulları ve kabulü doğrulanmadı. |
 | 03-02 D5 | 36 sentetik alt-piksel kaymada norm 1/25 konum hatası <0.001 px; sabit görüntüde 25x akı ölçeği; 12 sentetik kesitte yönelim ayrımı | 200 gerçek yıldız/02-07 yok; `PSF_NORM=1`, `PSF_TRANSPOSE=False` varsayım. H-04. Görev açık. |
 | 03-05 kanat uyumu | NaN/OVERFLOW maskeleme, `saturated_fit`, >%50 maskede `unmeasurable`, hata elipsi alanları; 2 sentetik test | Gerçek görüntü doğrulaması yok; 02-08/03-03 girdileri için H-05. Prototip, görev kabulü değil. |
+| 04-03 zorlanmış fotometri | Sabit pikselde (F,b), sigma_flux, chi2_nu, maske/uyarı bayrakları ve ters-varyans coadd; sentetik testler | RA/Dec-WCS kare akışı ve CSV/parquet API'si yok; gerçek ePSF/WCS/maskeler ve D13 enjeksiyonu H-08 bekliyor. Prototip, görev kabulü değil. |
 | 04-01 geçiş gruplama | 4 test; Barnard 358 kare/3 geçiş, ε Indi B 458 kare/4 geçiş; boşluk listesi | Liste 02 manifesti ve `SPS_EPA` alanı bulunamadı; H-03. Kabul açık. |
 
 ## İnsan girdileri
@@ -28,10 +29,13 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 - H-03: Liste 02 kanonik kare manifesti ve `SPS_EPA` kaynağının yolu/şeması veya henüz hazır olmadığı bilgisi.
 - H-04: 02-07 gerçek izole yıldız örneklemi/kesitlerinin yolu veya henüz hazır olmadığı bilgisi.
 - H-05: 03-05 gerçek görüntü doğrulaması için 02-08/03-03 girdilerinin yolu veya hazır olmadığı bilgisi.
+- H-06: 03-13 için gerçek 03-12 T2 harness'i ve 03-03 merkezleme çıktılarının yolu/şeması.
+- H-07: 03-13 sentetik bias ve RMS/sigma grafiklerinin görsel incelemesi (“eğri düz mü?”).
+- H-08: 04-03 için Liste 03 ePSF/WCS, Liste 02 maskeleri ve D13 enjeksiyon verisinin yolu/şeması.
 
 ## Son doğrulama
 
-Bu oturumda: centroid **24/24**, motion **4/4**, Gaia **30/30** test geçti; toplam **58**. ERFA bir testte mesafe düzeltme uyarısı bastı, test yine geçti. `git diff --check` temiz. Graphify targeted corpus **38 dosya**, **273 düğüm**, **500 kenar**, **15 topluluk**; kayıp/eksik uç yok, 3 aynı-uçlu kenar sade grafikte birleşiyor. Token maliyeti host araçlarında sunulmadığı için bilinmiyor.
+Bu oturumda: centroid **24/24**, motion **10/10**, Gaia **30/30** test geçti; toplam **64**. ERFA bir testte mesafe düzeltme uyarısı bastı, test yine geçti. `git diff --check` temiz. Graphify targeted corpus **40 dosya**, **289 düğüm**, **534 kenar**, **17 topluluk**; kayıp/eksik uç yok, 3 aynı-uçlu kenar sade grafikte birleşiyor. Token maliyeti host araçlarında sunulmadığı için bilinmiyor.
 
 ```powershell
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/centroid -p 'test_*.py' -v

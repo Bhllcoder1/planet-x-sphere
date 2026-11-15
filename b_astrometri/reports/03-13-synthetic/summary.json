@@ -1,0 +1,55 @@
+{
+  "rows": 60,
+  "trials_per_phase": 200,
+  "phases": [
+    0.0,
+    0.05,
+    0.1,
+    0.15000000000000002,
+    0.2,
+    0.25,
+    0.30000000000000004,
+    0.35000000000000003,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6000000000000001,
+    0.65,
+    0.7000000000000001,
+    0.75,
+    0.8,
+    0.8500000000000001,
+    0.9,
+    0.9500000000000001
+  ],
+  "seed": 2026,
+  "fixture": "test_epsf.fixture(detector=2), norm=1.0",
+  "qualification": "synthetic fixture only; not production T2/03-03 or real FITS acceptance",
+  "snr": {
+    "20": {
+      "max_abs_bias_x_px": 0.010916641367400075,
+      "max_abs_bias_y_px": 0.007394714284205292,
+      "min_ratio": 0.8486111929487721,
+      "max_ratio": 1.1335934793877729,
+      "acceptance_applicable": false,
+      "acceptance_pass": null
+    },
+    "50": {
+      "max_abs_bias_x_px": 0.004342524193328927,
+      "max_abs_bias_y_px": 0.0028017284373362374,
+      "min_ratio": 0.895123469369368,
+      "max_ratio": 1.0997595844468233,
+      "acceptance_applicable": false,
+      "acceptance_pass": null
+    },
+    "100": {
+      "max_abs_bias_x_px": 0.0028632778106947396,
+      "max_abs_bias_y_px": 0.002013538164556508,
+      "min_ratio": 0.9235352905696557,
+      "max_ratio": 1.1363093621819886,
+      "acceptance_applicable": true,
+      "acceptance_pass": true
+    }
+  }
+}

@@ -58,3 +58,15 @@ Stage 0 yerel kare listesiyle doğrulama: Barnard 358/358 kare, 3 pass (46/55/37
 `b_astrometri/centroid/wing_fit.py` geçersiz/NaN/OVERFLOW piksellerini maskeler; maskeli piksel oranı `%50` üzerindeyse `unmeasurable`, çekirdek maskelenmişse `saturated_fit` döndürür. Sentetik kesitlerde konum belirsizliğinin genişlemesi ve üç-sigma konum sınırı ile iki test geçti; elips alanları `ellipse.catalog_fields` üzerinden üretilir.
 
 **Sınır / kabul açık:** gerçek doymuş gözlem kareleriyle tarama yapılmadı. 02-08 ve 03-03 veri/önkoşulları H-05'te bekliyor. Bu prototip ClickUp 03-05 kabulü değildir.
+
+## Piksel-faz sapma sweep'i — 03-13 sentetik kanıtı
+
+`b_astrometri/centroid/phase_bias.py` ile 0..0,95 px fazlarında 0,05 adım ve her faz/SNR için 200 deneme çalıştırıldı (SNR 20/50/100; sabit seed 2026). CSV ve iki ayrı grafik `b_astrometri/reports/03-13-synthetic/` altındadır. SNR 50'de maksimum |bias| x/y = 0,00435/0,00281 px, RMS/σ = 0,895..1,100; SNR 100'de 0,00287/0,00202 px, RMS/σ = 0,924..1,136. SNR 20 ve 50 için `passed_t2_t3` uygulanmaz; görev ölçütü SNR > 50'dir.
+
+**Sınır / kabul açık:** bunlar `test_epsf.fixture(detector=2)` sentetik sonuçlarıdır; 03-12 üretim T2 harness'i veya 03-03 üretim uyum entegrasyonu değildir. Sayısal sentetik ölçütler geçti; ClickUp canlı durumu 401 nedeniyle doğrulanamadı. H-06 önkoşul yollarını, H-07 kullanıcının “eğri düz mü?” görsel kararını bekletir. 03-13 görevi tamamlandı sayılmaz.
+
+## Sabit konumlu zorlanmış ePSF fotometrisi — 04-03 prototipi
+
+`b_astrometri/motion/forced_phot.py` sabit piksel konumunda `(F, b)` ağırlıklı doğrusal uyumunu, `sigma_flux`, `chi2_nu`, hatalı-uyum eşiğini (`>5`), maske/uyarı bayraklarını ve ters-varyanslı kare birleştirmeyi sağlar. Sentetik enjeksiyon-kurtarma, doymuş NaN çekirdek, hata eşiği, meta veri önceliği, bayrak/variance doğrulaması ve geçersiz coadd örnekleri için testler var.
+
+**Sınır / kabul açık:** canlı görev durumu ClickUp 401 nedeniyle doğrulanmadı. Görev tarifindeki RA/Dec→WCS dönüşümü, `forced_phot(ra, dec, frames)` kare akışı ve parquet/CSV satır çıktısı bu prototipte yok; gerçek ePSF/WCS/maskeler ve D13 enjeksiyon verisi de çalıştırılmadı. H-08 girdileri gelene kadar 04-03'ü tamamlandı saymayın.

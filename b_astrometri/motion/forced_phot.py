@@ -34,18 +34,23 @@ def forced_phot_frame(
 ) -> dict:
     """Sabit (x_px, y_px) konumunda agirlikli dogrusal en kucuk kareler (F, b)."""
     img = np.asarray(image, dtype=float)
-    var = np.asarray(variance, dtype=float) * (float(var_scale) ** 2)
+    var_scale = float(var_scale)
+    var = np.asarray(variance, dtype=float) * (var_scale ** 2)
     xx_a = np.asarray(xx, dtype=float)
     yy_a = np.asarray(yy, dtype=float)
     if not (img.shape == var.shape == xx_a.shape == yy_a.shape):
         raise ValueError("xx, yy, image ve variance ayni sekilde olmali")
     if var_scale < 1.0 or not math.isfinite(var_scale):
         raise ValueError("var_scale >= 1.0 ve sonlu olmali")
+    if not (math.isfinite(float(x_px)) and math.isfinite(float(y_px))):
+        raise ValueError("x_px ve y_px sonlu olmali")
 
     valid = np.isfinite(img) & np.isfinite(var) & (var > 0.0)
     warn_within_3px = False
     if flags is not None:
         flg = np.asarray(flags, dtype=np.int64)
+        if flg.shape != img.shape:
+            raise ValueError("flags, image ile ayni sekilde olmali")
         valid &= (flg & bad_flags) == 0
         r2_warn = (xx_a - float(x_px)) ** 2 + (yy_a - float(y_px)) ** 2
         warn_within_3px = bool(np.any((flg[r2_warn <= 9.0] & warn_flags) != 0))
@@ -56,6 +61,7 @@ def forced_phot_frame(
     n_valid = int(np.sum(valid))
     if n_valid < 4:
         return {
+            **(frame_meta or {}),
             "status": "unmeasurable",
             "flux": None,
             "sigma_flux": None,
@@ -65,7 +71,6 @@ def forced_phot_frame(
             "saturated_fit": saturated_fit,
             "warn_within_3px": warn_within_3px,
             "n_valid": n_valid,
-            **(frame_meta or {}),
         }
 
     model = grid.model_at(float(x_px), float(y_px))
@@ -82,6 +87,7 @@ def forced_phot_frame(
     det = sp2 * sw - sp * sp
     if det <= 0.0 or not math.isfinite(det):
         return {
+            **(frame_meta or {}),
             "status": "unmeasurable",
             "flux": None,
             "sigma_flux": None,
@@ -91,7 +97,6 @@ def forced_phot_frame(
             "saturated_fit": saturated_fit,
             "warn_within_3px": warn_within_3px,
             "n_valid": n_valid,
-            **(frame_meta or {}),
         }
 
     flux = (spi * sw - sp * si) / det
@@ -102,6 +107,7 @@ def forced_phot_frame(
     bad_fit = chi2_nu > 5.0
 
     return {
+        **(frame_meta or {}),
         "status": "bad_fit" if bad_fit else "ok",
         "flux": None if bad_fit else float(flux),
         "sigma_flux": None if bad_fit else float(sigma_flux),
@@ -111,7 +117,6 @@ def forced_phot_frame(
         "saturated_fit": saturated_fit,
         "warn_within_3px": warn_within_3px,
         "n_valid": n_valid,
-        **(frame_meta or {}),
     }
 
 
@@ -119,6 +124,8 @@ def combine_forced_flux(measurements: list[dict]) -> dict:
     """Ters-varyans agirlikli aki birlestirme (04-04 / gecis toplami icin)."""
     good = [m for m in measurements if m.get("status") == "ok"
             and m.get("flux") is not None and m.get("sigma_flux") is not None
+            and math.isfinite(float(m["flux"]))
+            and math.isfinite(float(m["sigma_flux"]))
             and m["sigma_flux"] > 0]
     if not good:
         return {"status": "unmeasurable", "n_used": 0, "flux": None, "sigma_flux": None, "snr": None}
