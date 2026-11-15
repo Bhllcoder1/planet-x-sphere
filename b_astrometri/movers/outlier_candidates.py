@@ -3,6 +3,7 @@
 Input/output x,y are window-local native pixels. Convert all detections to a
 common tangent plane before calling linker.link_movers across different frames.
 Flag-component centers are geometric candidates, not precision centroids.
+Real FLAGS data from H-01 needed for production end-to-end test.
 """
 from copy import deepcopy
 import json
@@ -151,6 +152,43 @@ detections into the same tangent-pixel coordinate system before linking.
     return output
 
 
+def promote_summary(candidates):
+    """Summarise a list of outlier candidate dicts.
+
+    Parameters
+    ----------
+    candidates : list of dicts, each optionally containing a 'flags' int key.
+                 A candidate is counted as 'promoted' (TRANSIENT bit 0 set) when
+                 its 'flags' value has bit 0 set, or when the dict has no 'flags'
+                 key (treat as promoted by default, since it passed veto).
+
+    Returns
+    -------
+    dict with keys: total, promoted, veto_rate (fraction NOT promoted).
+    """
+    total = len(candidates)
+    promoted = sum(
+        1 for c in candidates
+        if (c.get("flags", 1) & 1) != 0
+    )
+    veto_rate = (total - promoted) / total if total > 0 else 0.0
+    return {"total": total, "promoted": promoted, "veto_rate": veto_rate}
+
+
 def write_candidates(path, result):
     """Serialize the complete per-frame result, including rejected component reasons."""
     Path(path).write_text(json.dumps(result, indent=2, allow_nan=False), encoding="utf-8")
+
+
+if __name__ == "__main__":
+    # Smoke test for promote_summary
+    assert promote_summary([])["total"] == 0
+    assert promote_summary([])["promoted"] == 0
+    # All promoted (bit 0 set)
+    s = promote_summary([{"flags": 1}, {"flags": 3}, {"flags": 5}])
+    assert s["total"] == 3 and s["promoted"] == 3
+    # None promoted (bit 0 clear)
+    s2 = promote_summary([{"flags": 2}, {"flags": 4}])
+    assert s2["promoted"] == 0
+    print("promote_summary: OK")
+    print("DONE 04-07")
