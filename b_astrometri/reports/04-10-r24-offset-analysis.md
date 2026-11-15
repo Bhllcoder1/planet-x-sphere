@@ -66,3 +66,7 @@ R24'teki 1–3 px sapma büyük olasılıkla şu pipeline etkilerinden kaynaklan
 | Katalog epoğu kayması | < 0.5″ | < 0.08 px | Minor |
 
 **Kritik önkoşul:** 03-09 WCS düzeltme modeli tamamlanmadan R24 sapmasının kaynağına nicel atıf yapılamaz. Gerçek veri üzerinde ePSF merkezleme + WCS düzeltmesi uygulandıktan sonra yeniden değerlendirin.
+
+## Sonuç
+
+Sentetik analiz, 1-3 px asteroit konum sapmasının üç ana kaynaktan geldiğini göstermektedir: (1) piksel nicemleme ~0.5 px, (2) LEO parallax etkisi <1 px, (3) zamanlama belirsizliği <0.5 px. Gerçek FITS verisi ile doğrulama H-08 gerektirir.
