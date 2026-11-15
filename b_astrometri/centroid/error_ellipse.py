@@ -66,6 +66,17 @@ def ellipse_from_cov(cov: np.ndarray) -> ErrorEllipse:
     return ErrorEllipse(a=a, b=b, pa_deg=pa_deg, cov=cov.tolist())
 
 
+def ellipse_summary(ellipse: "ErrorEllipse") -> dict:
+    """Return summary dict: a, b, pa_deg, eccentricity."""
+    ecc = float(math.sqrt(1.0 - (ellipse.b / ellipse.a) ** 2)) if ellipse.a > 0 else 0.0
+    return {
+        "a_1sigma_px": float(ellipse.a),
+        "b_1sigma_px": float(ellipse.b),
+        "pa_deg": float(ellipse.pa_deg),
+        "eccentricity": ecc,
+    }
+
+
 if __name__ == "__main__":
     # Test: circular Gaussian → a ≈ b ≈ σ
     cov_circ = np.array([[0.04, 0.0], [0.0, 0.04]])
