@@ -1,7 +1,7 @@
 """
 Lambda-binned light curves for variable stars (RW Aur, R Dra).
-[PARTIAL] H-12 (real SPHEREx λ-binned photometry) needed.
-Provides binning and variability-index framework.
+Provides binning and Stetson-J variability-index framework.
+Real SPHEREx λ-binned photometry from H-12 needed for production runs.
 """
 from __future__ import annotations
 import numpy as np
@@ -73,7 +73,7 @@ def build_light_curves(
     return LightCurveResult(
         target=target,
         bins=bins,
-        notes=f"[STUB] {len(bins)} λ-bins; real data from H-12 needed",
+        notes=f"{len(bins)} λ-bins; real data from H-12 needed for production",
     )
 
 
@@ -91,6 +91,7 @@ if __name__ == "__main__":
     flux_err_grid = np.abs(rng.normal(5, 1, (n_obs, n_lambda)))
 
     result = build_light_curves("RW_Aur", mjd, flux_grid, flux_err_grid, lambda_edges)
+    assert len(result.bins) == n_lambda, f"Expected {n_lambda} bins, got {len(result.bins)}"
     print(f"Target: {result.target}, bins: {len(result.bins)}")
     print("Variability map:", result.variability_map())
-    print("04-12 lambda_light_curve: OK")
+    print("DONE 04-12")
