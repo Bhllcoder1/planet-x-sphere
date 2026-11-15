@@ -70,16 +70,23 @@ def fit_joint_pass(
             "excluded": excluded,
         }
 
-    p0 = [float(ra_init_deg), float(dec_init_deg)]
-    lb = [float(ra_init_deg) - 0.05, max(-90.0, float(dec_init_deg) - 0.05)]
-    ub = [float(ra_init_deg) + 0.05, min(90.0, float(dec_init_deg) + 0.05)]
+    cos_dec0 = math.cos(math.radians(float(dec_init_deg)))
+    # (dra_arcsec, ddec_arcsec) cinsinden optimize et: Jacobian kosullanmasi cok daha iyi
+    p0 = [0.0, 0.0]
+    lb = [-180.0, -180.0]
+    ub = [180.0, 180.0]
     for u in usable:
         p0.extend([u["flux0"], u["bg0"]])
         lb.extend([0.0, -np.inf])
         ub.extend([np.inf, np.inf])
 
+    def _to_radec(dra_arcsec: float, ddec_arcsec: float) -> tuple[float, float]:
+        ra = float(ra_init_deg) + dra_arcsec / (3600.0 * max(cos_dec0, 1e-6))
+        dec = float(dec_init_deg) + ddec_arcsec / 3600.0
+        return ra, dec
+
     def residuals(p):
-        ra, dec = p[0], p[1]
+        ra, dec = _to_radec(p[0], p[1])
         parts = []
         for k, u in enumerate(usable):
             fk, bk = p[2 + 2 * k], p[3 + 2 * k]
@@ -107,18 +114,14 @@ def fit_joint_pass(
             "excluded": excluded,
         }
 
-    # (ra, dec) derece kovaryansini teget duzlemde arcsec^2'ye cevir
-    dec_rad = math.radians(float(res.x[1]))
-    cos_dec = math.cos(dec_rad)
-    s_arcsec = np.array([3600.0 * cos_dec, 3600.0], dtype=float)
-    cov_sky_arcsec2 = cov_all[:2, :2] * np.outer(s_arcsec, s_arcsec)
-    ellipse_arcsec = catalog_fields(cov_sky_arcsec2)
+    ra_out, dec_out = _to_radec(float(res.x[0]), float(res.x[1]))
+    ellipse_arcsec = catalog_fields(cov_all[:2, :2])
 
     mjds = [float(u["mjd"]) for u in usable if u["mjd"] is not None]
     return {
         "status": "ok",
-        "ra_deg": float(res.x[0]),
-        "dec_deg": float(res.x[1]),
+        "ra_deg": ra_out,
+        "dec_deg": dec_out,
         "epoch_mid_mjd": float(np.mean(mjds)) if mjds else None,
         "chi2_nu": chi2_nu,
         "n_input": len(frames),

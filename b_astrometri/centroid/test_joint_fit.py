@@ -42,7 +42,7 @@ class JointFitTests(unittest.TestCase):
             xk, yk = wcs.all_world2pix(ra_true, dec_true, 0)
             cx0, cy0 = float(int(xk)), float(int(yk))
             yy, xx = np.mgrid[-4:5, -4:5] + np.array([[[cy0]], [[cx0]]])
-            flux_k = 400.0 + 25.0 * k
+            flux_k = 2000.0 + 50.0 * k
             bg_k = 8.0 + 0.5 * k
             clean = grid.model_at(float(xk), float(yk)).evaluate(xx, yy, flux_k, float(xk), float(yk)) + bg_k
             var = np.full_like(clean, 4.0)
