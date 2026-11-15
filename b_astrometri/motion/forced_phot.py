@@ -243,6 +243,41 @@ or transforms celestial reference frames. Convert RA/Dec upstream when needed.
     return rows
 
 
+def phot_summary(results: list) -> dict:
+    """Summarise a list of forced-photometry result dicts.
+
+    Returns n_frames, mean_snr, and inverse-variance combined SNR.
+    """
+    if not results:
+        return {"n_frames": 0, "mean_snr": float("nan"), "combined_snr_iv": 0.0}
+
+    snrs = []
+    total_w = 0.0
+    total_wf = 0.0
+    for r in results:
+        flux = r.get("flux")
+        sigma = r.get("sigma_flux")
+        if flux is None or sigma is None or not math.isfinite(float(sigma)) or float(sigma) <= 0:
+            continue
+        snr = float(flux) / float(sigma)
+        snrs.append(snr)
+        w = 1.0 / float(sigma) ** 2
+        total_w += w
+        total_wf += w * float(flux)
+
+    combined_snr = 0.0
+    if total_w > 0:
+        combined_flux = total_wf / total_w
+        combined_err = math.sqrt(1.0 / total_w)
+        combined_snr = combined_flux / combined_err if combined_err > 0 else 0.0
+
+    return {
+        "n_frames": len(results),
+        "mean_snr": float(sum(snrs) / len(snrs)) if snrs else float("nan"),
+        "combined_snr_iv": combined_snr,
+    }
+
+
 def write_forced_phot_csv(path, measurements):
     """Write per-frame measurements; None is blank, bad-fit flux stays absent."""
     fields = ["frame_id", "mjd", "pass_id", "detector", "release", "ra_deg", "dec_deg",
