@@ -54,3 +54,23 @@ Sonuç: dosyaya aktarılabilir konum/kovaryans/χ² çıktısı ve hata kontroll
 ```
 
 Ön kontrol `[V]`: `--trials 2` ile 2/2 uyum başarılı, 2.459 s; kanıt `C:/Users/behlu/reports/03-06-coverage-smoke.json`. İki örnek kapsama kararı için yeterli değildir. 1000 denemelik koşu başlatıldı; her 25 denemede kanıt atomik yenilenir. Sonuç bitmeden başarı veya kapsama uyumu iddia edilmez. Smoke hızından kaba süre 20,5 dakika `(arit) [ASSUMPTION]`; koşu sırasında değişebilir.
+
+## 1000-deneme kovaryans kapsamı (2026-11-15)
+
+**Sonuç [V]:** 1000 sentetik denemede (999 başarılı) 1σ hata elipsi beklenen
+~39.4% kaynağı kapsaması gereken bir 2D Gaussian için **40.04%** kapsama elde edildi.
+Fark: +0.7 pp — kovaryans kalibrasyonu doğrulandı.
+
+| Metrik | Değer |
+|---|---|
+| Toplam deneme | 1000 (999 başarılı) |
+| Kapsama oranı | 40.04% |
+| Beklenen (2D 1σ) | 39.35% |
+| Fark | +0.69 pp |
+| Tekli/ortak σ oranı (median) | 5.56× / 5.58× |
+
+Kanıt: `C:/Users/behlu/reports/03-06-coverage.json` (depo dışı)
+
+**Açık kalan:** 02-03 koordinat sözleşmesi entegrasyonu ve gerçek Barnard L2
+verisiyle doğrulama H-01 bekleniyor. Resampled variance nominaldır;
+interpolasyon kovaryansı yayılmıyor.
