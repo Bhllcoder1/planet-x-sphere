@@ -1,7 +1,7 @@
 """04-17: Synthetic object injection into a viewing copy.
 
-[STUB] Real ePSF from 03-01 (complete); viewer copy integration
-(02-16) pending. inject_object() logic is complete.
+[PARTIAL] viewer integration (02-16) pending; injection logic complete.
+Real ePSF from 03-01 available; this module stamps it onto a pixel copy.
 """
 
 import numpy as np
@@ -76,3 +76,21 @@ def inject_object(
         "y_px": y_px,
         "flux": flux,
     }
+
+
+if __name__ == "__main__":
+    rng = np.random.default_rng(17)
+    base = rng.uniform(10, 20, (64, 64))
+    flux_before = float(base.sum())
+
+    # Simple Gaussian ePSF mock
+    def gaussian_epsf(col, row, sigma=1.5):
+        return np.exp(-(col**2 + row**2) / (2 * sigma**2))
+
+    result = inject_object(base, gaussian_epsf, x_px=32.3, y_px=31.7, flux=500.0)
+
+    assert result["SYNTHETIC"] is True, "SYNTHETIC flag must be True"
+    flux_after = float(result["data"].sum())
+    assert flux_after > flux_before, f"flux after {flux_after:.1f} must exceed before {flux_before:.1f}"
+    print(f"Flux before: {flux_before:.1f}, after: {flux_after:.1f} (injected 500.0)")
+    print("DONE 04-17")
