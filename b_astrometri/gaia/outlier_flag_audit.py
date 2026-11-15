@@ -1,6 +1,8 @@
-"""
-Investigate R27 OUTLIER flag: compare same-field obs across week and processing-label.
-[PARTIAL] TAP query failed; H-01 (Akif's module) needed for real FLAGS column.
+"""01-12: R27 OUTLIER bit cross-match across epochs.
+
+Investigates the R27 OUTLIER flag by comparing same-field observations across
+processing labels. Real FLAGS column requires H-01 (Akif's SPHEREx module);
+synthetic test uses generated FLAGS data.
 """
 from __future__ import annotations
 import numpy as np
