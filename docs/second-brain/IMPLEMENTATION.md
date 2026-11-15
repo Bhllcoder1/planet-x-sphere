@@ -79,6 +79,12 @@ T1: aynı OBSID'li gerçek 100×100 Stage 0 B penceresi ve gerçek ePSF kesiti k
 
 **Sınır / kabul açık:** canlı görev durumu ClickUp 401 nedeniyle doğrulanmadı. Görev tarifindeki RA/Dec→WCS dönüşümü, `forced_phot(ra, dec, frames)` kare akışı ve parquet/CSV satır çıktısı bu prototipte yok; gerçek ePSF/WCS/maskeler ve D13 enjeksiyon verisi de çalıştırılmadı. H-08 girdileri gelene kadar 04-03'ü tamamlandı saymayın.
 
+## Değişen yıldız ışık eğrileri — 04-12 prototipi
+
+`b_astrometri/motion/lightcurves.py` λ-kutulu per-frame flux girdilerini MJD ve pass ile gruplar; geçişler arası farkı `|ΔF|/hypot(σ1,σ2)` olarak verir ve >3σ değişimi işaretler. Sabit kontrol yıldızı, R Dra değişimi, boş geçişler ve λ etiketli SVG çıktısı için prototip testleri var. `write_lightcurve_outputs` JSON+SVG yazar; boş girdide bilinmeyen kapsamı “not a zero-flux measurement” diye açıkça gösterir.
+
+RW Aur ve R Dra için yalnız **UNKNOWN / photometry not run** JSON+SVG üretildi; Stage 0 A TAP hataları sıfır kare kanıtı değildir. Gerçek fotometri, 3σ kontrol yıldızı ve değişkenlik sonucu yok. Liste 01 frame listesi, 04-03 ölçümleri ve kontrol yıldızı H-12'de bekliyor. Çıktı [durum raporunda](../../b_astrometri/reports/04-12-status/README.md); 04-12 kabulü açık.
+
 ## WISE 0855 tespit edilebilirlik kapsam kapısı — 04-04
 
 `b_astrometri/reports/04-04-wise0855/wise0855_detect.json` sonucu **unknown**. Stage 0 kanıtı (`docs/stage0/s0_A.md` satır 383/404/405) TAP zaman aşımı/502 ve tamamlanmayan SIA yedeği kaydediyor; QR3-only boş probe DR1/QR2/TAP'te kapsam yokluğunu kanıtlamaz. Bu nedenle fotometri ve geçiş başına SNR çalıştırılmadı; başka hedefe geçilmedi.

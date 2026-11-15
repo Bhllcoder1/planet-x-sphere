@@ -8,6 +8,10 @@ hesaplanir.
 from __future__ import annotations
 
 import math
+import html
+import json
+import re
+from pathlib import Path
 from typing import Any
 
 from forced_phot import combine_forced_flux
@@ -27,6 +31,7 @@ def build_lambda_lightcurves(
     bin_width_um: float = 0.05,
     empty_status: str = "unknown",
     all_pass_ids: list[int] | None = None,
+    empty_reason: str | None = None,
 ) -> dict[str, Any]:
     """Zorlanmis fotometri olcumlerinden lambda-kutulu isik egrisi ve gecis degisimi."""
     if bin_width_um <= 0 or not math.isfinite(bin_width_um):
@@ -37,6 +42,9 @@ def build_lambda_lightcurves(
         return {
             "target": target_name,
             "status": empty_status,
+            "coverage_status": empty_status,
+            "photometry_status": "not_run",
+            "reason": empty_reason or "No measurements supplied",
             "bin_width_um": float(bin_width_um),
             "bins": [],
         }
@@ -115,10 +123,102 @@ def build_lambda_lightcurves(
             ],
         })
 
+    if not bins_out:
+        return {
+            "target": target_name,
+            "status": "no_valid_measurements",
+            "coverage_status": "covered",
+            "photometry_status": "no_valid_measurements",
+            "bin_width_um": float(bin_width_um),
+            "n_bins": 0,
+            "bins": [],
+        }
     return {
         "target": target_name,
         "status": "ok",
+        "coverage_status": "covered",
+        "photometry_status": "measured",
         "bin_width_um": float(bin_width_um),
         "n_bins": len(bins_out),
         "bins": bins_out,
     }
+
+
+def write_lightcurve_outputs(result: dict[str, Any], output_dir: str | Path) -> dict[str, str]:
+    """Write a JSON result and SVG plot; empty coverage is explicitly annotated."""
+    target = str(result.get("target", "")).strip()
+    slug = re.sub(r"[^a-z0-9-]+", "-", target.lower()).strip("-")
+    if not slug:
+        raise ValueError("A target name is required for output filenames")
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    json_path = out / f"lightcurves_{slug}.json"
+    svg_path = out / f"lightcurves_{slug}.svg"
+    json_path.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    svg_path.write_text(_lightcurve_svg(result), encoding="utf-8")
+    return {"json": str(json_path), "svg": str(svg_path)}
+
+
+def _lightcurve_svg(result: dict[str, Any]) -> str:
+    bins = result.get("bins", [])
+    target = html.escape(str(result.get("target", "Target")))
+    if not bins:
+        coverage = html.escape(str(result.get("coverage_status", result.get("status", "unknown"))).upper())
+        photometry = html.escape(str(result.get("photometry_status", "not_run")).replace("_", " ").upper())
+        reason = html.escape(str(result.get("reason", "No valid measurements")))
+        return (
+            '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360">'
+            '<rect width="100%" height="100%" fill="white"/>'
+            f'<text x="40" y="48" font-size="24" font-family="sans-serif">{target} — λ-binned light curve</text>'
+            f'<text x="450" y="145" text-anchor="middle" font-size="22" font-family="sans-serif">Coverage: {coverage}</text>'
+            f'<text x="450" y="185" text-anchor="middle" font-size="18" font-family="sans-serif">Photometry: {photometry}</text>'
+            f'<text x="450" y="225" text-anchor="middle" font-size="14" font-family="sans-serif">{reason}</text>'
+            '<text x="450" y="275" text-anchor="middle" font-size="13" fill="#555" font-family="sans-serif">'
+            'An empty panel is not a zero-flux measurement.</text></svg>'
+        )
+
+    width, panel_h, left, right = 900, 300, 80, 850
+    height = 80 + panel_h * len(bins)
+    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
+             '<rect width="100%" height="100%" fill="white"/>',
+             f'<text x="40" y="38" font-size="23" font-family="sans-serif">{target} — λ-binned light curve</text>']
+    palette = ["#1769aa", "#c43c39", "#248232", "#8a50a4", "#c77d00"]
+    for i, item in enumerate(bins):
+        ytop = 65 + i * panel_h
+        plot_top, plot_bottom = ytop + 40, ytop + 230
+        points = item.get("points", [])
+        mjds = [float(p["mjd"]) for p in points]
+        lows = [float(p["flux"]) - float(p["sigma_flux"]) for p in points]
+        highs = [float(p["flux"]) + float(p["sigma_flux"]) for p in points]
+        xmin, xmax = min(mjds), max(mjds)
+        ymin, ymax = min(lows), max(highs)
+        if xmax == xmin:
+            xmin, xmax = xmin - 0.5, xmax + 0.5
+        if ymax == ymin:
+            ymin, ymax = ymin - 0.5, ymax + 0.5
+        ypad = (ymax - ymin) * 0.08
+        ymin, ymax = ymin - ypad, ymax + ypad
+        color = palette[i % len(palette)]
+        label = html.escape(str(item.get("lambda_label", "λ bin")))
+        parts.extend([
+            f'<text x="{left}" y="{ytop + 24}" font-size="17" font-family="sans-serif">{label}</text>',
+            f'<line x1="{left}" y1="{plot_top}" x2="{left}" y2="{plot_bottom}" stroke="#333"/>',
+            f'<line x1="{left}" y1="{plot_bottom}" x2="{right}" y2="{plot_bottom}" stroke="#333"/>',
+            f'<text x="18" y="{(plot_top + plot_bottom) / 2}" transform="rotate(-90 18 {(plot_top + plot_bottom) / 2})" font-size="12" font-family="sans-serif">Flux</text>',
+            f'<text x="{(left + right) / 2}" y="{plot_bottom + 32}" text-anchor="middle" font-size="12" font-family="sans-serif">MJD</text>',
+        ])
+        for p in points:
+            x = left + (float(p["mjd"]) - xmin) / (xmax - xmin) * (right - left)
+            fy, sig = float(p["flux"]), float(p["sigma_flux"])
+            y = plot_bottom - (fy - ymin) / (ymax - ymin) * (plot_bottom - plot_top)
+            y1 = plot_bottom - (fy - sig - ymin) / (ymax - ymin) * (plot_bottom - plot_top)
+            y2 = plot_bottom - (fy + sig - ymin) / (ymax - ymin) * (plot_bottom - plot_top)
+            parts.extend([
+                f'<line x1="{x:.2f}" y1="{y1:.2f}" x2="{x:.2f}" y2="{y2:.2f}" stroke="{color}"/>',
+                f'<circle cx="{x:.2f}" cy="{y:.2f}" r="4" fill="{color}"/>',
+            ])
+        variable = "variable >3σ" if item.get("variable_gt_3sigma") else "no >3σ change"
+        sat = "; saturated-fit present" if item.get("any_saturated") else ""
+        parts.append(f'<text x="{right}" y="{ytop + 24}" text-anchor="end" font-size="12" fill="{color}" font-family="sans-serif">{variable}{sat}</text>')
+    parts.append('</svg>')
+    return "".join(parts)

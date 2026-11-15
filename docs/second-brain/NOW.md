@@ -61,6 +61,7 @@ Behlül Anik'e atanan görevlerde yerel çıktıyı ClickUp kabulü ve kapanış
 - 03-12: T1–T4 şartnamesi güncellendi; fiziksel 1 px T1 kayması ekran yakınlaştırmalarından ayrıldı, T2 strict SNR>50 ve faz/eksen raporu, T3 SNR-dilimi oranı ve JSON alan uygulanabilirliği açıklandı.
 - 03-13: Sentetik faz taraması ve iki grafik hazır; 07-05 üretim T2/T3 testleri ile 03-03 merkezleme uyum arayüzü H-06, grafiklerin görsel kabulü H-07 bekliyor.
 - 07-04: T1 gerçek Stage 0 penceresinde ePSF enjeksiyonu `Δx=0.998404 px`, `np.roll Δx=1.000000 px`; T4 dokuz gerçek SIP-3 kesitte 7.569 piksel, max hata 4.47e-11 px. T1 ekran/Playwright ve 100 gerçek penceredeki D3 için H-11 girdisi eksik; görev kısmi.
+- 04-12: RW Aur/R Dra için yalnız UNKNOWN/photometry-not-run JSON+SVG yazıldı. Stage 0 TAP hataları sıfır kare kanıtı değil; gerçek λ eğrisi, kontrol yıldızı ve 3σ değerlendirmesi H-12 girdileri olmadan yapılamaz.
 - 04-04: WISE 0855 kapsamı `unknown`; TAP/SIA sorgu başarısızlığı sıfır kare demek değildir. Kanonik Liste 01 kare/geçiş çıktısı H-09 gelene kadar zorlanmış fotometriyi başlatma.
 - 04-03: piksel düzeyindeki sentetik fotometri/coadd prototipi hazır; RA/Dec→WCS kare akışı ve çıktı dosyası gerçek veri entegrasyonu H-08 bekliyor.
 - 04-06: sentetik hareketli iz bağlama kodu hazır; gerçek asteroid için ortak tangent düzlemi WCS/FITS ve üç karelik kaynak kataloğu H-10 bekliyor. İki noktalı hız hipotezleri mevcut; planlanan hız ızgarası henüz yok.

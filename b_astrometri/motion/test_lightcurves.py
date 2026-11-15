@@ -1,6 +1,10 @@
 import unittest
+import json
+import tempfile
+from pathlib import Path
+from xml.etree import ElementTree
 
-from lightcurves import build_lambda_lightcurves
+from lightcurves import build_lambda_lightcurves, write_lightcurve_outputs
 
 
 class LightcurveTests(unittest.TestCase):
@@ -33,8 +37,37 @@ class LightcurveTests(unittest.TestCase):
         self.assertEqual(b["passes"][2]["status"], "no_data")
 
     def test_empty_coverage_reports_unknown_or_no_coverage(self):
-        self.assertEqual(build_lambda_lightcurves("RW_Aur", [], empty_status="unknown")["status"], "unknown")
+        unknown = build_lambda_lightcurves(
+            "RW_Aur", [], empty_status="unknown", empty_reason="TAP query did not complete")
+        self.assertEqual(unknown["status"], "unknown")
+        self.assertEqual(unknown["photometry_status"], "not_run")
+        self.assertEqual(unknown["reason"], "TAP query did not complete")
         self.assertEqual(build_lambda_lightcurves("RW_Aur", [], empty_status="no_coverage")["status"], "no_coverage")
+
+    def test_unknown_outputs_are_explicit_and_not_zero_flux(self):
+        result = build_lambda_lightcurves(
+            "RW_Aur", [], empty_status="unknown", empty_reason="Archive query incomplete")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            paths = write_lightcurve_outputs(result, temp_dir)
+            data = json.loads(Path(paths["json"]).read_text(encoding="utf-8"))
+            svg = Path(paths["svg"]).read_text(encoding="utf-8")
+        ElementTree.fromstring(svg)
+        self.assertEqual(data["coverage_status"], "unknown")
+        self.assertIn("Coverage: UNKNOWN", svg)
+        self.assertIn("not a zero-flux measurement", svg)
+
+    def test_svg_labels_each_lambda_bin_and_sigma_errors(self):
+        result = build_lambda_lightcurves("R_Dra", [
+            {"pass_id": 1, "mjd": 60100, "cwave_um": 1.51, "status": "ok", "flux": 5, "sigma_flux": 1},
+            {"pass_id": 2, "mjd": 60200, "cwave_um": 1.52, "status": "ok", "flux": 8, "sigma_flux": 1},
+        ])
+        with tempfile.TemporaryDirectory() as temp_dir:
+            paths = write_lightcurve_outputs(result, temp_dir)
+            svg = Path(paths["svg"]).read_text(encoding="utf-8")
+        ElementTree.fromstring(svg)
+        self.assertIn("1.500-1.550_um", svg)
+        self.assertEqual(svg.count("<circle "), 2)
+        self.assertEqual(result["bins"][0]["max_delta_sigma"], 3 / (2 ** 0.5))
 
 
 if __name__ == "__main__":

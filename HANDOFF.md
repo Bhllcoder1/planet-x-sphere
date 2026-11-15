@@ -22,6 +22,7 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 | 04-03 zorlanmış fotometri | Sabit pikselde (F,b), sigma_flux, chi2_nu, maske/uyarı bayrakları ve ters-varyans coadd; sentetik testler | RA/Dec-WCS kare akışı ve CSV/parquet API'si yok; gerçek ePSF/WCS/maskeler ve D13 enjeksiyonu H-08 bekliyor. Prototip, görev kabulü değil. |
 | 04-06 hareketli bağlama | `b_astrometri/movers/linker.py`; 2 sentetik test; `detection_refs` frame_id/det_id korur | Gerçek asteroid doğrulaması yok; Stage 0 D için ortak WCS/FITS/katalog H-10 bekliyor. Hız ızgarası henüz yok. Görev açık. |
 | 04-04 WISE 0855 | `b_astrometri/reports/04-04-wise0855/wise0855_detect.json`: coverage `unknown`; TAP/SIA unsuccessful, photometry not run | Canonical List 01 result missing; H-09. Query failure is not zero coverage; 04-04 remains open. |
+| 04-12 RW Aur/R Dra | λ-kutu/pass özetleyici ve JSON/SVG yazıcısı; gerçek girdisiz iki “UNKNOWN / photometry not run” çıktısı | Stage 0 TAP sorguları başarısız; frame listesi, 04-03 ölçümü ve sabit kontrol yıldızı yok. H-12; kabul yapılmadı. |
 | 04-01 geçiş gruplama | 4 test; Barnard 358 kare/3 geçiş, ε Indi B 458 kare/4 geçiş; boşluk listesi | Liste 02 manifesti ve `SPS_EPA` alanı bulunamadı; H-03. Kabul açık. |
 | 07-04 T1/T4 | T1: sentetik birim testleri ve gerçek görüntü/variance/flag piksellerine enjeksiyonda `Δx=0.998404 px`, `np.roll Δx=1.000000 px`; T4: 9 gerçek SIP-3 kesitte 7.569 piksel, max dönüş hatası `4.47e-11 px` | T1 ekran/Playwright ve D3'te gerekli 100 geniş gerçek pencere eksik; H-11. 07-04 kısmi. |
 
@@ -38,10 +39,11 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 - H-09: WISE 0855 canonical List 01 coverage/frame/pass result path or `unknown/not ready`.
 - H-10: 04-06 için en az üç karelik gerçek asteroid kataloğu ve ortak tangent düzlemi sağlayan WCS/FITS yolu.
 - H-11: 07-04 D3 için 50/100/200 px boyutlarında 100 gerçek WCS penceresi; T1 ekran testi için 07-03/07-02 görüntüleyici Playwright testi veya sahibi.
+- H-12: RW Aur/R Dra List 01 frame/coverage verisi, aynı karelerde sabit kontrol yıldızı ve 04-03 flux/σ/CWAVE/CBAND/pass çıktısı.
 
 ## Son doğrulama
 
-Son test turunda: centroid **24/24**, motion **13/13**, movers **4/4**, Gaia **30/30**, ayrıca 07-04 T1/T4 birim testleri **3/3** benzersiz test geçti (T1 dosyası EPSF testlerini de içe aktardığından ilgili komut 10 test bildirir). Toplam benzersiz test **74**. 07-04 gerçek veri kontrolleri de ayrıca geçti: T1 gerçek pencere enjeksiyonu/np.roll, T4 dokuz FITS'te 7.569 piksel. `git diff --check` temiz. Graphify corpus **48 dosya** (27 kod, 21 belge), **332 düğüm**, **615 kenar**, **17 topluluk**; eksik/başıboş uç yok, 3 aynı-uç kenar sade grafikte birleşiyor. Token maliyeti araçlarda sunulmadığı için bilinmiyor.
+Son test turunda: centroid **24/24**, motion **15/15**, movers **4/4**, Gaia **30/30**, ayrıca 07-04 T1/T4 birim testleri **3/3** benzersiz test geçti (T1 dosyası EPSF testlerini de içe aktardığından ilgili komut 10 test bildirir). Toplam benzersiz test **76**. 07-04 gerçek veri kontrolleri de ayrıca geçti: T1 gerçek pencere enjeksiyonu/np.roll, T4 dokuz FITS'te 7.569 piksel. `git diff --check` temiz. Graphify corpus **51 dosya** (29 kod, 22 belge), **354 düğüm**, **680 kenar**, **18 topluluk**; eksik/başıboş uç yok, 5 aynı-uç kenar sade grafikte birleşiyor. Token maliyeti araçlarda sunulmadığı için bilinmiyor.
 
 ```powershell
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/centroid -p 'test_*.py' -v
