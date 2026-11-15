@@ -15,13 +15,14 @@ Bu belge, astrometri ve merkezleme doğruluğunu ölçen **T1–T4** enjeksiyon/
 
 | Test | 07 Görevi | Girdi | Çıktı Metrikleri | Sayısal Kabul Ölçütü |
 |---|---|---|---|---|
-| **T1 — Tam sayı kayma** | `07-04` | Tek parlak yıldız; bilinen `Δ = 1,000` px kaydırma (`z = 1, 4, 16, 64` kontrolü) | Ölçülen kayma `Δ_ölç`, hata `\|Δ_ölç - 1,000\|` | `Δ = 1,000 ± 0,005 px` (parlak kaynak) |
-| **T2 — Alt-piksel merdiveni** | `07-05` | `0,1, 0,2, …, 0,9` px faz adımları, `SNR > 50` | Piksel-faz sapma eğrisi `sapma(faz)` (bkz. `03-13`) | `\|sapma(faz)\| < 0,02 px` (tüm fazlarda) |
-| **T3 — Enjeksiyon / kurtarma** | `07-05` | Gerçek gürültü (Poisson + VAR) üstüne `N = 2000` enjekte yıldız | Ortalama sapma, `RMS`, `σ_tahmin`, `RMS / σ_tahmin`, `SNR` başına tablo | `RMS / σ_tahmin ∈ [0,80, 1,25]` |
+| **T1 — Tam sayı kayma** | `07-04` | Gerçek yerel kesitte ePSF yıldızı `(x,y)` ve `(x+1,y)` konumlarına enjekte edilir; ayrıca kesit `np.roll` ile 1 px kaydırılır. Ekran kontrolü yakınlaştırma `z = 1, 4, 16, 64` değerlerinde yapılır. | Sayısal: ölçülen `Δx` ve `|Δx−1|`. Ekran: görünen yer değiştirme eksi `z` ekran pikseli. | Parlak kaynakta `Δx = 1,000 ± 0,005 px`; ekran sapması her `z` için tam `0 px`. `z` büyütmedir, fiziksel enjeksiyon kayması değildir. |
+| **T2 — Alt-piksel merdiveni** | `07-05` | `0,1, 0,2, …, 0,9` px konum kaymaları; yalnız `SNR > 50` sonuçları kabul hesabına girer. | Her faz ve eksen için ortalama konum yanlılığı `bias(faz)`; grafik ve tablo (`03-13`). | Her fazda ve eksende `|bias| < 0,02 px`, yalnız `SNR > 50` için. `SNR = 50` eşiği karşılamaz. |
+| **T3 — Enjeksiyon / kurtarma** | `07-05` | Aynı gerçek `VARIANCE` gürültüsü üstüne rastgele faz ve akılı `N = 2000` ePSF yıldızı; gerçek varyans gürültüsü kullanılır. | Her SNR diliminde ortalama yanlılık/faz, `RMS`, `σ_tahmin`, `RMS / σ_tahmin` ve SNR’a göre tamlık eğrisi. | Her raporlanan SNR diliminde `RMS / σ_tahmin ∈ [0,80, 1,25]`; T2 yanlılık sınırı `SNR > 50` dilimlerinde uygulanır. |
 | **T4 — WCS gidiş-dönüş** | `07-04` | Rastgele ve köşe 0-tabanlı piksel koordinatları `(x, y)` | `piksel → gök → piksel` geri dönüş hatası `dr` | `max(dr) < 1e-4 px` |
 
 ## 3. Zorunlu Çıktı Şeması (Özet Tablo)
 
-Her test koşusu aşağıdaki alanları içeren bir JSON raporu üretir:
-- `test_id` (`"T1"`..`"T4"`), `n_injected`, `snr_bin`, `mean_bias_px`, `rms_px`, `sigma_pred_px`, `rms_over_sigma`, `max_error_px`, `passed` (`bool`).
+Her test koşusu aşağıdaki alanları içeren bir JSON raporu üretir. Uygulanmayan metrikler `null` yazılır; T1/T4 için enjeksiyon veya SNR dilimi yoktur. T2 kayıtları faz ve eksen, T3 kayıtları SNR dilimi bazında ayrılır:
+- `test_id` (`"T1"`..`"T4"`), `n_injected`, `snr_bin`, `phase_px`, `axis`, `mean_bias_px`, `rms_px`, `sigma_pred_px`, `rms_over_sigma`, `max_error_px`, `passed` (`bool`).
+- T1 `max_error_px` alanı `|Δx−1|`; T2 `mean_bias_px` alanı faz ve eksen başına ortalama bias; T3 `rms_over_sigma` alanı SNR dilimi başına orandır; T4 `max_error_px` alanı en büyük piksel dönüş hatasıdır. `passed`, ilgili satırın kendi eşiğini karşılamasını belirtir.
 - Karşılaştırma notu: Anderson & King (2000) HST için `0,002 px` en iyi durumu bildirir; SPHEREx ePSF için bu sayı önsel hedef alınmaz, ölçülerek raporlanır.

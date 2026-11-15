@@ -63,7 +63,7 @@ Stage 0 yerel kare listesiyle doğrulama: Barnard 358/358 kare, 3 pass (46/55/37
 
 `b_astrometri/centroid/phase_bias.py` ile 0..0,95 px fazlarında 0,05 adım ve her faz/SNR için 200 deneme çalıştırıldı (SNR 20/50/100; sabit seed 2026). CSV ve iki ayrı grafik `b_astrometri/reports/03-13-synthetic/` altındadır. SNR 50'de maksimum |bias| x/y = 0,00435/0,00281 px, RMS/σ = 0,895..1,100; SNR 100'de 0,00287/0,00202 px, RMS/σ = 0,924..1,136. SNR 20 ve 50 için `passed_t2_t3` uygulanmaz; görev ölçütü SNR > 50'dir.
 
-**Sınır / kabul açık:** bunlar `test_epsf.fixture(detector=2)` sentetik sonuçlarıdır; 03-12 üretim T2 harness'i veya 03-03 üretim uyum entegrasyonu değildir. Sayısal sentetik ölçütler geçti; ClickUp canlı durumu 401 nedeniyle doğrulanamadı. H-06 önkoşul yollarını, H-07 kullanıcının “eğri düz mü?” görsel kararını bekletir. 03-13 görevi tamamlandı sayılmaz.
+**Sınır / kabul açık:** bunlar `test_epsf.fixture(detector=2)` sentetik sonuçlarıdır; 03-12 şartnamesi ile 07-05 kapsamındaki üretim T2/T3 test kodu veya 03-03 üretim uyum entegrasyonu değildir. Sayısal sentetik ölçütler geçti; ClickUp canlı durumu 401 nedeniyle doğrulanamadı. H-06 03-03 arayüzünü, H-07 kullanıcının “eğri düz mü?” görsel kararını bekletir. 03-13 görevi tamamlandı sayılmaz.
 
 ## Sabit konumlu zorlanmış ePSF fotometrisi — 04-03 prototipi
 

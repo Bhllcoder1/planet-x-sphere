@@ -31,7 +31,7 @@ Son güncelleme: 2026-11-15. Kalıcı proje hafızası [Second Brain](docs/secon
 - H-03: Liste 02 kanonik kare manifesti ve `SPS_EPA` kaynağının yolu/şeması veya henüz hazır olmadığı bilgisi.
 - H-04: 02-07 gerçek izole yıldız örneklemi/kesitlerinin yolu veya henüz hazır olmadığı bilgisi.
 - H-05: 03-05 gerçek görüntü doğrulaması için 02-08/03-03 girdilerinin yolu veya hazır olmadığı bilgisi.
-- H-06: 03-13 için gerçek 03-12 T2 harness'i ve 03-03 merkezleme çıktılarının yolu/şeması.
+- H-06: 03-13 üretim entegrasyonu için 03-03 merkezleme uyum kodu ile giriş/çıkış şemasının yolu. 03-12 yalnız şartnamedir; test kodu 07-05 kapsamındadır.
 - H-07: 03-13 sentetik bias ve RMS/sigma grafiklerinin görsel incelemesi (“eğri düz mü?”).
 - H-08: 04-03 için Liste 03 ePSF/WCS, Liste 02 maskeleri ve D13 enjeksiyon verisinin yolu/şeması.
 - H-09: WISE 0855 canonical List 01 coverage/frame/pass result path or `unknown/not ready`.
@@ -46,6 +46,11 @@ Bu oturumda: centroid **24/24**, motion **10/10**, movers **2/2**, Gaia **30/30*
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/motion -p 'test_*.py' -v
 & 'C:/Users/behlu/spherex-kb/stage0/venv/Scripts/python.exe' -I -m unittest discover -s b_astrometri/gaia -p 'test_*.py' -v
 ```
-- **Döngü tur 5 (03-13 sentetik prototip):** `b_astrometri/centroid/phase_bias.py` + `test_phase_bias.py` (3 test; centroid 24/24). 20 faz × SNR 20/50/100 × 200 denemeden CSV ve iki ayrı grafik `b_astrometri/reports/03-13-synthetic/` altına yazıldı. SNR 100 sentetik ölçütleri geçti; 03-12 T2 harness/03-03 üretim entegrasyonu ve insanın “eğri düz mü?” incelemesi bekliyor (`H-06`, `H-07`). Gerçek FITS kullanılmadı.
+- **Döngü tur 5 (03-13 sentetik prototip):** `b_astrometri/centroid/phase_bias.py` + `test_phase_bias.py` (3 test; centroid 24/24). 20 faz × SNR 20/50/100 × 200 denemeden CSV ve iki ayrı grafik `b_astrometri/reports/03-13-synthetic/` altına yazıldı. SNR 100 sentetik ölçütleri geçti; 07-05 üretim T2/T3 testleri ve 03-03 üretim entegrasyonu ile insanın “eğri düz mü?” incelemesi bekliyor (`H-06`, `H-07`). Gerçek FITS kullanılmadı.
 
 Aktif Claude Code süreci aynı çalışma ağacını kullanabiliyor; sonraki oturumda commit/çalışma ağacı kontrolü yapmadan dosya üzerine yazma. İnsan girdisi bekleyen işleri kapatma veya ClickUp durumunu varsayma.
+
+## Bu tur: 03-12 şartname düzeltmesi
+
+- [V] ClickUp snapshot 03-12 kapsamı yalnız T1–T4 girdileri/çıktıları/eşikleri tanımlamak; test kodu 07 listesinde. Şartname güncellendi: T1 fiziksel 1 px kayma ile z=1/4/16/64 ekran yakınlaştırması ayrıldı; T2 faz/eksen ve strict SNR>50 açıklandı; T3 oranı SNR dilimi başına raporlanacak; JSON metrik nullability ve satır kabulü belirtildi.
+- [NV] Canlı ClickUp token hâlâ 401; şartname işi ClickUp’ta kapatılmadı. Üretim verisi/kod önkoşulları 03-01/03-03 ve diğer görevler için ayrıca doğrulanmalı.
