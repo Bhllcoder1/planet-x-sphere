@@ -1,0 +1,17 @@
+{
+  "display_ver": "1.0.0",
+  "background_mode": "zodi",
+  "background_badge": "ZODI çıkarıldı (yalnız gösterim)",
+  "clip_mode": "percent",
+  "clip_scope": "sequence",
+  "percent_low": 0.5,
+  "percent_high": 99.5,
+  "asinh_a": 0.1,
+  "invert": false,
+  "hot_pixel_filter": false,
+  "nan_color_rgb": [0, 114, 178],
+  "nan_label": "veri yok (NaN)",
+  "units_label": "MJy/sr",
+  "fallback_clip_mode": "zscale",
+  "honesty_tag": "[ASSUMPTION: DISPLAY_LAYER_DESIGN.md §2.1 & §3.1]"
+}
