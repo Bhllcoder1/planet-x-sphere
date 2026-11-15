@@ -14,7 +14,10 @@ import re
 from pathlib import Path
 from typing import Any
 
-from forced_phot import combine_forced_flux
+if __package__:
+    from .forced_phot import combine_forced_flux, forced_phot
+else:
+    from forced_phot import combine_forced_flux, forced_phot
 
 
 def _bin_label(cwave_um: float, bin_width_um: float) -> tuple[int, str]:
@@ -49,18 +52,21 @@ def build_lambda_lightcurves(
             "bins": [],
         }
 
-    grouped: dict[tuple[int, str], list[dict[str, Any]]] = {}
+    grouped = {}
     for m in measurements:
         if m.get("status") != "ok" or m.get("flux") is None or m.get("sigma_flux") is None:
             continue
         cw = float(m["cwave_um"])
-        if not math.isfinite(cw):
+        if (not math.isfinite(cw) or cw <= 0
+                or not math.isfinite(float(m["flux"]))
+                or not math.isfinite(float(m["sigma_flux"])) or float(m["sigma_flux"]) <= 0):
             continue
-        key = _bin_label(cw, bin_width_um)
+        idx, label = _bin_label(cw, bin_width_um)
+        key = (str(m.get("detector", "unspecified")), str(m.get("release", "unspecified")), idx, label)
         grouped.setdefault(key, []).append(m)
 
     bins_out: list[dict[str, Any]] = []
-    for (idx, label), items in sorted(grouped.items()):
+    for (detector, release, idx, label), items in sorted(grouped.items()):
         items_sorted = sorted(items, key=lambda r: float(r["mjd"]))
         by_pass: dict[int, list[dict[str, Any]]] = {}
         for r in items_sorted:
@@ -101,13 +107,17 @@ def build_lambda_lightcurves(
 
         bins_out.append({
             "bin_index": idx,
-            "lambda_label": label,
+            "detector": None if detector == "unspecified" else detector,
+            "release": None if release == "unspecified" else release,
+            "lambda_label": label if detector == "unspecified" else f"D{detector} {release}: {label}",
             "lambda_min_um": float(idx * bin_width_um),
             "lambda_max_um": float((idx + 1) * bin_width_um),
             "n_points": len(items_sorted),
             "any_saturated": any(bool(r.get("saturated_fit")) for r in items_sorted),
             "max_delta_sigma": float(max_delta_sigma),
             "variable_gt_3sigma": bool(max_delta_sigma > 3.0),
+            "variability_status": "measured" if len(valid_passes) >= 2 else "insufficient_passes",
+            "n_comparable_passes": len(valid_passes),
             "passes": pass_summary,
             "points": [
                 {
@@ -115,6 +125,7 @@ def build_lambda_lightcurves(
                     "pass_id": int(r["pass_id"]),
                     "mjd": float(r["mjd"]),
                     "cwave_um": float(r["cwave_um"]),
+                    "cband_um": r.get("cband_um"),
                     "flux": float(r["flux"]),
                     "sigma_flux": float(r["sigma_flux"]),
                     "saturated_fit": bool(r.get("saturated_fit", False)),
@@ -142,6 +153,126 @@ def build_lambda_lightcurves(
         "n_bins": len(bins_out),
         "bins": bins_out,
     }
+
+
+def produce_target_control_lightcurves(
+    target_name, target_ra_deg, target_dec_deg,
+    control_name, control_ra_deg, control_dec_deg, frames, *,
+    bin_width_um, coverage_status, output_dir=None, coverage_reason=None,
+):
+    """Measure caller-supplied target/control positions on exactly the same frames.
+
+    Frames follow ``forced_phot``'s corrected-WCS/EPSF contract. bin_width_um is
+    the caller's channel width, not a calibrated default. Each detector/release
+    is kept separate. Control comparisons use only matching frame/pass/channel
+    measurements that succeeded for BOTH objects; their independent curves keep
+    all valid points. A single pass never establishes a stable control star.
+    Empty unknown coverage is not converted to zero flux or no coverage.
+    """
+    frames = list(frames)
+    if coverage_status not in {"covered", "partial", "unknown", "no_coverage"}:
+        raise ValueError("coverage_status must be covered, partial, unknown or no_coverage")
+    if not math.isfinite(bin_width_um) or bin_width_um <= 0:
+        raise ValueError("bin_width_um must be a finite positive channel width")
+    if (not isinstance(target_name, str) or not isinstance(control_name, str)
+            or not target_name.strip() or not control_name.strip()):
+        raise ValueError("Target and control names are required")
+    if str(target_name).strip() == str(control_name).strip():
+        raise ValueError("The control must be identified separately from the target")
+    for ra, dec in ((target_ra_deg, target_dec_deg), (control_ra_deg, control_dec_deg)):
+        if (not math.isfinite(float(ra)) or not math.isfinite(float(dec))
+                or not 0 <= float(ra) < 360 or not -90 <= float(dec) <= 90):
+            raise ValueError("Target/control coordinates must be finite degrees in the supplied WCS celestial frame")
+    if (float(target_ra_deg) == float(control_ra_deg)
+            and float(target_dec_deg) == float(control_dec_deg)):
+        raise ValueError("The target cannot be used as its own control")
+    if frames and coverage_status == "no_coverage":
+        raise ValueError("Frames contradict an explicit no_coverage result")
+    if not frames and coverage_status in {"covered", "partial"}:
+        raise ValueError("Covered/partial workflow requires the actual frame list")
+    ids = [str(frame["frame_id"]) for frame in frames]
+    if any(not fid for fid in ids) or len(ids) != len(set(ids)):
+        raise ValueError("Photometry frame IDs must be nonempty and unique")
+    target_rows = forced_phot(target_ra_deg, target_dec_deg, frames) if frames else []
+    control_rows = forced_phot(control_ra_deg, control_dec_deg, frames) if frames else []
+    all_passes = sorted({int(frame["pass_id"]) for frame in frames})
+    empty_status = coverage_status if not frames else "unknown"
+
+    def curve(name, rows):
+        result = build_lambda_lightcurves(name, rows, bin_width_um=bin_width_um,
+            empty_status=empty_status, all_pass_ids=all_passes, empty_reason=coverage_reason)
+        result.update(coverage_status=coverage_status,
+                      flux_unit="uncalibrated_model_amplitude", physical_flux_validated=False)
+        return result
+
+    target_curve, control_curve = curve(target_name, target_rows), curve(control_name, control_rows)
+    paired_target, paired_control, pairing = [], [], []
+    units_by_group = {}
+    for target, control in zip(target_rows, control_rows):
+        if any(target[field] != control[field] for field in ("frame_id", "pass_id", "mjd", "detector", "release")):
+            raise ValueError("Target/control photometry must use identical frame/pass metadata")
+        for row in (target, control):
+            group = (row["detector"], row["release"])
+            units = (row["image_unit"], row["epsf_norm_multiplier"])
+            if group in units_by_group and units_by_group[group] != units:
+                raise ValueError("Cannot combine differing image units/EPSF normalization within one detector/release")
+            units_by_group[group] = units
+        usable = all(row["status"] == "ok" and row.get("flux") is not None
+            and row.get("sigma_flux") is not None and math.isfinite(float(row["flux"]))
+            and math.isfinite(float(row["sigma_flux"])) and float(row["sigma_flux"]) > 0
+            and row.get("cwave_um") is not None and math.isfinite(float(row["cwave_um"]))
+            and float(row["cwave_um"]) > 0 for row in (target, control))
+        same_channel = usable and _bin_label(target["cwave_um"], bin_width_um)[0] == _bin_label(control["cwave_um"], bin_width_um)[0]
+        if same_channel:
+            paired_target.append(target)
+            paired_control.append(control)
+        pairing.append({"frame_id": target["frame_id"], "pass_id": target["pass_id"],
+                        "target_status": target["status"], "control_status": control["status"],
+                        "paired": bool(same_channel),
+                        "reason": "same_frame_pass_channel" if same_channel else
+                            "different_wavelength_channels" if usable else "missing_or_failed_photometry"})
+    paired_target_curve = curve(target_name, paired_target)
+    paired_control_curve = curve(control_name, paired_control)
+    key = lambda item: (item["detector"], item["release"], item["bin_index"])
+    target_bins = {key(item): item for item in paired_target_curve["bins"]}
+    control_bins = {key(item): item for item in paired_control_curve["bins"]}
+    channels = {key(item): item for item in target_curve["bins"] + control_curve["bins"]}
+    comparisons = []
+    for channel, channel_info in channels.items():
+        target_bin, control_bin = target_bins.get(channel), control_bins.get(channel)
+        measured = bool(target_bin and control_bin and target_bin["n_comparable_passes"] >= 2
+                        and control_bin["n_comparable_passes"] >= 2)
+        comparisons.append({"detector": channel_info["detector"], "release": channel_info["release"],
+            "lambda_label": channel_info["lambda_label"], "paired_frames": target_bin["n_points"] if target_bin else 0,
+            "paired_passes": target_bin["n_comparable_passes"] if target_bin else 0,
+            "status": "measured" if measured else "insufficient_passes" if target_bin else "no_paired_measurements",
+            "target_max_delta_sigma": target_bin["max_delta_sigma"] if measured else None,
+            "control_max_delta_sigma": control_bin["max_delta_sigma"] if measured else None,
+            "control_within_3sigma": control_bin["max_delta_sigma"] <= 3 if measured else None})
+    complete_control = bool(comparisons) and all(item["status"] == "measured" for item in comparisons)
+    control_within = all(item["control_within_3sigma"] for item in comparisons) if complete_control else None
+    result = {"target": str(target_name), "control": str(control_name),
+        "target_coordinates_deg": [float(target_ra_deg), float(target_dec_deg)],
+        "control_coordinates_deg": [float(control_ra_deg), float(control_dec_deg)],
+        "status": coverage_status if not frames else "measured" if complete_control and coverage_status == "covered" else "partial",
+        "coverage_status": coverage_status, "coverage_reason": coverage_reason,
+        "control_within_3sigma": control_within,
+        "control_assessment": "not_measured" if not complete_control else
+            "consistent_with_constant_at_3sigma" if control_within else "change_exceeds_3sigma",
+        "target_curve": target_curve, "control_curve": control_curve,
+        "paired_comparisons": comparisons, "frame_pairing": pairing,
+        "frame_ids": ids, "bin_width_um": float(bin_width_um),
+        "physical_flux_validated": False,
+        "acceptance_status": "not_claimed; requires real-data/control/WCS validation"}
+    if output_dir is not None:
+        directory = Path(output_dir)
+        result["outputs"] = {
+            "target": write_lightcurve_outputs(target_curve, directory / "target"),
+            "control": write_lightcurve_outputs(control_curve, directory / "control")}
+        summary = directory / "target_control_comparison.json"
+        result["outputs"]["comparison"] = str(summary)
+        summary.write_text(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
+    return result
 
 
 def write_lightcurve_outputs(result: dict[str, Any], output_dir: str | Path) -> dict[str, str]:
@@ -217,7 +348,8 @@ def _lightcurve_svg(result: dict[str, Any]) -> str:
                 f'<line x1="{x:.2f}" y1="{y1:.2f}" x2="{x:.2f}" y2="{y2:.2f}" stroke="{color}"/>',
                 f'<circle cx="{x:.2f}" cy="{y:.2f}" r="4" fill="{color}"/>',
             ])
-        variable = "variable >3σ" if item.get("variable_gt_3sigma") else "no >3σ change"
+        variable = ("insufficient passes for change" if item.get("variability_status") == "insufficient_passes"
+                    else "variable >3σ" if item.get("variable_gt_3sigma") else "no >3σ change")
         sat = "; saturated-fit present" if item.get("any_saturated") else ""
         parts.append(f'<text x="{right}" y="{ytop + 24}" text-anchor="end" font-size="12" fill="{color}" font-family="sans-serif">{variable}{sat}</text>')
     parts.append('</svg>')

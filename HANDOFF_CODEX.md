@@ -14,7 +14,7 @@ The existing /goal objective remains unfinished. Its backend status was blocked 
 Repository: C:/Users/behlu/planet-x-sphere
 Branch: b/01-03-gaia-fetch
 PR: https://github.com/Bhllcoder1/planet-x-sphere/pull/1 (open/draft)
-Latest Codex pushes: 3b02704 (coordinates and sky photometry), 2838b58 (velocity lattice and handoff).
+Codex pushes include3b02704 (coordinates and sky photometry),2838b58 (velocity lattice),550f56a (separate Codex handoff),d03e125 (pass manifest,ellipse record,OUTLIER comparison). Read Git for the newest head.
 Read the current remote head before pushing; Claude may commit concurrently.
 ClickUp authentication works: extract the pk_ value from the private local token file. Do not read entire lines as the Authorization header, print the token, or commit it. Earlier401 reports were caused by parsing.
 
@@ -26,7 +26,7 @@ ClickUp authentication works: extract the pk_ value from the private local token
 - Earlier batch: 04-02 exact-TAN display stacks, 04-07 OUTLIER promotion, 04-15 rolling displays, 03-06 full covariances/JSON and sparse joint solver. Task-specific reports are under b_astrometri/reports/.
 - Latest ordered batch was static-reviewed only; no new tests or code runs were performed by Codex.
 
-## Active parallel batch
+## Latest parallel batch - source implementation delivered
 
 1. gaia_review: motion/passes.py + reports/04-01-manifest-integration.md. Explicit manifest ingestion, stable IDs, release/version dedup and pass grouping.
 2. next_dependencies: centroid/ellipse.py + reports/03-04-catalog-integration.md. Centered ellipse/catalog output with separate centroid and WCS correction covariance.
@@ -52,4 +52,8 @@ Other-session changes have appeared in gaia/fetch.py, gaia/test_fetch.py, docs/s
 
 ## Next action
 
-Collect current four workers, statically review their owned files without executing tests, push only reviewed files and this Codex handoff, and update PR evidence. Continue the next eligible B work slice. Human decisions, missing corrected-WCS/calibration data and actual target acceptance must stay explicit.
+Four workers delivered pass manifests,centered ellipse records,actual-frame target/control lightcurve integration and OUTLIER comparison. These source-only slices were not executed/tested. Push only reviewed files and this Codex handoff, update PR evidence, and continue the next eligible B slice. Production input data and real target acceptance remain open. User said no new tests, not a blanket ban on production data processing.
+
+Current implementation APIs:load_pass_manifest+group_manifest_passes;position_catalog_record;produce_target_control_lightcurves;compare_outlier_frames+write_outlier_comparison. All four current report files describe exact contracts and pending real-data acceptance. SharedHANDOFF.md remains Claude-owned; Codex must only edit this file for its handoff.
+
+Latest04-12 implementation delivered in lightcurves.py and reports/04-12-photometry-integration.md:target/control photometry uses same actual frames; detector/release/channel-separated curves and shared-pair comparison outputs preserve unmeasured control status. No new tests or code execution for thisslice.
