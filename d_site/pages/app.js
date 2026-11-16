@@ -15,16 +15,15 @@ import Aladin from "../vendor/aladin-lite-3.8.2.js";
 window.A = Aladin;
 
 const ALADIN_SURVEYS = {
-  "dss2-color": { name: "DSS2 Color", url: "https://casda.csiro.au/hips/DSS2/color" },
-  "dss2-red": { name: "DSS2 Red", url: "https://hips.china-vo.org/m/DSS2Merged" },
-  "wise-w1": { name: "AllWISE W1 (3.4 µm)", url: "https://irsa.ipac.caltech.edu/data/hips/CDS/AllWISE/W1" },
-  "wise-w2": { name: "AllWISE W2 (4.6 µm)", url: "https://irsa.ipac.caltech.edu/data/hips/CDS/AllWISE/W2" },
-  "2mass-h": { name: "2MASS H", url: "https://irsa.ipac.caltech.edu/data/hips/CDS/2MASS/H" },
+  "dss2-color": "P/DSS2/color",
+  "dss2-red":   "P/DSS2/red",
+  "wise-w1":    "P/WISE/W1",
+  "wise-w2":    "P/WISE/W2",
+  "2mass-h":    "P/2MASS/H",
 };
 
 function getAladinSurvey(id) {
-  const survey = ALADIN_SURVEYS[id] || ALADIN_SURVEYS["dss2-color"];
-  return Aladin.HiPS(survey.url, { name: survey.name, url: survey.url, cooFrame: "equatorial" });
+  return ALADIN_SURVEYS[id] || ALADIN_SURVEYS["dss2-color"];
 }
 
 function showAladinError(container, text) {
@@ -1432,7 +1431,13 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
 
   // Aladin Lite toggle
   let aladinInst = null;
+  let aladinInitPending = false;
+
   function _doInitAladin(ra, dec, s) {
+    // Always read the current selector value — handles race where user changes
+    // the band while WASM is still loading (aladinInst was null at change time).
+    s = doc.getElementById("sel-aladin-survey")?.value || s;
+    aladinInitPending = false;
     if (!aladinInst) {
       try {
         aladinInst = window.A.aladin("#aladin-lite-div", {
@@ -1455,7 +1460,9 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
     const container = doc.getElementById("aladin-container");
     if (!container) return;
     const s = survey || doc.getElementById("sel-aladin-survey")?.value || "dss2-color";
+    aladinInitPending = true;
     window.A.init.then(() => _doInitAladin(ra, dec, s)).catch(() => {
+      aladinInitPending = false;
       showAladinError(container, "Aladin açılamadı. Tarayıcı WebGL2 desteğini kontrol edin.");
     });
   }
@@ -1475,7 +1482,12 @@ export function initApp(doc = typeof document !== "undefined" ? document : null)
   });
 
   doc.getElementById("sel-aladin-survey")?.addEventListener("change", (e) => {
-    if (aladinInst) aladinInst.setImageSurvey(getAladinSurvey(e.target.value));
+    if (aladinInst) {
+      // Normal case: Aladin already initialized.
+      aladinInst.setImageSurvey(getAladinSurvey(e.target.value));
+    }
+    // If aladinInitPending is true (WASM still loading), _doInitAladin will
+    // re-read the selector when it fires, so no extra action needed here.
   });
 
   // Export CSV (11-02)
