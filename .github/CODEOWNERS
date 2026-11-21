@@ -1,9 +1,9 @@
-# Sahipler (hesap eşleşmesi varsayımdır; yanlışsa bu dosyayı düzeltin)
-/a_veri_isleme/      @Ak1f1881
-/b_astrometri/       @Bhllcoder1
-/c_sunucu/           @newernever
-/ops/                @newernever
-/d_site/             @furkand69
+# Alan sahipleri
+/a_veri_isleme/
+/b_astrometri/
+/c_sunucu/
+/ops/
+/d_site/
 
-# Ortak sözleşmeler üç alanın onayını ister
-/contracts/          @Ak1f1881 @newernever @furkand69
+# Ortak sozlesmeler
+/contracts/
